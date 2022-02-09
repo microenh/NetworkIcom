@@ -1,0 +1,193 @@
+//
+//  PacketConstants.swift
+//  NetworkWWDC2018
+//
+//  Created by Mark Erbaugh on 1/25/22.
+//
+
+import Foundation
+
+
+struct ControlDefinition {
+    static let dataLength = 0x10
+    static let length   = (0x00, 4)
+    static let type     = (0x04, 2)
+    static let sequence = (0x06, 2)
+    static let sendId   = (0x08, 4)
+    static let recvId   = (0x0c, 4)
+}
+
+struct WatchdogDefinition {
+    static let dataLength = 0x14
+    // Control
+    static let secondsA = (0x10, 2)
+    static let secondsB = (0x12, 2)
+}
+
+struct PingDefinition {
+    static let dataLength = 0x15
+    // Control
+    static let request  = (0x10, 1)  // 0 - request, 1 - response
+    static let dataA    = (0x11, 2)
+    static let dataB    = (0x13, 2)
+}
+
+struct OpenCloseDefinition {
+    static let dataLength = 0x16
+    // Control
+    static let data     = (0x10, 2)
+    static let sequence = (0x13, 2)
+    static let request  = (0x15, 1)
+}
+
+struct CIVDefinition {
+    static let headerLength = 0x15
+    // Control
+    static let cmd      = (0x10, 1) // 0xc1
+    static let length   = (0x11, 2) // length of CI-V packet (incl fefe and fd) little-endian
+    static let sequence = (0x13, 2) // radio big-endian, computer little-endian
+    // CI-V string
+}
+
+struct RetransmitDefinition {
+    static let dataLength = 0x18
+    // Control
+    static let first    = (0x10, 2)
+    static let second   = (0x12, 2)
+    static let third    = (0x14, 2)
+    static let fourth   = (0x16, 2)
+}
+
+struct TokenDefinition {
+    static let dataLength = 0x40
+    // Control
+    static let code     = (0x13, 2)
+    static let res      = (0x15, 2)
+    static let sequence = (0x17, 1)
+    static let tokReq   = (0x1a, 2)
+    static let token    = (0x1c, 4)
+    static let commCap  = (0x27, 2)
+    static let reqRep   = (0x29, 1)
+    static let macAddr  = (0x2a, 6)
+}
+
+struct StatusDefinition {
+    static let dataLength = 0x50
+    // Control
+    // Token
+    static let civPort   = (0x40, 4)
+    static let audioPort = (0x44, 4)
+}
+
+struct LoginResponseDefinition {
+    static let dataLength = 0x60
+    // Control
+    // Token
+    static let netType  = (0x40, 16)
+}
+
+struct LoginDefinition {
+    static let dataLength = 0x80
+    // Control
+    // Token
+    static let userName = (0x40, 16)
+    static let password = (0x50, 16)
+    static let computer = (0x60, 16)
+}
+
+struct ConnInfoDefinition {
+    static let dataLength = 0x90
+    // Control
+    // Token
+    // ConnInfo
+    static let radio     = (0x40, 16)
+    static let userName  = (0x60, 16)
+    static let enableRx  = (0x70, 1)
+    static let enableTx  = (0x71, 1)
+    static let rxCodec   = (0x72, 1)
+    static let txCodec   = (0x73, 1)
+    static let rxSamp    = (0x74, 4)
+    static let txSamp    = (0x78, 4)
+    static let civPort   = (0x7c, 4)
+    static let audioPort = (0x80, 4)
+    static let txBuffer  = (0x84, 4)
+    static let convert   = (0x88, 1)
+}
+
+struct CapabilitesDefinition {
+    static let dataLength = 0xa8
+    // Control
+    // Token
+    static let commCap   = (0x49, 1)
+    static let macAddr   = (0x4c, 6)
+    static let radio     = (0x52, 16)
+    static let audio     = (0x72, 16)
+    static let connnType = (0x92, 2)
+    static let civAddr   = (0x94, 1)
+    static let rxSample  = (0x95, 2)
+    static let txSample  = (0x97, 2)
+    static let enableA   = (0x99, 1)
+    static let enableB   = (0x9a, 1)
+    static let enableC   = (0x9b, 1)
+    static let baud      = (0x9c, 4)
+    static let capF      = (0xa0, 2)
+    static let capG      = (0xa3, 2)
+}
+
+// -----------------------------
+
+struct ControlPacketType {
+    static let idle = UInt16(0)
+    static let retransmit = UInt16(1)
+    static let areYouThere = UInt16(3)
+    static let iAmHere = UInt16(4)
+    static let disconnect = UInt16(5)
+    static let areYouReady = UInt16(6)
+    static let iAmReady = UInt16(6)
+}
+
+struct PingPacketType {
+    static let ping = UInt16(7)
+}
+
+struct OpenClosePacketType {
+    static let open = UInt8(4)
+    static let close = UInt8(0)
+}
+
+struct TokenType {
+    static let remove = UInt16(1)
+    static let acknowledge = UInt16(2)
+    static let renew = UInt16(5)
+}
+
+struct CommInfoType {
+    static let commInfo = UInt16(3)
+}
+
+struct CommonCapType {
+    static let commonCap = UInt32(0x8001)
+}
+
+struct CIVCode {
+    static let code = UInt8(0xc1)
+}
+
+struct PacketCode {
+    static let login = UInt16(0x170)
+    static let loginReply = UInt16(0x250)
+    
+    static let token = UInt16(0x130)
+    static let tokenReply = UInt16(0x230)
+    
+    static let connInfo = UInt16(0x180)
+    static let connInforReply = UInt16(0x380)
+    
+    static let status = UInt16(0x240)
+    
+    static let openClose = UInt16(0x1c0)
+    
+    
+    static let civToRadio = UInt16(0x9c1)
+    static let civFromRadio = UInt16(0xbc1)
+}

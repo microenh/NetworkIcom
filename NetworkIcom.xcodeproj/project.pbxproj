@@ -7,13 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4D321E4627B358620023568A /* NetworkIcomApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4527B358620023568A /* NetworkIcomApp.swift */; };
-		4D321E4827B358620023568A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4727B358620023568A /* ContentView.swift */; };
+		4D321E4627B358620023568A /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4527B358620023568A /* MainApp.swift */; };
+		4D321E4827B358620023568A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4727B358620023568A /* MainView.swift */; };
 		4D321E4A27B358630023568A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D321E4927B358630023568A /* Assets.xcassets */; };
 		4D321E4D27B358640023568A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D321E4C27B358640023568A /* Preview Assets.xcassets */; };
 		4D321E5827B358640023568A /* NetworkIcomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E5727B358640023568A /* NetworkIcomTests.swift */; };
 		4D321E6227B358640023568A /* NetworkIcomUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E6127B358640023568A /* NetworkIcomUITests.swift */; };
 		4D321E6427B358640023568A /* NetworkIcomUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E6327B358640023568A /* NetworkIcomUITestsLaunchTests.swift */; };
+		4D321E7127B359110023568A /* UDPControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7027B359110023568A /* UDPControl.swift */; };
+		4D321E7227B359110023568A /* UDPControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7027B359110023568A /* UDPControl.swift */; };
+		4D321E7927B35EE60023568A /* PacketCreateControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7327B35EE60023568A /* PacketCreateControl.swift */; };
+		4D321E7A27B35EE60023568A /* PacketCreateControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7327B35EE60023568A /* PacketCreateControl.swift */; };
+		4D321E7B27B35EE60023568A /* PacketCreateBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7427B35EE60023568A /* PacketCreateBase.swift */; };
+		4D321E7C27B35EE60023568A /* PacketCreateBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7427B35EE60023568A /* PacketCreateBase.swift */; };
+		4D321E7F27B35EE60023568A /* PacketConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7627B35EE60023568A /* PacketConstants.swift */; };
+		4D321E8027B35EE60023568A /* PacketConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7627B35EE60023568A /* PacketConstants.swift */; };
+		4D321E8127B35EE60023568A /* Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7727B35EE60023568A /* Encode.swift */; };
+		4D321E8227B35EE60023568A /* Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7727B35EE60023568A /* Encode.swift */; };
+		4D321E8327B35EE60023568A /* CloseDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7827B35EE60023568A /* CloseDelegate.swift */; };
+		4D321E8427B35EE60023568A /* CloseDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E7827B35EE60023568A /* CloseDelegate.swift */; };
+		4D321E8627B35F250023568A /* DataUIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8527B35F250023568A /* DataUIntExtensions.swift */; };
+		4D321E8727B35F250023568A /* DataUIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8527B35F250023568A /* DataUIntExtensions.swift */; };
+		4D321E8927B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
+		4D321E8A27B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,8 +51,8 @@
 
 /* Begin PBXFileReference section */
 		4D321E4227B358620023568A /* NetworkIcom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkIcom.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4D321E4527B358620023568A /* NetworkIcomApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIcomApp.swift; sourceTree = "<group>"; };
-		4D321E4727B358620023568A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4D321E4527B358620023568A /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
+		4D321E4727B358620023568A /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		4D321E4927B358630023568A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4D321E4C27B358640023568A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4D321E4E27B358640023568A /* NetworkIcom.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NetworkIcom.entitlements; sourceTree = "<group>"; };
@@ -45,6 +61,14 @@
 		4D321E5D27B358640023568A /* NetworkIcomUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkIcomUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D321E6127B358640023568A /* NetworkIcomUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIcomUITests.swift; sourceTree = "<group>"; };
 		4D321E6327B358640023568A /* NetworkIcomUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIcomUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		4D321E7027B359110023568A /* UDPControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPControl.swift; sourceTree = "<group>"; };
+		4D321E7327B35EE60023568A /* PacketCreateControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketCreateControl.swift; sourceTree = "<group>"; };
+		4D321E7427B35EE60023568A /* PacketCreateBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketCreateBase.swift; sourceTree = "<group>"; };
+		4D321E7627B35EE60023568A /* PacketConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketConstants.swift; sourceTree = "<group>"; };
+		4D321E7727B35EE60023568A /* Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Encode.swift; sourceTree = "<group>"; };
+		4D321E7827B35EE60023568A /* CloseDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloseDelegate.swift; sourceTree = "<group>"; };
+		4D321E8527B35F250023568A /* DataUIntExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataUIntExtensions.swift; sourceTree = "<group>"; };
+		4D321E8827B35FE40023568A /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,11 +119,19 @@
 		4D321E4427B358620023568A /* NetworkIcom */ = {
 			isa = PBXGroup;
 			children = (
-				4D321E4527B358620023568A /* NetworkIcomApp.swift */,
-				4D321E4727B358620023568A /* ContentView.swift */,
+				4D321E4527B358620023568A /* MainApp.swift */,
+				4D321E4727B358620023568A /* MainView.swift */,
 				4D321E4927B358630023568A /* Assets.xcassets */,
 				4D321E4E27B358640023568A /* NetworkIcom.entitlements */,
 				4D321E4B27B358640023568A /* Preview Content */,
+				4D321E7027B359110023568A /* UDPControl.swift */,
+				4D321E7827B35EE60023568A /* CloseDelegate.swift */,
+				4D321E7727B35EE60023568A /* Encode.swift */,
+				4D321E7627B35EE60023568A /* PacketConstants.swift */,
+				4D321E7427B35EE60023568A /* PacketCreateBase.swift */,
+				4D321E7327B35EE60023568A /* PacketCreateControl.swift */,
+				4D321E8527B35F250023568A /* DataUIntExtensions.swift */,
+				4D321E8827B35FE40023568A /* Queue.swift */,
 			);
 			path = NetworkIcom;
 			sourceTree = "<group>";
@@ -259,8 +291,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D321E4827B358620023568A /* ContentView.swift in Sources */,
-				4D321E4627B358620023568A /* NetworkIcomApp.swift in Sources */,
+				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
+				4D321E7927B35EE60023568A /* PacketCreateControl.swift in Sources */,
+				4D321E4827B358620023568A /* MainView.swift in Sources */,
+				4D321E8927B35FE40023568A /* Queue.swift in Sources */,
+				4D321E7F27B35EE60023568A /* PacketConstants.swift in Sources */,
+				4D321E7B27B35EE60023568A /* PacketCreateBase.swift in Sources */,
+				4D321E8127B35EE60023568A /* Encode.swift in Sources */,
+				4D321E4627B358620023568A /* MainApp.swift in Sources */,
+				4D321E8627B35F250023568A /* DataUIntExtensions.swift in Sources */,
+				4D321E8327B35EE60023568A /* CloseDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,7 +308,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D321E7C27B35EE60023568A /* PacketCreateBase.swift in Sources */,
+				4D321E7227B359110023568A /* UDPControl.swift in Sources */,
+				4D321E8227B35EE60023568A /* Encode.swift in Sources */,
+				4D321E7A27B35EE60023568A /* PacketCreateControl.swift in Sources */,
+				4D321E8A27B35FE40023568A /* Queue.swift in Sources */,
+				4D321E8727B35F250023568A /* DataUIntExtensions.swift in Sources */,
 				4D321E5827B358640023568A /* NetworkIcomTests.swift in Sources */,
+				4D321E8027B35EE60023568A /* PacketConstants.swift in Sources */,
+				4D321E8427B35EE60023568A /* CloseDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

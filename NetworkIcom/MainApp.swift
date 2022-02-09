@@ -8,10 +8,12 @@
 import SwiftUI
 
 @main
-struct NetworkIcomApp: App {
+struct MainApp: App {
+    @NSApplicationDelegateAdaptor(CloseDelegate.self) var closeDelegate
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }
