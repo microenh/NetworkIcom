@@ -20,10 +20,15 @@ struct MainView: View {
             Text("State: \(control.state)")
             Text("Latency: \(control.latency)")
             Text("Retransmit Count: \(control.retransmitCount)")
+            Text("Max Send Queue: \(control.sendQueueSize)")
             Button("Disconnect") {
                 control.disconnect()
             }
+            Button("Disconnect Packet") {
+                control.disconnectPacket()
+            }
         }
+        .frame(minWidth: 200)
         .padding()
     }
 }

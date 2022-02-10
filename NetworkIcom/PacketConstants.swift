@@ -99,7 +99,6 @@ struct ConnInfoDefinition {
     static let dataLength = 0x90
     // Control
     // Token
-    // ConnInfo
     static let radio     = (0x40, 16)
     static let userName  = (0x60, 16)
     static let enableRx  = (0x70, 1)

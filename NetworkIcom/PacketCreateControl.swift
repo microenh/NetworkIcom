@@ -34,6 +34,7 @@ class PacketCreateControl: PacketCreateBase {
     func tokenPacket(tokenType: UInt16 = TokenType.renew) -> Data {
         typealias c = ControlDefinition
         typealias t = TokenDefinition
+        let seq = sequence
         if _tokenPacket == nil {
             var packet = Data(count: t.dataLength)
             packet[c.length] = Data(UInt32(t.dataLength))
@@ -41,18 +42,17 @@ class PacketCreateControl: PacketCreateBase {
             packet[t.tokReq] = Data(tokRequest)
             packet[t.code] = Data(PacketCode.token)
             packet[t.res] = Data(tokenType)
-            packet[c.sequence] = Data(sequence)
+            packet[c.sequence] = Data(seq)
             packet[t.sequence] = Data(innerSequence)
             if let remoteId = remoteId, let token = token {
                 packet[c.recvId] = Data(remoteId)
                 packet[t.token] = Data(token)
                 _tokenPacket = packet
             }
-            packet[t.res] = Data(tokenType)
             return packet
         } else {
             _tokenPacket![t.res] = Data(tokenType)
-            _tokenPacket![c.sequence] = Data(sequence)
+            _tokenPacket![c.sequence] = Data(seq)
             _tokenPacket![t.sequence] = Data(innerSequence)
             return _tokenPacket!
         }
@@ -90,30 +90,29 @@ class PacketCreateControl: PacketCreateBase {
         return packet
     }
     
-//    func connInfoPacket(replyTo: Data, user: String) -> Data {
-//        typealias c = ControlDefinition
-//        typealias t = TokenDefinition
-//        typealias ci = ConnInfoDefinition
-//        var result = replyTo
-//        result[c.sendId] = replyTo[c.recvId]
-//        result[c.recvId] = replyTo[c.sendId]
-//        result[c.sequence] = replyTo[c.sequence]
-//        result[t.code] = Data(UInt16(0x180))
-//        result[t.res] = Data(UInt16(0x03))
-//        result[t.sequence] = replyTo[t.sequence]
-//        result[ci.userName] = encode(user)
-//        // result[ci.enableRx] = Data(UInt8(0x01))
-//        // result[ci.enableTx] = Data(UInt8(0x01))
-//        // result[ci.rxCodec] = UInt8(0x04).data
-//        // result[ci.txCodec] = UInt8(0x04).data
-//        // result[ci.rxSamp] = UInt32(16000).bigEndian.data
-//        // result[ci.txSamp] = UInt32( 8000).bigEndian.data
-//         result[ci.civPort] = Data(UInt32(50002).bigEndian)
-//        // result[ci.audioPort] = UInt32(50003).bigEndian.data
-//        // result[ci.txBuffer] = UInt32(100).bigEndian.data
-//        result[ci.convert] = Data(UInt8(0x01))
-//        return result
-//    }
+    func connInfoPacket(replyTo: Data) -> Data {
+        typealias c = ControlDefinition
+        typealias t = TokenDefinition
+        typealias ci = ConnInfoDefinition
+        var result = replyTo
+        result[c.sendId] = replyTo[c.recvId]
+        result[c.recvId] = replyTo[c.sendId]
+        result[t.code] = Data(UInt16(0x180))
+        result[t.res] = Data(UInt16(0x03))
+        // result[t.reqRep] = Data(UInt16(0x01))
+        // result[ci.userName] = encode(user)
+        // result[ci.enableRx] = Data(UInt8(0x01))
+        // result[ci.enableTx] = Data(UInt8(0x01))
+        // result[ci.rxCodec] = UInt8(0x04).data
+        // result[ci.txCodec] = UInt8(0x04).data
+        // result[ci.rxSamp] = UInt32(16000).bigEndian.data
+        // result[ci.txSamp] = UInt32( 8000).bigEndian.data
+        // result[ci.civPort] = Data(UInt32(50002).bigEndian)
+        // result[ci.audioPort] = UInt32(50003).bigEndian.data
+        // result[ci.txBuffer] = UInt32(100).bigEndian.data
+        // result[ci.convert] = Data(UInt8(0x01))
+        return result
+    }
     
 //    func connInfoPacket(radioName: String,
 //                        userName: String,

@@ -12,7 +12,7 @@ fileprivate class Settings {
     static let tokenRenewalInterval = 60.0
     static let pingInterval = 3.0
     static let idleInterval = 1.0
-    static let retryInterval = 0.5
+    static let retryInterval = 5.0
     static let retryCount = 4  // resend packet if appropriate response not received
 }
 
@@ -20,6 +20,7 @@ class UDPControl: ObservableObject {
     @Published var latency = 0.0
     @Published var state = ""
     @Published var retransmitCount = 0
+    @Published var sendQueueSize = 0
     
     private var connection: NWConnection?
     
@@ -32,7 +33,7 @@ class UDPControl: ObservableObject {
     
     private var retryPacket = Data()
     
-    private var disconnected = false
+    private var disconnecting = false
     private var haveToken = false
     
     init(host: String, port: UInt16, user: String, password: String, computer: String) {
@@ -54,20 +55,30 @@ class UDPControl: ObservableObject {
         updateState("Connecting...")
     }
     
+    private func invalidateTimers() {
+        pingTimer?.invalidate()
+        idleTimer?.invalidate()
+        resendTimer?.invalidate()
+        tokenRenewTimer?.invalidate()
+    }
+    
     func disconnect() {
         updateState("Disconnecting...")
-        idleTimer?.invalidate()
-        pingTimer?.invalidate()
-        tokenRenewTimer?.invalidate()
-        if haveToken {
-            retryPacket = packetCreate.tokenPacket(tokenType: TokenType.remove)
-            armResendTimer()
-            send(data: retryPacket)
+        self.invalidateTimers()
+        if self.haveToken {
+            self.retryPacket = self.packetCreate.tokenPacket(tokenType: TokenType.remove)
+            self.armResendTimer()
+            self.send(data: self.retryPacket)
         } else {
-            disconnected = true
-            send(data: packetCreate.disconnectPacket())
-            armIdleTimer()
+            self.disconnecting = true
+            self.send(data: self.packetCreate.disconnectPacket())
+            self.armIdleTimer()
         }
+    }
+    
+    func disconnectPacket() {
+        invalidateTimers()
+        send(data: packetCreate.disconnectPacket())
     }
     
     private func updateState(_ state: String) {
@@ -103,16 +114,52 @@ class UDPControl: ObservableObject {
         }
     }
 
-    private func send(data: Data) {
-        connection?.send(content: data, completion: .idempotent)
+//    private func send(data: Data) {
+//        connection?.send(content: data, completion: .idempotent)
+//    }
+    
+    private var sending = false
+    private var sendQueue = Queue<Data>()
+    private func sendNetwork(data: Data) {
+        sending = true
+        connection?.send(content: data, completion: .contentProcessed({ [weak self] error in
+            self?.sending = false
+            if let error = error {
+                print (error)
+            } else {
+                if let toSend = self?.sendQueue.dequeue() {
+                    self?.sendNetwork(data: toSend)
+                }
+            }
+        }))
     }
+    
+    private var maxSendQueue = 0
+    
+    func send(data: Data) {
+        if data.count > 0 {
+            if sendQueue.isEmpty && !sending {
+                sendNetwork(data: data)
+            } else {
+                sendQueue.enqueue(data)
+                if sendQueue.size > maxSendQueue {
+                    maxSendQueue = sendQueue.size
+                    DispatchQueue.main.async { [weak self] in
+                        self?.sendQueueSize = self?.maxSendQueue ?? 0
+                    }
+                }
+            }
+        }
+    }
+        
     
     private var current = Data()
     private func receive(data: Data) {
-        if disconnected {
-            send(data: packetCreate.disconnectPacket())
-            armIdleTimer()
-        }
+//        if disconnecting && !haveToken {
+//            send(data: packetCreate.disconnectPacket())
+//            armIdleTimer()
+//            return
+//        }
         current = data
         if checkRetransmitRequest() {
             return
@@ -134,16 +181,25 @@ class UDPControl: ObservableObject {
             default:
                 break
             }
+        case WatchdogDefinition.dataLength:
+            break
         case PingDefinition.dataLength:
             receivePing()
         case TokenDefinition.dataLength:
             receiveToken()
         case StatusDefinition.dataLength:
+            typealias t = TokenDefinition
+            if current[t.reqRep].uint8 == 0 {
+                send(data: packetCreate.statusPacket(replyTo: current))
+            }
             break
         case LoginResponseDefinition.dataLength:
             receiveLoginResponse()
         case ConnInfoDefinition.dataLength:
-            break
+            typealias t = TokenDefinition
+            if current[t.reqRep].uint8 == 0 {
+                send(data: packetCreate.connInfoPacket(replyTo: current))
+            }
         case CapabilitesDefinition.dataLength:
             haveToken = true
             armTokenRenewTimer()
@@ -158,18 +214,20 @@ class UDPControl: ObservableObject {
     
     private func checkRetransmitRequest() -> Bool {
         typealias p = ControlDefinition
-        if current.count < p.dataLength || current[p.type].uint16 != ControlPacketType.retransmit {
+        if current.count < p.dataLength {
             return false
         }
-        let packets = packetCreate.parseRequest(data: current)
-        packets.forEach { sequence in
-            send(data: packetCreate.getTracked(sequence: sequence))
+        if current[p.type].uint16 == ControlPacketType.retransmit {
+            let packets = packetCreate.parseRequest(data: current)
+            packets.forEach { sequence in
+                send(data: packetCreate.getTracked(sequence: sequence))
+            }
+            DispatchQueue.main.async { [weak self] in
+                self?.retransmitCount += packets.count
+            }
+            return true
         }
-        DispatchQueue.main.async { [weak self] in
-            self?.retransmitCount += packets.count
-        }
-        
-        return true
+        return false
     }
     
     private func receivePing() {
@@ -194,8 +252,11 @@ class UDPControl: ObservableObject {
         resendTimer?.invalidate()
         switch current[t.res].uint16 {
         case TokenType.remove:
+            invalidateTimers()
             haveToken = false
-            disconnected = true
+            disconnecting = true
+            armIdleTimer()
+            send(data: packetCreate.disconnectPacket())
         default:
             break
         }
@@ -251,6 +312,7 @@ class UDPControl: ObservableObject {
     private var lastPingRequestSequence = UInt16(0)
     private func onPingTimer(timer: Timer) {
         typealias c = ControlDefinition
+        typealias p = PingDefinition
         let packet = packetCreate.pingPacket()
         lastPingRequestSequence = packet[c.sequence].uint16
         lastPingRequestSentTime = Date()
@@ -266,9 +328,11 @@ class UDPControl: ObservableObject {
     }
     
     private func onIdleTimer(timer: Timer) {
-        if disconnected {
-            connection?.cancel()
+        if disconnecting {
+            invalidateTimers()
+            disconnecting = false
             updateState("Disconnected")
+            connection?.cancel()
         } else {
             armIdleTimer()
             send(data: packetCreate.idlePacket())
@@ -281,5 +345,6 @@ class UDPControl: ObservableObject {
         armIdleTimer()
         send(data: retryPacket)
         armResendTimer()
+        armTokenRenewTimer()
     }
 }

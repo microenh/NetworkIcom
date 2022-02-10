@@ -36,21 +36,20 @@ class PacketCreateBase {
 
     func idlePacket(withSequence: UInt16? = nil) -> Data {
         typealias p = ControlDefinition
-        let sequence = withSequence ?? sequence
+        let seq = withSequence ?? sequence
         if _idlePacket == nil {
             var packet = Data(count: p.dataLength)
-            
             packet[p.length] = Data(UInt32(p.dataLength))
             packet[p.type] = Data(ControlPacketType.idle)
             packet[p.sendId] = Data(myId)
-            packet[p.sequence] = Data(sequence)
+            packet[p.sequence] = Data(seq)
             if let remoteId = remoteId {
                 packet[p.recvId] = Data(remoteId)
                 _idlePacket = packet
             }
             return packet
         } else {
-            _idlePacket![p.sequence] = Data(sequence)
+            _idlePacket![p.sequence] = Data(seq)
             return _idlePacket!
         }
     }
@@ -135,6 +134,7 @@ class PacketCreateBase {
                 result.append(data[i..<i+2].uint16)
             }
         }
+        print (result)
         return result
     }
     
