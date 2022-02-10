@@ -30,6 +30,7 @@
 		4D321E8727B35F250023568A /* DataUIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8527B35F250023568A /* DataUIntExtensions.swift */; };
 		4D321E8927B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
 		4D321E8A27B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
+		4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424A27B548AB0064882D /* IcomVM.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		4D321E7827B35EE60023568A /* CloseDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloseDelegate.swift; sourceTree = "<group>"; };
 		4D321E8527B35F250023568A /* DataUIntExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataUIntExtensions.swift; sourceTree = "<group>"; };
 		4D321E8827B35FE40023568A /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
+		4DC4424A27B548AB0064882D /* IcomVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcomVM.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 				4D321E4E27B358640023568A /* NetworkIcom.entitlements */,
 				4D321E4B27B358640023568A /* Preview Content */,
 				4D321E7027B359110023568A /* UDPControl.swift */,
+				4DC4424A27B548AB0064882D /* IcomVM.swift */,
 				4D321E7827B35EE60023568A /* CloseDelegate.swift */,
 				4D321E7727B35EE60023568A /* Encode.swift */,
 				4D321E7627B35EE60023568A /* PacketConstants.swift */,
@@ -292,6 +295,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
+				4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */,
 				4D321E7927B35EE60023568A /* PacketCreateControl.swift in Sources */,
 				4D321E4827B358620023568A /* MainView.swift in Sources */,
 				4D321E8927B35FE40023568A /* Queue.swift in Sources */,

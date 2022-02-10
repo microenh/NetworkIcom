@@ -9,23 +9,22 @@ import SwiftUI
 
 struct MainView: View {
     
-    @ObservedObject var control = UDPControl(host: "192.168.12.196",
-                                    port: 50001,
+    @ObservedObject var icomVM = IcomVM(host: "192.168.12.196",
+                                    controlPort: 50001,
                                     user: "n8me",
                                     password: "msrkmsrk",
                                     computer: "MAC-MINI")
     
     var body: some View {
         VStack {
-            Text("State: \(control.state)")
-            Text("Latency: \(control.latency)")
-            Text("Retransmit Count: \(control.retransmitCount)")
-            Text("Max Send Queue: \(control.sendQueueSize)")
-            Button("Disconnect") {
-                control.disconnect()
+            Text("State: \(icomVM.controlState)")
+            Text("Latency: \(icomVM.controlLatency)")
+            Text("Retransmit Count: \(icomVM.controlRetransmitCount)")
+            Button("Connect") {
+                icomVM.connect()
             }
-            Button("Disconnect Packet") {
-                control.disconnectPacket()
+            Button("Disconnect") {
+                icomVM.disconnect()
             }
         }
         .frame(minWidth: 200)

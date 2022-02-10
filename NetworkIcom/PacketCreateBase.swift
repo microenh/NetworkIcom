@@ -134,7 +134,7 @@ class PacketCreateBase {
                 result.append(data[i..<i+2].uint16)
             }
         }
-        print (result)
+        // print (result)
         return result
     }
     

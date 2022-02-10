@@ -8,19 +8,22 @@
 import Foundation
 import Network
 
-fileprivate class Settings {
-    static let tokenRenewalInterval = 60.0
-    static let pingInterval = 3.0
-    static let idleInterval = 1.0
-    static let retryInterval = 5.0
-    static let retryCount = 4  // resend packet if appropriate response not received
-}
+class UDPControl {
+    private class Settings {
+        static let tokenRenewalInterval = 60.0
+        static let pingInterval = 3.0
+        static let idleInterval = 1.0
+        static let retryInterval = 5.0
+    }
+    
+    enum Notifications {
+        case latency(Double)
+        case state(String)
+        case retransmitCount(Int)
+        case disconnected
+        case connected
+    }
 
-class UDPControl: ObservableObject {
-    @Published var latency = 0.0
-    @Published var state = ""
-    @Published var retransmitCount = 0
-    @Published var sendQueueSize = 0
     
     private var connection: NWConnection?
     
@@ -36,7 +39,16 @@ class UDPControl: ObservableObject {
     private var disconnecting = false
     private var haveToken = false
     
-    init(host: String, port: UInt16, user: String, password: String, computer: String) {
+    private var notify: (Notifications) -> ()
+    
+    init(host: String,
+         port: UInt16,
+         user: String,
+         password: String,
+         computer: String,
+         notify: @escaping (Notifications) -> ()) {
+        
+        self.notify = notify
     
         let portObject = NWEndpoint.Port(integerLiteral: port)
         let hostObject = NWEndpoint.Host(host)
@@ -62,29 +74,30 @@ class UDPControl: ObservableObject {
         tokenRenewTimer?.invalidate()
     }
     
+    private var retryShutdown = false
+    
     func disconnect() {
         updateState("Disconnecting...")
-        self.invalidateTimers()
         if self.haveToken {
-            self.retryPacket = self.packetCreate.tokenPacket(tokenType: TokenType.remove)
+            send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
             self.armResendTimer()
-            self.send(data: self.retryPacket)
+            retryShutdown = true
         } else {
+            self.invalidateTimers()
             self.disconnecting = true
             self.send(data: self.packetCreate.disconnectPacket())
             self.armIdleTimer()
         }
     }
     
-    func disconnectPacket() {
-        invalidateTimers()
-        send(data: packetCreate.disconnectPacket())
-    }
+    // force "Hard" disconnect, when normal disconnect fails.
+//    func disconnectPacket() {
+//        invalidateTimers()
+//        send(data: packetCreate.disconnectPacket())
+//    }
     
     private func updateState(_ state: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.state = state
-        }
+        notify(.state(state))
     }
     
     private func stateUpdateHandler(newState: NWConnection.State) {
@@ -114,44 +127,13 @@ class UDPControl: ObservableObject {
         }
     }
 
-//    private func send(data: Data) {
-//        connection?.send(content: data, completion: .idempotent)
-//    }
-    
-    private var sending = false
-    private var sendQueue = Queue<Data>()
-    private func sendNetwork(data: Data) {
-        sending = true
-        connection?.send(content: data, completion: .contentProcessed({ [weak self] error in
-            self?.sending = false
-            if let error = error {
-                print (error)
-            } else {
-                if let toSend = self?.sendQueue.dequeue() {
-                    self?.sendNetwork(data: toSend)
-                }
-            }
-        }))
+    private let sendLock = NSLock()
+    private func send(data: Data) {
+        sendLock.lock()
+        connection?.send(content: data, completion: .idempotent)
+        sendLock.unlock()
     }
     
-    private var maxSendQueue = 0
-    
-    func send(data: Data) {
-        if data.count > 0 {
-            if sendQueue.isEmpty && !sending {
-                sendNetwork(data: data)
-            } else {
-                sendQueue.enqueue(data)
-                if sendQueue.size > maxSendQueue {
-                    maxSendQueue = sendQueue.size
-                    DispatchQueue.main.async { [weak self] in
-                        self?.sendQueueSize = self?.maxSendQueue ?? 0
-                    }
-                }
-            }
-        }
-    }
-        
     
     private var current = Data()
     private func receive(data: Data) {
@@ -212,6 +194,7 @@ class UDPControl: ObservableObject {
         }
     }
     
+    private var totalRetransmit = 0
     private func checkRetransmitRequest() -> Bool {
         typealias p = ControlDefinition
         if current.count < p.dataLength {
@@ -222,9 +205,8 @@ class UDPControl: ObservableObject {
             packets.forEach { sequence in
                 send(data: packetCreate.getTracked(sequence: sequence))
             }
-            DispatchQueue.main.async { [weak self] in
-                self?.retransmitCount += packets.count
-            }
+            totalRetransmit &+= packets.count
+            notify(.retransmitCount(totalRetransmit))
             return true
         }
         return false
@@ -237,9 +219,7 @@ class UDPControl: ObservableObject {
             // response to host ping
             if current[c.sequence].uint16 == lastPingRequestSequence {
                 let lat = lastPingRequestSentTime.timeIntervalSinceNow * -500.0
-                DispatchQueue.main.async { [weak self] in
-                    self?.latency = lat
-                }
+                notify(.latency(lat))
             }
         } else {
             // Ping request from radio
@@ -322,9 +302,9 @@ class UDPControl: ObservableObject {
     }
 
     private func onResendTimer(timer: Timer) {
+        send(data: retryShutdown ? packetCreate.tokenPacket(tokenType: TokenType.remove) : retryPacket)
         armIdleTimer()
         armResendTimer()
-        send(data: retryPacket)
     }
     
     private func onIdleTimer(timer: Timer) {
@@ -332,6 +312,7 @@ class UDPControl: ObservableObject {
             invalidateTimers()
             disconnecting = false
             updateState("Disconnected")
+            notify(.disconnected)
             connection?.cancel()
         } else {
             armIdleTimer()
