@@ -7,6 +7,7 @@
 
 import Foundation
 import Network
+import Combine
 
 class UDPControl {
     private class Settings {
@@ -16,14 +17,10 @@ class UDPControl {
         static let retryInterval = 5.0
     }
     
-    enum Notifications {
-        case latency(Double)
-        case state(String)
-        case retransmitCount(Int)
-        case disconnected
-        case connected
-    }
-
+    private(set) var latency = CurrentValueSubject<Double, Never>(0.0)
+    private(set) var state = CurrentValueSubject<String, Never>("")
+    private(set) var retransmitCount = CurrentValueSubject<Int, Never>(0)
+    private(set) var disconnected = PassthroughSubject<Bool, Never>()
     
     private var connection: NWConnection?
     
@@ -39,17 +36,12 @@ class UDPControl {
     private var disconnecting = false
     private var haveToken = false
     
-    private var notify: (Notifications) -> ()
-    
     init(host: String,
          port: UInt16,
          user: String,
          password: String,
-         computer: String,
-         notify: @escaping (Notifications) -> ()) {
+         computer: String) {
         
-        self.notify = notify
-    
         let portObject = NWEndpoint.Port(integerLiteral: port)
         let hostObject = NWEndpoint.Host(host)
 
@@ -64,7 +56,7 @@ class UDPControl {
         connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
         connection?.start(queue: DispatchQueue.global())
         
-        updateState("Connecting...")
+        state.value = "Connecting..."
     }
     
     private func invalidateTimers() {
@@ -77,7 +69,7 @@ class UDPControl {
     private var retryShutdown = false
     
     func disconnect() {
-        updateState("Disconnecting...")
+        state.value = "Disconnecting..."
         if self.haveToken {
             send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
             self.armResendTimer()
@@ -90,15 +82,11 @@ class UDPControl {
         }
     }
     
-    // force "Hard" disconnect, when normal disconnect fails.
+//    // force "Hard" disconnect, when normal disconnect fails.
 //    func disconnectPacket() {
 //        invalidateTimers()
 //        send(data: packetCreate.disconnectPacket())
 //    }
-    
-    private func updateState(_ state: String) {
-        notify(.state(state))
-    }
     
     private func stateUpdateHandler(newState: NWConnection.State) {
         switch newState {
@@ -106,6 +94,7 @@ class UDPControl {
             startReceive()
             startConnection()
         case .failed(_), .cancelled:
+            disconnected.send(true)
             connection = nil
             break
         default:
@@ -117,8 +106,9 @@ class UDPControl {
         connection?.receiveMessage { [weak self] content, context, isComplete, error in
             if let self = self {
                 guard error == nil, let content = content else {
-                    // self.updateState(error?.localizedDescription ?? "connection error")
-                    // self.connection?.cancel()
+                    self.state.value = error?.localizedDescription ?? "connection error"
+                    self.connection?.cancel()
+                    self.disconnected.send(true)
                     return
                 }
                 self.receive(data: content)
@@ -127,11 +117,10 @@ class UDPControl {
         }
     }
 
-    private let sendLock = NSLock()
     private func send(data: Data) {
-        sendLock.lock()
+        Locks.sendLock.lock()
         connection?.send(content: data, completion: .idempotent)
-        sendLock.unlock()
+        Locks.sendLock.unlock()
     }
     
     
@@ -159,7 +148,7 @@ class UDPControl {
                 armResendTimer()
                 retryPacket = packetCreate.loginPacket()
                 send(data: retryPacket)
-                updateState("Logging in...")
+                state.value = "Logging in..."
             default:
                 break
             }
@@ -187,7 +176,7 @@ class UDPControl {
             armTokenRenewTimer()
             armPingTimer()
             armIdleTimer()
-            updateState("Connected")
+            state.value = "Connected"
             resendTimer?.invalidate()
         default:
             break
@@ -206,7 +195,7 @@ class UDPControl {
                 send(data: packetCreate.getTracked(sequence: sequence))
             }
             totalRetransmit &+= packets.count
-            notify(.retransmitCount(totalRetransmit))
+            retransmitCount.value = totalRetransmit
             return true
         }
         return false
@@ -219,7 +208,8 @@ class UDPControl {
             // response to host ping
             if current[c.sequence].uint16 == lastPingRequestSequence {
                 let lat = lastPingRequestSentTime.timeIntervalSinceNow * -500.0
-                notify(.latency(lat))
+                // notify(.latency(lat))
+                latency.value = lat
             }
         } else {
             // Ping request from radio
@@ -251,7 +241,7 @@ class UDPControl {
         packetCreate.track(data: retryPacket)
         send(data: retryPacket)
         armResendTimer()
-        updateState("Getting Token")
+        state.value = "Getting Token"
     }
 
     private func startConnection() {
@@ -311,8 +301,8 @@ class UDPControl {
         if disconnecting {
             invalidateTimers()
             disconnecting = false
-            updateState("Disconnected")
-            notify(.disconnected)
+            state.value = "Disconnected"
+            disconnected.send(true)
             connection?.cancel()
         } else {
             armIdleTimer()

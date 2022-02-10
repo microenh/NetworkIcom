@@ -7,11 +7,12 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class IcomVM: ObservableObject {
     
     @Published var controlLatency = 0.0
-    @Published var controlState = "Disconnected"
+    @Published var controlState = ""
     @Published var controlRetransmitCount = 0
     
     private let host: String
@@ -20,28 +21,7 @@ class IcomVM: ObservableObject {
     private let password: String
     private let computer: String
 
-    private func notifyControl(notification: UDPControl.Notifications) {
-        switch notification {
-        case .latency(let latency):
-            DispatchQueue.main.async { [weak self] in
-                self?.controlLatency = latency
-            }
-        case .state(let state):
-            DispatchQueue.main.async { [weak self] in
-                self?.controlState = state
-            }
-        case .retransmitCount(let count):
-            DispatchQueue.main.async { [weak self] in
-                self?.controlRetransmitCount = count
-            }
-        case .disconnected:
-            control = nil
-        case .connected:
-            break
-        }
-    }
-    
-    private var control: UDPControl?
+    var control: UDPControl?
     
     init(host: String,
          controlPort: UInt16,
@@ -54,14 +34,36 @@ class IcomVM: ObservableObject {
         self.user = user
         self.password = password
         self.computer = computer
+        
     }
+    
+    private var controlCancellables: Set<AnyCancellable?> = []
     
     func connect() {
         control = UDPControl(host: host,
                              port: controlPort,
                              user: user,
                              password: password,
-                             computer: computer, notify: notifyControl)
+                             computer: computer)
+        setupControlSinks()
+    }
+    
+    private func setupControlSinks() {
+        controlCancellables.insert(control?.latency.receive(on: DispatchQueue.main).sink { [weak self] latency in
+            self?.controlLatency = latency
+        })
+        controlCancellables.insert(control?.state.receive(on: DispatchQueue.main).sink { [weak self] state in
+            self?.controlState = state
+        })
+        controlCancellables.insert(control?.retransmitCount.receive(on: DispatchQueue.main).sink { [weak self] count in
+            self?.controlRetransmitCount = count
+        })
+        controlCancellables.insert(control?.disconnected.receive(on: DispatchQueue.main).sink { [weak self] disconnected in
+            if disconnected {
+                self?.control = nil
+                self?.controlCancellables = []
+            }
+        })
     }
     
     func disconnect() {

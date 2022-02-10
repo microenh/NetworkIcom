@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct MainView: View {
     
@@ -20,6 +21,7 @@ struct MainView: View {
             Text("State: \(icomVM.controlState)")
             Text("Latency: \(icomVM.controlLatency)")
             Text("Retransmit Count: \(icomVM.controlRetransmitCount)")
+    
             Button("Connect") {
                 icomVM.connect()
             }
