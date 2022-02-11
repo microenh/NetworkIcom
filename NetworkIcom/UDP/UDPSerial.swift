@@ -11,8 +11,6 @@ import Combine
 
 class UDPSerial: UDPBase {
     
-    private(set) var civData = CurrentValueSubject<Data, Never>(Data())
-    
     private(set) var civDecode: CIVDecode
 
     init(host: String, port: UInt16,
@@ -20,12 +18,11 @@ class UDPSerial: UDPBase {
          radioCivAddr: UInt8, hostCivAddr: UInt8) {
         
         civDecode = CIVDecode(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
-        
         super.init(host: host, port: port, user: user, password: password, computer: computer)
     }
     
     func disconnect() {
-        state.value = "Disconnecting..."
+        udpBasePublishedData.send(.state("Disconnecting..."))
         self.invalidateTimers()
         self.disconnecting = true
         self.send(data: self.packetCreate.openClosePacket(open: false))
@@ -40,7 +37,6 @@ class UDPSerial: UDPBase {
         }
         if current.count > c.headerLength && current[c.cmd].uint8 == CIVCode.code {
             let civ = current.dropFirst(c.headerLength)
-            civData.value = civ
             civDecode.decode(civData: civ)
             return
         }
@@ -57,8 +53,8 @@ class UDPSerial: UDPBase {
                 armResendTimer()
                 let packet = packetCreate.openClosePacket(open: true)
                 send(data: packet)
-                state.value = "Connected"
-                connected.send(true)
+                udpBasePublishedData.send(.state("Connected"))
+                udpBasePublishedData.send(.connected(true))
                 armIdleTimer()
                 armPingTimer()
             default:

@@ -41,8 +41,9 @@ struct MainView: View {
                 Text("State: \(icomVM.serialState)")
                 Text("Latency: \(icomVM.serialLatency)")
                 Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
-                Text("CI-V Data Len: \(icomVM.civData.count)")
                 Text("Frequency: \(icomVM.frequency)")
+                Text(icomVM.modeFilter.description)
+                Text(icomVM.attenuation.description)
                 Button("Connect") {
                     icomVM.connectSerial()
                 }

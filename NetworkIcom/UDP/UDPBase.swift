@@ -16,10 +16,14 @@ class UDPBase {
         static let retryInterval = 5.0
     }
     
-    var latency = CurrentValueSubject<Double, Never>(0.0)
-    var state = CurrentValueSubject<String, Never>("")
-    var retransmitCount = CurrentValueSubject<Int, Never>(0)
-    var connected = PassthroughSubject<Bool, Never>()
+    enum UDPBasePublishedData {
+        case latency(Double)
+        case state(String)
+        case retransmitCount(Int)
+        case connected(Bool)
+    }
+    
+    var udpBasePublishedData = PassthroughSubject<UDPBasePublishedData, Never>()
     
     var connection: NWConnection?
     var packetCreate: PacketCreate
@@ -48,7 +52,7 @@ class UDPBase {
         connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
         connection?.start(queue: DispatchQueue.global())
         
-        state.value = "Connecting..."
+        udpBasePublishedData.send(.state("Connecting"))
     }
     
     func invalidateTimers() {
@@ -63,7 +67,7 @@ class UDPBase {
             startReceive()
             startConnection()
         case .failed(_), .cancelled:
-            connected.send(false)
+            udpBasePublishedData.send(.connected(false))
             connection = nil
             break
         default:
@@ -75,9 +79,9 @@ class UDPBase {
         connection?.receiveMessage { [weak self] content, context, isComplete, error in
             if let self = self {
                 guard error == nil, let content = content else {
-                    self.state.value = error?.localizedDescription ?? "connection error"
+                    self.udpBasePublishedData.send(.state(error?.localizedDescription ?? "connection error"))
                     self.connection?.cancel()
-                    self.connected.send(false)
+                    self.udpBasePublishedData.send(.connected(false))
                     return
                 }
                 self.receive(data: content)
@@ -142,8 +146,7 @@ class UDPBase {
             // response to host ping
             if current[c.sequence].uint16 == lastPingRequestSequence {
                 let lat = lastPingRequestSentTime.timeIntervalSinceNow * -500.0
-                // notify(.latency(lat))
-                latency.value = lat
+                udpBasePublishedData.send(.latency(lat))
             }
         } else {
             // Ping request from radio
@@ -163,7 +166,7 @@ class UDPBase {
                 send(data: getTracked(sequence: sequence))
             }
             totalRetransmit &+= packets.count
-            retransmitCount.value = totalRetransmit
+            udpBasePublishedData.send(.retransmitCount(totalRetransmit))
             return true
         }
         return false
@@ -179,8 +182,8 @@ class UDPBase {
         if disconnecting {
             invalidateTimers()
             disconnecting = false
-            state.value = "Disconnected"
-            connected.send(false)
+            udpBasePublishedData.send(.state("Disconnected"))
+            udpBasePublishedData.send(.connected(false))
             connection?.cancel()
         } else {
             armIdleTimer()

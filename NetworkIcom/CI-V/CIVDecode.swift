@@ -10,7 +10,13 @@ import Combine
 
 class CIVDecode {
     
-    private(set) var frequency = CurrentValueSubject<Int, Never>(0)
+    enum CIVDecodePublishedData {
+        case frequency(Int)
+        case modeFilter(ModeFilter)
+        case attenuation(Attenuation)
+    }
+    
+    var civDecodePublishedData = PassthroughSubject<CIVDecodePublishedData, Never>()
     
     private let radioCivAddr: UInt8
     private let hostCivAddr: UInt8
@@ -23,13 +29,11 @@ class CIVDecode {
     func decode(civData: Data) {
         switch civData[civData.startIndex + 4] {
         case 0x00, 0x03:
-            frequency.value = Int(frequencyBuffer: civData.dropFirst(5))
+            civDecodePublishedData.send(.frequency(Int(frequencyBuffer: civData.dropFirst(5))))
         case 0x01, 0x04:
-            // updateVM(.modeFilter(ModeFilter(buffer: civ.dropFirst(5))))
-            break
+            civDecodePublishedData.send(.modeFilter(ModeFilter(buffer: civData.dropFirst(5))))
         case 0x11:
-            // updateVM(.attenuation(Attenuation(buffer: civ.dropFirst(5))))
-            break
+            civDecodePublishedData.send(.attenuation(Attenuation(buffer: civData.dropFirst(5))))
         case 0xfa:  // NAK
             print ("NAK")
             break
@@ -39,8 +43,6 @@ class CIVDecode {
             
         default:
             civData.dump()
-        }
-
-        
+        }        
     }
 }

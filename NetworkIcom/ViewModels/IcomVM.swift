@@ -18,8 +18,9 @@ class IcomVM: ObservableObject {
     @Published var serialLatency = 0.0
     @Published var serialState = ""
     @Published var serialRetransmitCount = 0
-    @Published var civData = Data()
     @Published var frequency = 0
+    @Published var modeFilter = ModeFilter(mode: .lsb, filter: .fil1)
+    @Published var attenuation = Attenuation.attOff
 
     private let host: String
     private let controlPort: UInt16
@@ -49,82 +50,91 @@ class IcomVM: ObservableObject {
         self.hostCivAddr = hostCivAddr
     }
     
-    
+    private var controlCancellables: Set<AnyCancellable> = []
     func connectControl() {
         control = UDPControl(host: host,
                              port: controlPort,
                              user: user,
                              password: password,
                              computer: computer)
-        setupControlSinks()
+        control?.udpBasePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateControlBaseData(data)
+        }.store(in: &controlCancellables)
+        control?.udpControlPublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateControlData(data)
+        }.store(in: &controlCancellables)
     }
     
     func disconnectControl() {
         control?.disconnect()
     }
-    
-    private var controlCancellables: Set<AnyCancellable?> = []
-    private func setupControlSinks() {
-        controlCancellables.insert(control?.latency.receive(on: DispatchQueue.main).sink { [weak self] latency in
-            self?.controlLatency = latency
-        })
-        controlCancellables.insert(control?.state.receive(on: DispatchQueue.main).sink { [weak self] state in
-            self?.controlState = state
-        })
-        controlCancellables.insert(control?.retransmitCount.receive(on: DispatchQueue.main).sink { [weak self] count in
-            self?.controlRetransmitCount = count
-        })
-        controlCancellables.insert(control?.radioCivAddr.receive(on: DispatchQueue.main).sink { [weak self] civID in
-            self?.radioCivAddr = civID
-        })
-        controlCancellables.insert(control?.connected.receive(on: DispatchQueue.main).sink { [weak self] connected in
+        
+    private func updateControlBaseData(_ data: UDPBase.UDPBasePublishedData) {
+        switch data {
+        case .latency(let latency):
+            self.controlLatency = latency
+        case .state(let state):
+            self.controlState = state
+        case .retransmitCount(let count):
+            self.controlRetransmitCount = count
+        case .connected(let connected):
             if connected {
             } else {
-                self?.control = nil
-                self?.controlCancellables = []
+                control = nil
+                controlCancellables = []
             }
-        })
+        }
     }
     
+    private func updateControlData(_ data: UDPControl.UDPControlPublishedData) {
+        switch data {
+        case .radioCivAddr(let addr):
+            radioCivAddr = addr
+        }
+    }
+    
+    private var serialCancellables: Set<AnyCancellable> = []
     func connectSerial() {
         serial = UDPSerial(host: host, port: serialPort,
                            user: user, password: password, computer: computer,
                            radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr)
-        setupSerialSinks()
-        setupRadioSinks()
+        serial?.udpBasePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateSerialData(data)
+        }.store(in: &serialCancellables)
+        serial?.civDecode.civDecodePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateCIVData(data)
+        }.store(in: &serialCancellables)
     }
     
     func disconnectSerial() {
         serial?.disconnect()
     }
     
-    private var serialCancellables: Set<AnyCancellable?> = []
-    private func setupSerialSinks() {
-        serialCancellables.insert(serial?.latency.receive(on: DispatchQueue.main).sink { [weak self] latency in
-            self?.serialLatency = latency
-        })
-        serialCancellables.insert(serial?.state.receive(on: DispatchQueue.main).sink { [weak self] state in
-            self?.serialState = state
-        })
-        serialCancellables.insert(serial?.retransmitCount.receive(on: DispatchQueue.main).sink { [weak self] count in
-            self?.serialRetransmitCount = count
-        })
-        serialCancellables.insert(serial?.civData.receive(on: DispatchQueue.main).sink { [weak self] civData in
-            self?.civData = civData
-        })
-        serialCancellables.insert(serial?.connected.receive(on: DispatchQueue.main).sink { [weak self] connected in
+    private func updateSerialData(_ data: UDPBase.UDPBasePublishedData) {
+        switch data {
+        case .latency(let latency):
+            self.serialLatency = latency
+        case .state(let state):
+            self.serialState = state
+        case .retransmitCount(let count):
+            self.serialRetransmitCount = count
+        case .connected(let connected):
             if connected {
             } else {
-                self?.serial = nil
-                self?.serialCancellables = []
+                serial = nil
+                serialCancellables = []
             }
-        })
+        }
     }
     
-    private func setupRadioSinks() {
-        serialCancellables.insert(serial?.civDecode.frequency.receive(on: DispatchQueue.main).sink { [weak self] frequency in
-            self?.frequency = frequency
-        })
+    private func updateCIVData(_ data: CIVDecode.CIVDecodePublishedData) {
+        switch data {
+        case .frequency(let frequency):
+            self.frequency = frequency
+        case .modeFilter(let modeFilter):
+            self.modeFilter = modeFilter
+        case .attenuation(let attenuation):
+            self.attenuation = attenuation
+        }
     }
-    
 }

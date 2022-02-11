@@ -14,7 +14,11 @@ class UDPControl: UDPBase {
         static let tokenRenewalInterval = 60.0
     }
     
-    private(set) var radioCivAddr = CurrentValueSubject<UInt8, Never>(0)
+    enum UDPControlPublishedData {
+        case radioCivAddr(UInt8)
+    }
+    
+    var udpControlPublishedData = PassthroughSubject<UDPControlPublishedData, Never>()
     
     private var tokenRenewTimer: Timer?
     
@@ -34,7 +38,7 @@ class UDPControl: UDPBase {
     private var retryShutdown = false
     
     func disconnect() {
-        state.value = "Disconnecting..."
+        udpBasePublishedData.send(.state("Disconnecting..."))
         if self.haveToken {
             send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
             self.armResendTimer()
@@ -76,8 +80,8 @@ class UDPControl: UDPBase {
             case ControlPacketType.iAmReady:
                 armResendTimer()
                 retryPacket = packetCreate.loginPacket()
-                send(data: retryPacket)
-                state.value = "Logging in..."
+              send(data: retryPacket)
+                udpBasePublishedData.send(.state("Logging in..."))
             default:
                 break
             }
@@ -106,9 +110,9 @@ class UDPControl: UDPBase {
             armTokenRenewTimer()
             armPingTimer()
             armIdleTimer()
-            radioCivAddr.value = current[c.civAddr].uint8
-            state.value = "Connected"
-            connected.send(true)
+            udpControlPublishedData.send(.radioCivAddr(current[c.civAddr].uint8))
+            udpBasePublishedData.send(.state("Connected"))
+            udpBasePublishedData.send(.connected(true))
             resendTimer?.invalidate()
         default:
             break
@@ -139,7 +143,7 @@ class UDPControl: UDPBase {
         track(data: retryPacket)
         send(data: retryPacket)
         armResendTimer()
-        state.value = "Getting Token"
+        udpBasePublishedData.send(.state("Getting Token"))
     }
 
     private func armTokenRenewTimer() {
