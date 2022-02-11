@@ -42,7 +42,7 @@ struct MainView: View {
                 Text("Latency: \(icomVM.serialLatency)")
                 Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
                 Text("CI-V Data Len: \(icomVM.civData.count)")
-        
+                Text("Frequency: \(icomVM.frequency)")
                 Button("Connect") {
                     icomVM.connectSerial()
                 }

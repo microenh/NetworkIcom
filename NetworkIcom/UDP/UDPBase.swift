@@ -31,8 +31,21 @@ class UDPBase {
     
     var disconnecting = false
 
+    init(host: String, port: UInt16) {
+        let portObject = NWEndpoint.Port(integerLiteral: port)
+        let hostObject = NWEndpoint.Host(host)
 
-    // init() {}
+        let params = NWParameters.udp
+        params.allowFastOpen = true
+        params.allowLocalEndpointReuse = true
+        params.requiredLocalEndpoint = NWEndpoint.hostPort(host: .ipv4(.any), port: portObject)
+
+        connection = NWConnection(host: hostObject, port: portObject, using: params)
+        connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
+        connection?.start(queue: DispatchQueue.global())
+        
+        state.value = "Connecting..."
+    }
     
     func invalidateTimers() {
         pingTimer?.invalidate()

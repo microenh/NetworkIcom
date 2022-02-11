@@ -19,6 +19,7 @@ class IcomVM: ObservableObject {
     @Published var serialState = ""
     @Published var serialRetransmitCount = 0
     @Published var civData = Data()
+    @Published var frequency = 0
 
     private let host: String
     private let controlPort: UInt16
@@ -91,6 +92,7 @@ class IcomVM: ObservableObject {
                            radioCivAddr: radioCivAddr,
                            hostCivAddr: hostCivAddr)
         setupSerialSinks()
+        setupRadioSinks()
     }
     
     func disconnectSerial() {
@@ -117,6 +119,12 @@ class IcomVM: ObservableObject {
                 self?.serial = nil
                 self?.serialCancellables = []
             }
+        })
+    }
+    
+    private func setupRadioSinks() {
+        serialCancellables.insert(serial?.civDecode.frequency.receive(on: DispatchQueue.main).sink { [weak self] frequency in
+            self?.frequency = frequency
         })
     }
     

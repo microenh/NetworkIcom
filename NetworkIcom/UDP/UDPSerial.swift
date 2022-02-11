@@ -14,35 +14,17 @@ class UDPSerial: UDPBase {
     private(set) var civData = CurrentValueSubject<Data, Never>(Data())
     
     private var packetCreate: PacketCreateSerial
+    private(set) var civDecode: CIVDecode
 
-    private var radioCivAddr: UInt8
-    private var hostCivAddr: UInt8
-    
     init(host: String,
          port: UInt16,
          radioCivAddr: UInt8,
          hostCivAddr: UInt8) {
         
-        self.radioCivAddr = radioCivAddr
-        self.hostCivAddr = hostCivAddr
-        
-        let portObject = NWEndpoint.Port(integerLiteral: port)
-        let hostObject = NWEndpoint.Host(host)
-
-        let params = NWParameters.udp
-        params.allowFastOpen = true
-        params.allowLocalEndpointReuse = true
-        params.requiredLocalEndpoint = NWEndpoint.hostPort(host: .ipv4(.any), port: portObject)
+        civDecode = CIVDecode(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
         
         packetCreate = PacketCreateSerial()
-
-        super.init()
-        
-        connection = NWConnection(host: hostObject, port: portObject, using: params)
-        connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
-        connection?.start(queue: DispatchQueue.global())
-        
-        state.value = "Connecting..."
+        super.init(host: host, port: port)
     }
     
     func disconnect() {
@@ -52,15 +34,7 @@ class UDPSerial: UDPBase {
         self.send(data: self.packetCreate.openClosePacket(open: false))
         self.armIdleTimer()
     }
-    
-//    // force "Hard" disconnect, when normal disconnect fails.
-//    func disconnectPacket() {
-//        invalidateTimers()
-//        send(data: packetCreate.disconnectPacket())
-//    }
-    
-     
-    
+        
     override func receive(data: Data) {
         typealias c = CIVDefinition
         current = data
@@ -68,7 +42,9 @@ class UDPSerial: UDPBase {
             return
         }
         if current.count > c.headerLength && current[c.cmd].uint8 == CIVCode.code {
-            civData.value = current.dropFirst(c.headerLength)
+            let civ = current.dropFirst(c.headerLength)
+            civData.value = civ
+            civDecode.decode(civData: civ)
             return
         }
         switch current.count {

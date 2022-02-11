@@ -38,21 +38,3 @@ extension Int {
         Double(self) * 0.1
     }
 }
-
-//extension Icom7610Interface {
-//    
-//    func processFrequency() {
-//        let f = Int(frequencyBuffer: inDataBuffer.dropFirst(1))
-//        updateData(.receiveFrequency(f))
-//    }
-//    
-//    func requestFrequency() {
-//        request(command: 0x03)
-//    }
-//    
-//    func sendFrequency(frequency: Int) {
-//        request(command: 0x03, data: frequency.frequencyBuffer)
-//    }
-//    
-//}
-//

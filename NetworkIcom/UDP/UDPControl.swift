@@ -28,24 +28,8 @@ class UDPControl: UDPBase {
          password: String,
          computer: String) {
         
-        let portObject = NWEndpoint.Port(integerLiteral: port)
-        let hostObject = NWEndpoint.Host(host)
-
-        let params = NWParameters.udp
-        params.allowFastOpen = true
-        params.allowLocalEndpointReuse = true
-        params.requiredLocalEndpoint = NWEndpoint.hostPort(host: .ipv4(.any), port: portObject)
-        
         packetCreate = PacketCreateControl(user: user, password: password, computer: computer)
-        
-        super.init()
-
-        connection = NWConnection(host: hostObject, port: portObject, using: params)
-        connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
-        connection?.start(queue: DispatchQueue.global())
-        
-        
-        state.value = "Connecting..."
+        super.init(host: host, port: port)
     }
     
     override func invalidateTimers() {
