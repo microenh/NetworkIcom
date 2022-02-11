@@ -47,6 +47,7 @@ struct CIVDefinition {
     static let length   = (0x11, 2) // length of CI-V packet (incl fefe and fd) little-endian
     static let sequence = (0x13, 2) // radio big-endian, computer little-endian
     // CI-V string
+    // sample packet: 1e0000000000900fc5ad823e0c7fc352 c1 0900 000d fefee09815020000fd
 }
 
 struct RetransmitDefinition {

@@ -19,8 +19,8 @@ class PacketCreateBase {
     private var _sequence = UInt16(0)
     private var _pingSequence = UInt16(0)
     
-    private var retransmitSequences = Queue<UInt16>()
-    private var retransmitData = [UInt16: Data]()
+//    private var retransmitSequences = Queue<UInt16>()
+//    private var retransmitData = [UInt16: Data]()
         
     // ------------------------------------------------------------------
     
@@ -124,36 +124,36 @@ class PacketCreateBase {
         return packet
     }
     
-    func parseRequest(data: Data) -> [UInt16] {
-        var result = [UInt16]()
-        typealias p = ControlDefinition
-        if data.count == p.dataLength {
-            result.append(data[p.sequence].uint16)
-        } else {
-            for i in stride(from: 16, to: data.count, by: 4) {
-                result.append(data[i..<i+2].uint16)
-            }
-        }
-        // print (result)
-        return result
-    }
-    
-    private static let queueSize = 20
-    
-    func track(data: Data) {
-        typealias c = ControlDefinition
-        let sequence = data[c.sequence].uint16
-        if retransmitSequences.size == PacketCreateBase.queueSize {
-            if let oldSequence = retransmitSequences.dequeue() {
-                _ = retransmitData.removeValue(forKey: oldSequence)
-            }
-        }
-        retransmitSequences.enqueue(sequence)
-        retransmitData[sequence] = data
-    }
-    
-    func getTracked(sequence: UInt16) -> Data {
-        retransmitData[sequence] ?? idlePacket(withSequence: sequence)
-    }
+//    func parseRequest(data: Data) -> [UInt16] {
+//        var result = [UInt16]()
+//        typealias p = ControlDefinition
+//        if data.count == p.dataLength {
+//            result.append(data[p.sequence].uint16)
+//        } else {
+//            for i in stride(from: 16, to: data.count, by: 4) {
+//                result.append(data[i..<i+2].uint16)
+//            }
+//        }
+//        // print (result)
+//        return result
+//    }
+//    
+//    private static let queueSize = 20
+//    
+//    func track(data: Data) {
+//        typealias c = ControlDefinition
+//        let sequence = data[c.sequence].uint16
+//        if retransmitSequences.size == PacketCreateBase.queueSize {
+//            if let oldSequence = retransmitSequences.dequeue() {
+//                _ = retransmitData.removeValue(forKey: oldSequence)
+//            }
+//        }
+//        retransmitSequences.enqueue(sequence)
+//        retransmitData[sequence] = data
+//    }
+//    
+//    func getTracked(sequence: UInt16) -> Data {
+//        retransmitData[sequence] ?? idlePacket(withSequence: sequence)
+//    }
 
 }
