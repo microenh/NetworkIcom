@@ -18,18 +18,12 @@ class UDPControl: UDPBase {
     
     private var tokenRenewTimer: Timer?
     
-    private var packetCreate: PacketCreateControl
-    
     private var haveToken = false
     
-    init(host: String,
-         port: UInt16,
-         user: String,
-         password: String,
-         computer: String) {
+    override init(host: String, port: UInt16,
+         user: String, password: String, computer: String) {
         
-        packetCreate = PacketCreateControl(user: user, password: password, computer: computer)
-        super.init(host: host, port: port)
+        super.init(host: host, port: port, user: user, password: password, computer: computer)
     }
     
     override func invalidateTimers() {
@@ -164,26 +158,4 @@ class UDPControl: UDPBase {
         armTokenRenewTimer()
     }
     
-    // -----
-    
-    override func createAreYouTherePacket() -> Data {
-        packetCreate.areYouTherePacket()
-    }
-    
-    override func createPingPacket() -> Data {
-        packetCreate.pingPacket()
-    }
-    
-    override func createPingPacket(replyTo: Data) -> Data {
-        packetCreate.pingPacket(replyTo: replyTo)
-    }
-    
-    override func createIdlePacket() -> Data {
-        packetCreate.idlePacket()
-    }
-
-    override func createIdlePacket(withSequence: UInt16) -> Data {
-        packetCreate.idlePacket(withSequence: withSequence)
-    }
-
 }

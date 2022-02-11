@@ -87,10 +87,9 @@ class IcomVM: ObservableObject {
     }
     
     func connectSerial() {
-        serial = UDPSerial(host: host,
-                           port: serialPort,
-                           radioCivAddr: radioCivAddr,
-                           hostCivAddr: hostCivAddr)
+        serial = UDPSerial(host: host, port: serialPort,
+                           user: user, password: password, computer: computer,
+                           radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr)
         setupSerialSinks()
         setupRadioSinks()
     }

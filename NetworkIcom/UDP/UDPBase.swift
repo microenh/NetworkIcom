@@ -22,6 +22,7 @@ class UDPBase {
     var connected = PassthroughSubject<Bool, Never>()
     
     var connection: NWConnection?
+    var packetCreate: PacketCreate
     
     var idleTimer: Timer?
     var pingTimer: Timer?
@@ -31,7 +32,8 @@ class UDPBase {
     
     var disconnecting = false
 
-    init(host: String, port: UInt16) {
+    init(host: String, port: UInt16,
+         user: String, password: String, computer: String) {
         let portObject = NWEndpoint.Port(integerLiteral: port)
         let hostObject = NWEndpoint.Host(host)
 
@@ -39,6 +41,8 @@ class UDPBase {
         params.allowFastOpen = true
         params.allowLocalEndpointReuse = true
         params.requiredLocalEndpoint = NWEndpoint.hostPort(host: .ipv4(.any), port: portObject)
+        
+        packetCreate = PacketCreate(user: user, password: password, computer: computer)
 
         connection = NWConnection(host: hostObject, port: portObject, using: params)
         connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
@@ -84,11 +88,9 @@ class UDPBase {
     
     func startConnection() {
         armResendTimer()
-        retryPacket = createAreYouTherePacket()
+        retryPacket = packetCreate.areYouTherePacket()
         send(data: retryPacket)
     }
-    
-    func createAreYouTherePacket() -> Data {Data()}
     
     var current = Data()
     func receive(data: Data) {}
@@ -125,7 +127,7 @@ class UDPBase {
     private func onPingTimer(timer: Timer) {
         typealias c = ControlDefinition
         typealias p = PingDefinition
-        let packet = createPingPacket()
+        let packet = packetCreate.pingPacket()
         lastPingRequestSequence = packet[c.sequence].uint16
         lastPingRequestSentTime = Date()
         armIdleTimer()
@@ -133,11 +135,6 @@ class UDPBase {
         send(data: packet)
     }
     
-    func createPingPacket() -> Data {Data()}
-    func createPingPacket(replyTo: Data) -> Data {Data()}
-    func createIdlePacket() -> Data {Data()}
-    func createIdlePacket(withSequence: UInt16) -> Data {Data()}
-
     func receivePing() {
         typealias c = ControlDefinition
         typealias p = PingDefinition
@@ -150,7 +147,7 @@ class UDPBase {
             }
         } else {
             // Ping request from radio
-            send(data: createPingPacket(replyTo: current))
+            send(data: packetCreate.pingPacket(replyTo: current))
         }
     }
     
@@ -187,7 +184,7 @@ class UDPBase {
             connection?.cancel()
         } else {
             armIdleTimer()
-            send(data: createIdlePacket())
+            send(data: packetCreate.idlePacket())
         }
     }
 
@@ -222,7 +219,7 @@ class UDPBase {
     }
     
     func getTracked(sequence: UInt16) -> Data {
-        retransmitData[sequence] ?? createIdlePacket(withSequence: sequence)
+        retransmitData[sequence] ?? packetCreate.idlePacket(withSequence: sequence)
     }
     
 

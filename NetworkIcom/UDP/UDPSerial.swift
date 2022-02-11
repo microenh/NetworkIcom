@@ -13,18 +13,15 @@ class UDPSerial: UDPBase {
     
     private(set) var civData = CurrentValueSubject<Data, Never>(Data())
     
-    private var packetCreate: PacketCreateSerial
     private(set) var civDecode: CIVDecode
 
-    init(host: String,
-         port: UInt16,
-         radioCivAddr: UInt8,
-         hostCivAddr: UInt8) {
+    init(host: String, port: UInt16,
+         user: String, password: String, computer: String,
+         radioCivAddr: UInt8, hostCivAddr: UInt8) {
         
         civDecode = CIVDecode(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
         
-        packetCreate = PacketCreateSerial()
-        super.init(host: host, port: port)
+        super.init(host: host, port: port, user: user, password: password, computer: computer)
     }
     
     func disconnect() {
@@ -74,25 +71,4 @@ class UDPSerial: UDPBase {
         }
     }
     
-    // -----
-    
-    override func createAreYouTherePacket() -> Data {
-        packetCreate.areYouTherePacket()
-    }
-    
-    override func createPingPacket() -> Data {
-        packetCreate.pingPacket()
-    }
-    
-    override func createPingPacket(replyTo: Data) -> Data {
-        packetCreate.pingPacket(replyTo: replyTo)
-    }
-    
-    override func createIdlePacket() -> Data {
-        packetCreate.idlePacket()
-    }
-
-    override func createIdlePacket(withSequence: UInt16) -> Data {
-        packetCreate.idlePacket(withSequence: withSequence)
-    }
 }

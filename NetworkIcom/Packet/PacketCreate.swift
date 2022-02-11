@@ -1,13 +1,26 @@
 //
-//  PacketCreateControl.swift
-//  NetworkWWDC2018
+//  PacketCreate.swift
+//  NetworkIcom
 //
-//  Created by Mark Erbaugh on 2/6/22.
+//  Created by Mark Erbaugh on 2/11/22.
 //
 
 import Foundation
 
-class PacketCreateControl: PacketCreateBase {
+class PacketCreate {
+    let myId = UInt32.random(in: .min ... .max)
+    var remoteId: UInt32? = nil
+    private var pingDataA = UInt16(0)
+    private let pingDataB = UInt16.random(in: .min ... .max)
+    
+    private var _idlePacket: Data? = nil
+    private var _pingPacket: Data? = nil
+    
+    private var _sequence = UInt16(0)
+    private var _pingSequence = UInt16(0)
+    
+    private var _civHeader: Data? = nil
+    private var _civSequence = UInt16(0)
     
     private var user: String
     private var password: String
@@ -25,12 +38,152 @@ class PacketCreateControl: PacketCreateBase {
         self.password = password
         self.computer = computer
     }
+
+    // ------------------------------------------------------------------
+    
+    private var sequence: UInt16 {
+        _sequence &+= 1
+        return _sequence
+    }
+       
+    private var civSequence: UInt16 {
+        _civSequence &+= 1
+        return _civSequence
+    }
+ 
+    private var pingSequence: UInt16 {
+        _pingSequence &+= 1
+        return _pingSequence
+    }
     
     var innerSequence: UInt8 {
         _innerSequence &+= 1
         return _innerSequence
     }
     
+    func idlePacket(withSequence: UInt16? = nil) -> Data {
+        typealias p = ControlDefinition
+        let seq = withSequence ?? sequence
+        if _idlePacket == nil {
+            var packet = Data(count: p.dataLength)
+            packet[p.length] = Data(UInt32(p.dataLength))
+            packet[p.type] = Data(ControlPacketType.idle)
+            packet[p.sendId] = Data(myId)
+            packet[p.sequence] = Data(seq)
+            if let remoteId = remoteId {
+                packet[p.recvId] = Data(remoteId)
+                _idlePacket = packet
+            }
+            return packet
+        } else {
+            _idlePacket![p.sequence] = Data(seq)
+            return _idlePacket!
+        }
+    }
+    
+    func pingPacket() -> Data {
+        typealias c = ControlDefinition
+        typealias p = PingDefinition
+        let sequence = pingSequence
+        if _pingPacket == nil {
+            var packet = Data(count: p.dataLength)
+            packet[c.length] = Data(UInt32(p.dataLength))
+            packet[c.type] = Data(PingPacketType.ping)
+            packet[c.sendId] = Data(myId)
+            packet[p.dataA] = Data(pingDataA)
+            pingDataA = UInt16.random(in: UInt16.min...UInt16.max)
+            packet[p.dataB] = Data(pingDataB)
+            packet[c.sequence] = Data(sequence)
+            if let remoteId = remoteId {
+                packet[c.recvId] = Data(remoteId)
+                _pingPacket = packet
+            }
+            return packet
+        } else {
+            _pingPacket![c.sequence] = Data(sequence)
+            return _pingPacket!
+        }
+    }
+    
+    func pingPacket(replyTo: Data) -> Data {
+        typealias c = ControlDefinition
+        typealias p = PingDefinition
+        var result = replyTo
+        result[c.length] = Data(UInt32(p.dataLength))
+        result[c.sendId] = replyTo[c.recvId]
+        result[c.recvId] = replyTo[c.sendId]
+        result[p.request] = Data(UInt8(1))
+        return result
+    }
+    
+    func areYouTherePacket() -> Data {
+        typealias c = ControlDefinition
+        var packet = Data(count: c.dataLength)
+        packet[c.length] = Data(UInt32(c.dataLength))
+        packet[c.type] = Data(ControlPacketType.areYouThere)
+        packet[c.sendId] = Data(myId)
+        return packet
+    }
+    
+    func areYouReadyPacket() -> Data {
+        typealias c = ControlDefinition
+        var packet = Data(count: c.dataLength)
+        packet[c.length] = Data(UInt32(c.dataLength))
+        packet[c.type] = Data(ControlPacketType.areYouReady)
+        packet[c.sendId] = Data(myId)
+        packet[c.sequence] = Data(UInt16(1))
+        if let remoteId = remoteId {
+            packet[c.recvId] = Data(remoteId)
+        }
+        return packet
+    }
+    
+    func disconnectPacket() -> Data {
+        typealias c = ControlDefinition
+        var packet = Data(count: c.dataLength)
+        packet[c.length] = Data(UInt32(c.dataLength))
+        packet[c.type] = Data(ControlPacketType.disconnect)
+        packet[c.sendId] = Data(myId)
+        packet[c.sequence] = Data(UInt16(1))
+        if let remoteId = remoteId {
+            packet[c.recvId] = Data(remoteId)
+        }
+        return packet
+    }
+
+    func openClosePacket(open: Bool) -> Data {
+        typealias c = ControlDefinition
+        typealias o = OpenCloseDefinition
+        var packet = Data(count: o.dataLength)
+        packet[c.length] = Data(UInt32(o.dataLength))
+        packet[c.sendId] = Data(myId)
+        packet[c.sequence] = Data(sequence)
+        if let remoteId = remoteId {
+            packet[c.recvId] = Data(remoteId)
+        }
+        packet[o.data] = Data(PacketCode.openClose)
+        packet[o.sequence] = Data(open ? UInt16(1) : 0)
+        packet[o.request] = Data(open ? OpenClosePacketType.open : OpenClosePacketType.close)
+        return packet
+    }
+    
+    func civPacket(civData: Data) -> Data {
+        typealias c = ControlDefinition
+        typealias civ = CIVDefinition
+        if _civHeader == nil {
+            _civHeader = Data(count: civ.headerLength)
+            _civHeader![c.sendId] = Data(myId)
+            _civHeader![c.recvId] = Data(remoteId)
+            _civHeader![civ.cmd] = Data(CIVCode.code)
+        }
+        _civHeader![c.length] = Data(UInt32(civ.headerLength + civData.count))
+        _civHeader![c.sequence] = Data(sequence)
+        _civHeader![civ.length] = Data(UInt16(civData.count))
+        _civHeader![civ.sequence] = Data(civSequence.bigEndian)
+
+        return _civHeader! + civData
+    }
+
     func tokenPacket(tokenType: UInt16 = TokenType.renew) -> Data {
         typealias c = ControlDefinition
         typealias t = TokenDefinition
@@ -151,4 +304,5 @@ class PacketCreateControl: PacketCreateBase {
 //        }
 //        return packet
 //    }
+
 }
