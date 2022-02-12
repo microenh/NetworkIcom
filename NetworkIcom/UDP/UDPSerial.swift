@@ -11,13 +11,13 @@ import Combine
 
 class UDPSerial: UDPBase {
     
-    private(set) var civDecode: CIVDecode
+    private(set) var civDecode: CIV
 
     init(host: String, port: UInt16,
          user: String, password: String, computer: String,
          radioCivAddr: UInt8, hostCivAddr: UInt8) {
         
-        civDecode = CIVDecode(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
+        civDecode = CIV(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
         super.init(host: host, port: port, user: user, password: password, computer: computer)
     }
     
@@ -36,8 +36,8 @@ class UDPSerial: UDPBase {
             return
         }
         if current.count > c.headerLength && current[c.cmd].uint8 == CIVCode.code {
-            let civ = current.dropFirst(c.headerLength)
-            civDecode.decode(civData: civ)
+            // let civ = current.dropFirst(c.headerLength)
+            civDecode.decode(current)
             return
         }
         switch current.count {

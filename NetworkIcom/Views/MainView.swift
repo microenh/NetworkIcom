@@ -26,13 +26,6 @@ struct MainView: View {
                 Text("Latency: \(icomVM.controlLatency)")
                 Text("Retransmit Count: \(icomVM.controlRetransmitCount)")
                 Text("CI-V Addr: \(String(format: "0x%02x", icomVM.radioCivAddr))")
-        
-                Button("Connect") {
-                    icomVM.connectControl()
-                }
-                Button("Disconnect") {
-                    icomVM.disconnectControl()
-                }
             }
             Divider()
             VStack {
@@ -44,11 +37,15 @@ struct MainView: View {
                 Text("Frequency: \(icomVM.frequency)")
                 Text(icomVM.modeFilter.description)
                 Text(icomVM.attenuation.description)
-                Button("Connect") {
-                    icomVM.connectSerial()
-                }
-                Button("Disconnect") {
-                    icomVM.disconnectSerial()
+            }
+            Divider()
+            VStack {
+                Button(icomVM.connected ? "Disconnect" :"Connect") {
+                    if icomVM.connected {
+                        icomVM.disconnectControl()
+                    } else {
+                        icomVM.connectControl()
+                    }
                 }
             }
         }

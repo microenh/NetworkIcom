@@ -13,8 +13,6 @@
 		4D00FD7827B5F1D800FCE939 /* BCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD7627B5F1D700FCE939 /* BCD.swift */; };
 		4D00FD7A27B5F1E400FCE939 /* Frequency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD7927B5F1E400FCE939 /* Frequency.swift */; };
 		4D00FD7B27B5F1E400FCE939 /* Frequency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD7927B5F1E400FCE939 /* Frequency.swift */; };
-		4D00FD8227B5F2D700FCE939 /* CIVRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD8127B5F2D700FCE939 /* CIVRequest.swift */; };
-		4D00FD8327B5F2D700FCE939 /* CIVRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD8127B5F2D700FCE939 /* CIVRequest.swift */; };
 		4D00FD8627B5F31000FCE939 /* Attenuation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD8527B5F31000FCE939 /* Attenuation.swift */; };
 		4D00FD8727B5F31000FCE939 /* Attenuation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD8527B5F31000FCE939 /* Attenuation.swift */; };
 		4D00FD8927B5F31600FCE939 /* ModeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD8827B5F31600FCE939 /* ModeFilter.swift */; };
@@ -29,8 +27,8 @@
 		4D00FD9627B5F38C00FCE939 /* UDPBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9427B5F38C00FCE939 /* UDPBase.swift */; };
 		4D00FD9727B6017300FCE939 /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424C27B5532F0064882D /* Locks.swift */; };
 		4D00FD9827B6018B00FCE939 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
-		4D00FD9A27B6048C00FCE939 /* CIVDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9927B6048C00FCE939 /* CIVDecode.swift */; };
-		4D00FD9B27B6048C00FCE939 /* CIVDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9927B6048C00FCE939 /* CIVDecode.swift */; };
+		4D00FD9A27B6048C00FCE939 /* CIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9927B6048C00FCE939 /* CIV.swift */; };
+		4D00FD9B27B6048C00FCE939 /* CIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9927B6048C00FCE939 /* CIV.swift */; };
 		4D321E4627B358620023568A /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4527B358620023568A /* MainApp.swift */; };
 		4D321E4827B358620023568A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4727B358620023568A /* MainView.swift */; };
 		4D321E4A27B358630023568A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D321E4927B358630023568A /* Assets.xcassets */; };
@@ -75,14 +73,13 @@
 		4D00FD6C27B5CA4600FCE939 /* UDPSerial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPSerial.swift; sourceTree = "<group>"; };
 		4D00FD7627B5F1D700FCE939 /* BCD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BCD.swift; sourceTree = "<group>"; };
 		4D00FD7927B5F1E400FCE939 /* Frequency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Frequency.swift; sourceTree = "<group>"; };
-		4D00FD8127B5F2D700FCE939 /* CIVRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIVRequest.swift; sourceTree = "<group>"; };
 		4D00FD8527B5F31000FCE939 /* Attenuation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Attenuation.swift; sourceTree = "<group>"; };
 		4D00FD8827B5F31600FCE939 /* ModeFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModeFilter.swift; sourceTree = "<group>"; };
 		4D00FD8B27B5F33000FCE939 /* Band.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Band.swift; sourceTree = "<group>"; };
 		4D00FD8E27B5F33900FCE939 /* Filter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		4D00FD9127B5F33F00FCE939 /* Mode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mode.swift; sourceTree = "<group>"; };
 		4D00FD9427B5F38C00FCE939 /* UDPBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPBase.swift; sourceTree = "<group>"; };
-		4D00FD9927B6048C00FCE939 /* CIVDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVDecode.swift; sourceTree = "<group>"; };
+		4D00FD9927B6048C00FCE939 /* CIV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIV.swift; sourceTree = "<group>"; };
 		4D321E4227B358620023568A /* NetworkIcom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkIcom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D321E4527B358620023568A /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
 		4D321E4727B358620023568A /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -191,11 +188,10 @@
 			children = (
 				4D00FD8527B5F31000FCE939 /* Attenuation.swift */,
 				4D00FD8B27B5F33000FCE939 /* Band.swift */,
-				4D00FD8127B5F2D700FCE939 /* CIVRequest.swift */,
 				4D00FD8E27B5F33900FCE939 /* Filter.swift */,
 				4D00FD9127B5F33F00FCE939 /* Mode.swift */,
 				4D00FD8827B5F31600FCE939 /* ModeFilter.swift */,
-				4D00FD9927B6048C00FCE939 /* CIVDecode.swift */,
+				4D00FD9927B6048C00FCE939 /* CIV.swift */,
 			);
 			path = "CI-V";
 			sourceTree = "<group>";
@@ -393,12 +389,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D00FD9A27B6048C00FCE939 /* CIVDecode.swift in Sources */,
+				4D00FD9A27B6048C00FCE939 /* CIV.swift in Sources */,
 				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
 				4D00FD7327B5CD9600FCE939 /* UDPSerial.swift in Sources */,
 				4D00FD8C27B5F33000FCE939 /* Band.swift in Sources */,
 				4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */,
-				4D00FD8227B5F2D700FCE939 /* CIVRequest.swift in Sources */,
 				4DC4424D27B5532F0064882D /* Locks.swift in Sources */,
 				4D00FD8F27B5F33900FCE939 /* Filter.swift in Sources */,
 				4D321E4827B358620023568A /* MainView.swift in Sources */,
@@ -424,10 +419,9 @@
 			files = (
 				4D321E7227B359110023568A /* UDPControl.swift in Sources */,
 				4D00FD8A27B5F31600FCE939 /* ModeFilter.swift in Sources */,
-				4D00FD8327B5F2D700FCE939 /* CIVRequest.swift in Sources */,
 				4D00FD9727B6017300FCE939 /* Locks.swift in Sources */,
 				4D321E8227B35EE60023568A /* Encode.swift in Sources */,
-				4D00FD9B27B6048C00FCE939 /* CIVDecode.swift in Sources */,
+				4D00FD9B27B6048C00FCE939 /* CIV.swift in Sources */,
 				4D00FD7827B5F1D800FCE939 /* BCD.swift in Sources */,
 				4D00FD8727B5F31000FCE939 /* Attenuation.swift in Sources */,
 				4D00FD9627B5F38C00FCE939 /* UDPBase.swift in Sources */,

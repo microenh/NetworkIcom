@@ -42,11 +42,15 @@ struct OpenCloseDefinition {
 
 struct CIVDefinition {
     static let headerLength = 0x15
+    static let dataStart = 0x1a
     // Control
     static let cmd      = (0x10, 1) // 0xc1
     static let length   = (0x11, 2) // length of CI-V packet (incl fefe and fd) little-endian
     static let sequence = (0x13, 2) // radio big-endian, computer little-endian
     // CI-V string
+    static let dest     = (0x17, 1)
+    static let source   = (0x18, 1)
+    static let civCmd   = (0x19, 1)
     // sample packet: 1e0000000000900fc5ad823e0c7fc352 c1 0900 000d fefee09815020000fd
 }
 

@@ -21,6 +21,7 @@ class IcomVM: ObservableObject {
     @Published var frequency = 0
     @Published var modeFilter = ModeFilter(mode: .lsb, filter: .fil1)
     @Published var attenuation = Attenuation.attOff
+    @Published var connected = false
 
     private let host: String
     private let controlPort: UInt16
@@ -52,6 +53,7 @@ class IcomVM: ObservableObject {
     
     private var controlCancellables: Set<AnyCancellable> = []
     func connectControl() {
+        controlCancellables = []
         control = UDPControl(host: host,
                              port: controlPort,
                              user: user,
@@ -66,7 +68,11 @@ class IcomVM: ObservableObject {
     }
     
     func disconnectControl() {
-        control?.disconnect()
+        if let serial = serial {
+            serial.disconnect()
+        } else {
+            control?.disconnect()
+        }
     }
         
     private func updateControlBaseData(_ data: UDPBase.UDPBasePublishedData) {
@@ -78,7 +84,9 @@ class IcomVM: ObservableObject {
         case .retransmitCount(let count):
             self.controlRetransmitCount = count
         case .connected(let connected):
+            self.connected = connected
             if connected {
+                connectSerial()
             } else {
                 control = nil
                 controlCancellables = []
@@ -94,20 +102,17 @@ class IcomVM: ObservableObject {
     }
     
     private var serialCancellables: Set<AnyCancellable> = []
-    func connectSerial() {
+    private func connectSerial() {
+        serialCancellables = []
         serial = UDPSerial(host: host, port: serialPort,
                            user: user, password: password, computer: computer,
                            radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr)
         serial?.udpBasePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialData(data)
         }.store(in: &serialCancellables)
-        serial?.civDecode.civDecodePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+        serial?.civDecode.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateCIVData(data)
         }.store(in: &serialCancellables)
-    }
-    
-    func disconnectSerial() {
-        serial?.disconnect()
     }
     
     private func updateSerialData(_ data: UDPBase.UDPBasePublishedData) {
@@ -123,11 +128,15 @@ class IcomVM: ObservableObject {
             } else {
                 serial = nil
                 serialCancellables = []
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                    self?.control?.disconnect()
+                }
+                // control?.disconnect()
             }
         }
     }
     
-    private func updateCIVData(_ data: CIVDecode.CIVDecodePublishedData) {
+    private func updateCIVData(_ data: CIV.Published) {
         switch data {
         case .frequency(let frequency):
             self.frequency = frequency
