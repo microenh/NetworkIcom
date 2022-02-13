@@ -22,6 +22,7 @@ class IcomVM: ObservableObject {
     @Published var modeFilter = ModeFilter(mode: .lsb, filter: .fil1)
     @Published var attenuation = Attenuation.attOff
     @Published var connected = false
+    @Published var printDump = ""
 
     private let host: String
     private let controlPort: UInt16
@@ -59,10 +60,10 @@ class IcomVM: ObservableObject {
                              user: user,
                              password: password,
                              computer: computer)
-        control?.udpBasePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+        control?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateControlBaseData(data)
         }.store(in: &controlCancellables)
-        control?.udpControlPublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+        control?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateControlData(data)
         }.store(in: &controlCancellables)
     }
@@ -75,7 +76,7 @@ class IcomVM: ObservableObject {
         }
     }
         
-    private func updateControlBaseData(_ data: UDPBase.UDPBasePublishedData) {
+    private func updateControlBaseData(_ data: UDPBase.BasePublished) {
         switch data {
         case .latency(let latency):
             self.controlLatency = latency
@@ -94,7 +95,7 @@ class IcomVM: ObservableObject {
         }
     }
     
-    private func updateControlData(_ data: UDPControl.UDPControlPublishedData) {
+    private func updateControlData(_ data: UDPControl.Published) {
         switch data {
         case .radioCivAddr(let addr):
             radioCivAddr = addr
@@ -107,15 +108,15 @@ class IcomVM: ObservableObject {
         serial = UDPSerial(host: host, port: serialPort,
                            user: user, password: password, computer: computer,
                            radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr)
-        serial?.udpBasePublishedData.receive(on: DispatchQueue.main).sink { [weak self] data in
+        serial?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialData(data)
         }.store(in: &serialCancellables)
-        serial?.civDecode.published.receive(on: DispatchQueue.main).sink { [weak self] data in
+        serial?.civ.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateCIVData(data)
         }.store(in: &serialCancellables)
     }
     
-    private func updateSerialData(_ data: UDPBase.UDPBasePublishedData) {
+    private func updateSerialData(_ data: UDPBase.BasePublished) {
         switch data {
         case .latency(let latency):
             self.serialLatency = latency
@@ -144,6 +145,8 @@ class IcomVM: ObservableObject {
             self.modeFilter = modeFilter
         case .attenuation(let attenuation):
             self.attenuation = attenuation
+        case .printDump(let p):
+            self.printDump = p
         }
     }
 }

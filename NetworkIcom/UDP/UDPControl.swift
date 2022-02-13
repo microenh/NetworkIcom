@@ -14,11 +14,11 @@ class UDPControl: UDPBase {
         static let tokenRenewalInterval = 60.0
     }
     
-    enum UDPControlPublishedData {
+    enum Published {
         case radioCivAddr(UInt8)
     }
     
-    var udpControlPublishedData = PassthroughSubject<UDPControlPublishedData, Never>()
+    var published = PassthroughSubject<Published, Never>()
     
     private var tokenRenewTimer: Timer?
     
@@ -38,7 +38,7 @@ class UDPControl: UDPBase {
     private var retryShutdown = false
     
     func disconnect() {
-        udpBasePublishedData.send(.state("Disconnecting..."))
+        basePublished.send(.state("Disconnecting..."))
         if self.haveToken {
             send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
             self.armResendTimer()
@@ -81,7 +81,7 @@ class UDPControl: UDPBase {
                 armResendTimer()
                 retryPacket = packetCreate.loginPacket()
               send(data: retryPacket)
-                udpBasePublishedData.send(.state("Logging in..."))
+                basePublished.send(.state("Logging in..."))
             default:
                 break
             }
@@ -110,9 +110,9 @@ class UDPControl: UDPBase {
             armTokenRenewTimer()
             armPingTimer()
             armIdleTimer()
-            udpControlPublishedData.send(.radioCivAddr(current[c.civAddr].uint8))
-            udpBasePublishedData.send(.state("Connected"))
-            udpBasePublishedData.send(.connected(true))
+            published.send(.radioCivAddr(current[c.civAddr].uint8))
+            basePublished.send(.state("Connected"))
+            basePublished.send(.connected(true))
             resendTimer?.invalidate()
         default:
             break
@@ -143,7 +143,7 @@ class UDPControl: UDPBase {
         track(data: retryPacket)
         send(data: retryPacket)
         armResendTimer()
-        udpBasePublishedData.send(.state("Getting Token"))
+        basePublished.send(.state("Getting Token"))
     }
 
     private func armTokenRenewTimer() {

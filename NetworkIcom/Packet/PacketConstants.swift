@@ -35,9 +35,13 @@ struct PingDefinition {
 struct OpenCloseDefinition {
     static let dataLength = 0x16
     // Control
-    static let data     = (0x10, 2)
+    static let cmd      = (0x10, 1)  // 0xc0
+    static let length   = (0x11, 2)  // length of data (0x001)
     static let sequence = (0x13, 2)
     static let request  = (0x15, 1)
+    
+    // 16000000 0000 0100 2848f1fb f156e26b c0 0100 0000 04
+    // 16000000 0000 0100 0c7fc352 c5ad823e c0 0100 0000 05
 }
 
 struct CIVDefinition {
@@ -189,7 +193,7 @@ struct PacketCode {
     
     static let status = UInt16(0x240)
     
-    static let openClose = UInt16(0x1c0)
+    static let openClose = UInt8(0xc0)
     
     
     static let civToRadio = UInt16(0x9c1)

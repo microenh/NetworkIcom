@@ -14,6 +14,7 @@ class CIV {
         case frequency(Int)
         case modeFilter(ModeFilter)
         case attenuation(Attenuation)
+        case printDump(String)
     }
     
     var published = PassthroughSubject<Published, Never>()
@@ -43,8 +44,15 @@ class CIV {
                         fd          end                      29
     */
 
+    private(set) var isReply = false
+    
     func decode(_ d: Data) {
         typealias c = CIVDefinition
+        isReply = false
+        guard d[c.source].uint8 == radioCivAddr else {
+            return
+        }
+        isReply = !isUnsolicited(data: d)
         switch d[c.civCmd].uint8 {
         case 0x00, 0x03:
             published.send(.frequency(Int(frequencyBuffer: d.dropFirst(c.dataStart))))
@@ -53,15 +61,12 @@ class CIV {
         case 0x11:
             published.send(.attenuation(Attenuation(buffer: d.dropFirst(c.dataStart))))
         case 0xfa:  // NAK
-            print ("NAK")
-            break
+            published.send(.printDump("NAK"))
         case 0xfb:  // ACK
-            print ("ACK")
-            break
-            
+            published.send(.printDump("ACK"))
         default:
-            d.dump()
-        }        
+            published.send(.printDump(d.dump()))
+        }
     }
     
     func buildRequest(command: UInt8,

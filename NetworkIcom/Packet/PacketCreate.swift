@@ -161,9 +161,11 @@ class PacketCreate {
         if let remoteId = remoteId {
             packet[c.recvId] = Data(remoteId)
         }
-        packet[o.data] = Data(PacketCode.openClose)
-        packet[o.sequence] = Data(open ? UInt16(1) : 0)
+        packet[o.cmd] = Data(PacketCode.openClose)
+        packet[o.length] = Data(UInt16(1))
+        packet[o.sequence] = Data(civSequence.bigEndian)
         packet[o.request] = Data(open ? OpenClosePacketType.open : OpenClosePacketType.close)
+        print (packet.dump())
         return packet
     }
     

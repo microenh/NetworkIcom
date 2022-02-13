@@ -35,8 +35,17 @@ struct MainView: View {
                 Text("Latency: \(icomVM.serialLatency)")
                 Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
                 Text("Frequency: \(icomVM.frequency)")
+                    .onTapGesture {
+                        icomVM.frequency = 0
+                    }
                 Text(icomVM.modeFilter.description)
                 Text(icomVM.attenuation.description)
+                Button("CIV-Command") {
+                    icomVM.serial?.send(command: 0x03)
+                }
+                Text(icomVM.printDump)
+                    .font(.system(size: 10, design: .monospaced))
+                    .fixedSize()
             }
             Divider()
             VStack {
