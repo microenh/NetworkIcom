@@ -1,0 +1,445 @@
+-> Are You There?
+<- I Am Here.  (get radio id)
+-> Are You Ready?
+<- I Am Ready.
+-> Login        (generate token request)
+<- Login Response  (get token)
+-> Token Ack
+<- Capabilities (set have token)
+
+As requested by radio
+  (if not disconnected)
+  <- Ping
+  -> Ping
+
+  <- Retransmit
+  -> Requested packets
+  
+  <- Idle (no response)
+  
+  <- ConnInfo (no response)
+  
+  (if disconnected respond to any packet from radio)
+  -> Disconnect
+
+
+If have token
+  Periodically (1 second)
+  -> Ping
+  <- Ping  (calculate latency)
+
+  (after period of inactivity)
+  -> Idle
+
+  Periodically (60 seconds)
+  -> TokenRenew
+  <- TokenRenew
+
+Shutdown
+
+If have token
+  -> TokenRemove
+  <- TokenRemove (set don't have token)
+                 (set disconnecting)
+
+-> Disconnect
+
+(after period of inactivity)
+cancel connection
+
+
+Initial negotiation
+===================
+             length   type seq  send Id  recv Id
+    ->  (16) 10000000 0300 0000 87a17866 00000000 are you there?
+    <-  (16) 10000000 0400 0000 cdd54a26 87a17866 I am here.
+    ->  (16) 10000000 0600 0100 87a17866 cdd54a26 are you ready?
+    <-  (16) 10000000 0600 0100 cdd54a26 87a17866 I am ready.
+
+             length   type seq  send Id  recv Id       code res  in        tokR token                   cap       mac addr
+    -> (128) 80000000 0000 0100 87a17866 cdd54a26 0000 0070 0100 0000 0000 4edd 00000000 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000 74496a33000000000000000000000000 user name encoded
+                                                                                                                                                                 262222745336364d0000000000000000 password encoded
+                                                                                                                                                                 504f5745525350454300000000000000 computer name plaintext
+                                                                                                                                                                 00000000000000000000000000000000
+
+    <-  (96) 60000000 0000 0100 cdd54a26 87a17866 0000 0050 0200 0000 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000 46545448000000000000000000000000 FTTH
+                                                                                                                                                                 00000000000000000000000000000000
+
+    ->  (64) 40000000 0000 0200 87a17866 cdd54a26 0000 0030 0102 0001 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000
+
+    <- (168) a8000000 0000 0200 cdd54a26 87a17866 0000 0098 0202 0001 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000 0001 0000 0000 0000 0010 8000 0090c7098d6d                     mac address
+                                                                                                                                                                 49432d37363130000000000000000000 IC-7610 plaintext
+                                                                                                                                                                 00000000000000000000000000000000
+                                                                                                                                                                 49434f4d5f56415544494f0000000000 ICOM_VAUDIO plaintext
+                                                                                                                                                                 00000000000000000000000000000000
+                                                                                                                                                                 3f07 98 018b 018b 01 01 01 00004b00 baud (be) (19200)
+                                                                                                                                                                 0150 00 9001 000000
+
+    <- (144) 90000000 0000 0300 cdd54a26 87a17866 0000 0080 0300 0000 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000 49432d37363130000000000000000000 IC-7610 plaintext
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000
+
+  7 -> (144) 90000000 0000 4900 87a17866 cdd54a26 0000 0080 0103 0002 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000 49432d37363130000000000000000000 IC-7610 plaintext
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                74496a33000000000000000000000000 user name encoded
+                                                                                                                                                                01 01 10 04 enable Rx, enable Tx, Rx codec, Tx codec
+                                                                                                                                                                00003e80    rx sample 16000 (be)
+                                                                                                                                                                00001f40    tx sample 8000 (be)
+                                                                                                                                                                0000c352    ci-v port 50002 (be)
+                                                                                                                                                                0000c353    audio port 50003 (be)
+                                                                                                                                                                00000064    tx buffer 100 (be)
+                                                                                                                                                                0100000000000000
+
+  7 <-  (80) 50000000 0000 4b00 cdd54a26 87a17866 0000 0040 0203 0002 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000 0000c352 ci-v port (be)
+                                                                                                                                                                0000c353 audio port (be)
+                                                                                                                                                                0000000000000000
+
+  7 <- (144) 90000000 0000 4c00 cdd54a26 87a17866 0000 0080 0300 0000 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000 49432d37363130000000000000000000 IC-7610 plaintext
+                                                                                                                                                                00000000000000000000000000000000 
+                                                                                                                                                                01000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000 
+                                                                                                                                                                00000000000000000000000000000000
+
+ 60 ->  (64) 40000000 0000 5a02 87a17866 cdd54a26 0000 0030 0105 0003 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000 token renew
+ 60 <-  (64) 40000000 0000 5e02 cdd54a26 87a17866 0000 0030 0205 0003 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000
+
+120 ->  (64) 40000000 0000 b204 87a17866 cdd54a26 0000 0030 0105 0004 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000 token renew
+120 <-  (64) 40000000 0000 b704 cdd54a26 87a17866 0000 0030 0205 0004 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000
+
+129 ->  (64) 40000000 0000 1205 87a17866 cdd54a26 0000 0030 0104 0005 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000 token ???
+129 <-  (64) 40000000 0000 1805 cdd54a26 87a17866 0000 0030 0204 0005 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000
+
+129 <- (144) 90000000 0000 1905 cdd54a26 87a17866 0000 0080 0300 0000 0000 4edd 025ecdc9 0000 0000 0000 0010 8000 0090c7098d6d 00000000 000000000000000000000000 49432d37363130000000000000000000 IC-7610 plaintext
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000
+                                                                                                                                                                00000000000000000000000000000000
+
+138 ->  (64) 40000000 0000 5a02 87a17866 cdd54a26 0000 0030 0105 0003 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000  token renew
+138 <-  (64) 40000000 0000 5e02 cdd54a26 87a17866 0000 0030 0205 0003 0000 4edd 025ecdc9 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000
+
+
+Shutdown (note: from different capture)
+    ->  (64) 40000000 0000 8500 0c7fc351 070488e9 0000 0030 0101 0008 0000 6d37 2b8e7430 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000  token remove
+    <-  (64) 40000000 0000 e804 070488e9 0c7fc351 0000 0030 0201 0008 0000 6d37 2b8e7430 0000 0000 0000 0000 0000 000000000000 00000000 000000000000000000000000
+    ->  (16) 10000000 0500 0000 0c7fc351 070488e9 disconnect
+
+Idle From Host
+    ->  (16) 10000000 0000 0400 87a17866 cdd54a26
+
+
+Idle From Radio
+    <-  (16) 10000000 0000 0600 cdd54a26 87a17866
+
+Note: Ping packets need to keep their own sequence or radio requests retransmission
+
+Ping Request From Host / Response from Radio
+    ->  (21) 15000000 0700 0200 87a17866 cdd54a26 00 5e8c1302
+    <-  (21) 00000000 0700 0200 cdd54a26 87a17866 01 5e8c1302
+
+Ping Request from Radio / Reply from Host
+    <-  (21) 00000000 0700 4c61 cdd54a26 87a17866 00 c3f85000
+    ->  (21) 15000000 0700 4c61 87a17866 cdd54a26 01 c3f85000
+
+
+Token (0x40 bytes)
+<0x10 bytes> Control
+000000
+7001         0x13 code             UInt16
+0000         0x15 res              UInt16
+00           0x17 inner sequence   UInt8
+0000
+4edd         0x1a token request    UInt16
+00000000     0x1c token            UInt32
+0000
+0000000000
+0000         0x27 commonCap        UInt16  0x0 or 0x801
+00           0x29 req / reply      Bool
+000000000000 0x2a mac address      Data[6]
+00000000
+000000000000000000000000
+
+code, res
+  login:                 0x170, 0x00
+  login response:        0x150, 0x00
+  token ack request:     0x130, 0x02
+  token ack response:    0x230, 0x02
+  token renew request:   0x130, 0x05
+  token renew response:  0x230, 0x05
+  token remove request:  0x130, 0x01
+  token remove response: 0x230, 0x01
+  token ??? request:     0x130, 0x04
+  token ??? response:    0x230, 0x04
+  capabilities:          0x298, 0x02
+  connInfo (from radio): 0x380, 0x00
+  connInfo (from host):  0x180, 0x03
+  status:                0x240, 0x03
+  
+  
+
+Login (0x80 bytes)
+<0x40 bytes> Token
+
+74496a33000000000000000000000000 0x40 user name encoded   Data[16]
+262222745336364d0000000000000000 0x50 password encoded    Data[16]
+504f5745525350454300000000000000 0x60 computer name plaintext  Data[16]
+00000000000000000000000000000000
+
+Login Response (0x60)
+<0x40 bytes> Token
+
+46545448000000000000000000000000 0x40 FTTH (network type) Data[16]
+00000000000000000000000000000000
+
+Capabilities (0xa8)
+<0x40 bytes> Token
+
+00
+0100
+000000000000
+1080                             0x49 commonCap2             UInt16
+00
+0090c7098d6d                     0x4c mac address2           Data[6]
+49432d37363130000000000000000000 0x52 IC-7610 plaintext      Data[16]
+00000000000000000000000000000000
+49434f4d5f56415544494f0000000000 0x72 ICOM_VAUDIO plaintext  Data[16]
+00000000000000000000000000000000
+3f07                             0x92 conn type              UInt16
+98                               0x94 ci-v address           UInt8
+018b                             0x95 rxSample               UInt16
+018b                             0x97 txSample               UInt16
+01                               0x99 enableA                UInt8
+01                               0x9a enableB                UInt8
+01                               0x9b enableC                UInt8
+00004b00                         0x9c baud (be) (19200)      UInt32
+0150                             0xa0 capF                   UInt16
+00
+9001                             0xa3 capG                   UInt16
+000000
+                                                                                                                                                                                           
+ConnInfo From Radio (0x90)
+<0x40 bytes> Token
+
+49432d37363130000000000000000000 0x40 name IC-7610 plaintext Data[16]
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+
+ConnInfo From Host (0x90)
+<0x40 bytes> Token
+
+49432d37363130000000000000000000 0x40 name IC-7610 plaintext Data[16]
+00000000000000000000000000000000
+74496a33000000000000000000000000 0x60 user name encoded      Data[16]
+01                               0x70 enable Rx              UInt8
+01                               0x71 enable Tx              UInt8
+10                               0x72 Rx codec               UInt8
+04                               0x73 Tx codec               UInt8
+00003e80                         0x74 rx sample 16000 (be)   UInt32
+00001f40                         0x78 tx sample 8000 (be)    UInt32
+0000c352                         0x7c ci-v port 50002 (be)   UInt32
+0000c353                         0x80 audio port 50003 (be)  UInt32
+00000064                         0x84 tx buffer 100 (b4)     UInt32
+01                               0x88 convert                Bool
+00000000000000
+
+Status Packet (0x50)
+<0x40 bytes> Token
+
+0000c352            0x40 ci-v port (be)    UInt32
+0000c353            0x44 audio port (be)   UInt32
+0000000000000000
+
+
+Control (0x10)
+
+80000000     0x00 length           UInt32
+0000         0x04 type             UInt16
+0100         0x06 sequence         UInt16
+87a17866     0x08 send Id          UInt32
+cdd54a26     0x0c recv Id          UInt32
+
+Ping (0x15)
+<0x10 bytes> Control
+
+00        0x10 request (0x00) / reply (0x01)  UInt8
+5e8c1302  0x11 data                           UInt32
+
+
+
+Open Close  (0x16)
+
+16000000 0000 0100 0c7fc352 4b8b186c c0 0100 0000 05  (open)
+16000000 0000 1500 0c7fc352 4b8b186c c0 0100 0100 00  (close)
+
+16000000 0000 0100 27a3e67c bf4f6c90 c0 0100 0000 05
+
+Ping on cnontrol
+00000000 0700 0c04 bf4f6c90 27a3e67c 00 2c441f00
+
+
+CI-V (tested with RumLogNG)
+
+
+struct OpenCloseDefinition {
+    static let dataLength = 0x16
+    // Control
+    static let length   = (0x00, 4)
+    static let type     = (0x04, 2)
+    static let sequence = (0x06, 2)
+    static let sendId   = (0x08, 4)
+    static let recvId   = (0x0c, 4)
+    // -----
+    static let data     = (0x10, 2)
+    static let sendSeq  = (0x13, 2)
+    static let magic    = (0x15, 1)
+}
+
+16000000 0000 0e00 0c7fc352 0041999e c0 0100 0100 00  WithoutWire
+16000000 0000 0800 214fb353 595e0a33 c0 0100 0100 01  My program
+
+16000000 0000 7605 f5e80000 c8dc0d15 c0 0100 0574 00  WFView
+
+
+CI-V packets (RumLogNG / WithoutWire)
+
+-> 1e000000 0000 7800 0c7fc352 c5ad823e c1 0900 0100 fefe98e01a050116fd
+<- 1e000000 0000 7c0f c5ad823e 0c7fc352 c1 0900 0000 fefe98e01a050116fd
+-> 1f000000 0000 7900 0c7fc352 c5ad823e c1 0a00 0200 fefe98e01a05011201fd
+<- 1f000000 0000 7d0f c5ad823e 0c7fc352 c1 0a00 0001 fefe98e01a05011201fd
+<- 1f000000 0000 7e0f c5ad823e 0c7fc352 c1 0a00 0002 fefee0981a05011600fd
+<- 1b000000 0000 7f0f c5ad823e 0c7fc352 c1 0600 0003 fefee098fbfd
+-> 1b000000 0000 7a00 0c7fc352 c5ad823e c1 0600 0300 fefe98e003fd
+<- 1b000000 0000 800f c5ad823e 0c7fc352 c1 0600 0004 fefe98e003fd
+-> 1b000000 0000 7b00 0c7fc352 c5ad823e c1 0600 0400 fefe98e004fd
+<- 20000000 0000 810f c5ad823e 0c7fc352 c1 0b00 0005 fefee098030050810300fd
+-> 1b000000 0000 7b00 0c7fc352 c5ad823e c1 0600 0400 fefe98e004fd
+<- 1b000000 0000 830f c5ad823e 0c7fc352 c1 0600 0006 fefe98e004fd
+<- 1d000000 0000 840f c5ad823e 0c7fc352 c1 0800 0007 fefee098040001fd
+-> 1c000000 0000 7c00 0c7fc352 c5ad823e c1 0700 0500 fefe98e01a08fd
+<- 1c000000 0000 850f c5ad823e 0c7fc352 c1 0700 0008 fefe98e01a08fd
+<- 1d000000 0000 860f c5ad823e 0c7fc352 c1 0800 0009 fefee0981a0801fd
+-> 1e000000 0000 7d00 0c7fc352 c5ad823e c1 0900 0600 fefe98e01a050062fd
+<- 1e000000 0000 870f c5ad823e 0c7fc352 c1 0900 000a fefe98e01a050062fd
+<- 1f000000 0000 880f c5ad823e 0c7fc352 c1 0a00 000b fefee0981a05006200fd
+-> 1c000000 0000 7f00 0c7fc352 c5ad823e c1 0700 0700 fefe98e01502fd
+<- 1c000000 0000 8f0f c5ad823e 0c7fc352 c1 0700 000c fefe98e01502fd
+<- 1e000000 0000 900f c5ad823e 0c7fc352 c1 0900 000d fefee09815020000fd
+-> 1c000000 0000 8000 0c7fc352 c5ad823e c1 0700 0800 fefe98e01502fd
+<- 1c000000 0000 970f c5ad823e 0c7fc352 c1 0700 000e fefe98e01502fd
+<- 1e000000 0000 980f c5ad823e 0c7fc352 c1 0900 000f fefee09815020000fd
+-> 1c000000 0000 8300 0c7fc352 c5ad823e c1 0700 0b00 fefe98e01502fd
+<- 1c000000 0000 b10f c5ad823e 0c7fc352 c1 0700 0014 fefe98e01502fd
+<- 1e000000 0000 b20f c5ad823e 0c7fc352 c1 0900 0015 fefee09815020000fd
+-> 1c000000 0000 8400 0c7fc352 c5ad823e c1 0700 0c00 fefe98e007d2fd
+<- 1c000000 0000 b40f c5ad823e 0c7fc352 c1 0700 0016 fefe98e007d2fd
+<- 1d000000 0000 b50f c5ad823e 0c7fc352 c1 0800 0017 fefee09807d200fd
+-> 1c000000 0000 8500 0c7fc352 c5ad823e c1 0700 0d00 fefe98e02500fd
+<- 1c000000 0000 b60f c5ad823e 0c7fc352 c1 0700 0018 fefe98e02500fd
+<- 21000000 0000 b70f c5ad823e 0c7fc352 c1 0c00 0019 fefee09825000050810300fd
+-> 1c000000 0000 8600 0c7fc352 c5ad823e c1 0700 0e00 fefe98e02501fd
+<- 1c000000 0000 b80f c5ad823e 0c7fc352 c1 0700 001a fefe98e02501fd
+<- 21000000 0000 b90f c5ad823e 0c7fc352 c1 0c00 001b fefee09825010050125000fd
+
+                                           (711)
+<- dc020000 0000 d525 f156e26b 0c7fc352 c1 c702 1625 | fefe e0 98 2700  | 00 01 01  <701 bytes data> | fd
+
+
+
+<- 20000000 0000 f601 83f0a4f5 3051abbb c1 0b00 0002 fefe e098 03 0018950300 fd
+
+CI-V Packet Format (by inspection)
+
+struct CIVDefinition {
+    static let headerLength = 0x15
+    // Control
+    static let length   = (0x00, 4)
+    static let type     = (0x04, 2) = 0x0000
+    static let sequence = (0x06, 2) = sequential number (normal little-endian)
+    static let sendId   = (0x08, 4)
+    static let recvId   = (0x0c, 4)
+    // -----
+    static let cmd      = (0x10, 1) = 0xc1
+    static let len      = (0x11, 2) = little-endian
+    static let seq      = (0x13, 2) = radio big-endian, computer little-endian
+    // static let data  = (0x15, )  = CI-V data  fefe<dest civ id><src div id> ... fd
+    
+    static let prefix   = (0x15, 2)  = 0xfefe
+    static let sendCI-V = (0x17, 1)  = sender's CI-V id
+    static let recvCV-V = (0x18, 1)  = radio CI-V id (0x98)
+    static let data     = (0x19, len) = data
+    end                               = 0xfd
+}
+
+
+
+Control Port Packets
+--------------------
+Control
+- AreYouThere
+- IAmHere
+- AreYouReady
+- IAmReady
+- Idle
+- Disconnect
+
+Ping
+
+Retransmit
+
+Login
+LoginResponse
+Token
+- TokenAck
+- TokenRenew
+- TokenRemove
+ConnInfo
+Capbabilities
+
+
+Serial Port Packets
+-------------------
+Control
+- AreYouThere
+- IAmHere
+- AreYouReady
+- IAmReady
+- Disconnect
+- Idle
+
+Ping
+
+Retransmit
+
+OpenClose
+CI-V
+
+
+PacketCreateBase
+----------------
+Control
+Ping
+Retransmit
+
+PacketCreateControl
+-------------------
+Login
+LoginResponse
+Token
+ConnInfo
+Capabilities
+
+PacketCreateSerial
+------------------
+OpenClose
+CI-V
+
+
+80000000 0000 0100 edc70c3c 225e5747 000000 7001 00000000002a8100000000000000000000000000000000000000000000000000000000000000000000000074496a33000000000000000000000000262222745336364d0000000000000000504f574552535045430000000000000000000000000000000000000000000000
+80000000 0000 0100 736aa335 784c3d05 000000 7001 0000010000995200000000000000000000000000000000000000000000000000000000000000000000000074496a33000000000000000000000000262222745336364d00000000000000004d41432d4d494e49000000000000000000000000000000000000000000000000
+
+40000000 0000 0200 edc70c3c 225e5747 000000 3001 0200 0100 002a8105ec8fea0000000000000000000000000000000000000000000000000000000000000000
+40000000 0000 0200 736aa335 784c3d05 000000 3001 0200 0200 00995266249fdb0000000000000000000000000000000000000000000000000000000000000000

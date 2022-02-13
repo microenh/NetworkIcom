@@ -100,6 +100,7 @@
 		4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketCreate.swift; sourceTree = "<group>"; };
 		4DC4424A27B548AB0064882D /* IcomVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcomVM.swift; sourceTree = "<group>"; };
 		4DC4424C27B5532F0064882D /* Locks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locks.swift; sourceTree = "<group>"; };
+		4DCF2D2A27B9B886002A1E5A /* RS-BA1 Analysis.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RS-BA1 Analysis.txt"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +200,7 @@
 		4D321E3927B358620023568A = {
 			isa = PBXGroup;
 			children = (
+				4DCF2D2927B9B867002A1E5A /* Background Information */,
 				4D321E4427B358620023568A /* NetworkIcom */,
 				4D321E5627B358640023568A /* NetworkIcomTests */,
 				4D321E6027B358640023568A /* NetworkIcomUITests */,
@@ -257,6 +259,14 @@
 				4D321E6327B358640023568A /* NetworkIcomUITestsLaunchTests.swift */,
 			);
 			path = NetworkIcomUITests;
+			sourceTree = "<group>";
+		};
+		4DCF2D2927B9B867002A1E5A /* Background Information */ = {
+			isa = PBXGroup;
+			children = (
+				4DCF2D2A27B9B886002A1E5A /* RS-BA1 Analysis.txt */,
+			);
+			path = "Background Information";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
