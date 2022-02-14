@@ -97,6 +97,7 @@
 		4D321E7827B35EE60023568A /* CloseDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloseDelegate.swift; sourceTree = "<group>"; };
 		4D321E8527B35F250023568A /* DataUIntExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataUIntExtensions.swift; sourceTree = "<group>"; };
 		4D321E8827B35FE40023568A /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
+		4D8C308D27BAECC600E16826 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketCreate.swift; sourceTree = "<group>"; };
 		4DC4424A27B548AB0064882D /* IcomVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcomVM.swift; sourceTree = "<group>"; };
 		4DC4424C27B5532F0064882D /* Locks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locks.swift; sourceTree = "<group>"; };
@@ -200,6 +201,7 @@
 		4D321E3927B358620023568A = {
 			isa = PBXGroup;
 			children = (
+				4D8C308D27BAECC600E16826 /* readme.md */,
 				4DCF2D2927B9B867002A1E5A /* Background Information */,
 				4D321E4427B358620023568A /* NetworkIcom */,
 				4D321E5627B358640023568A /* NetworkIcomTests */,
