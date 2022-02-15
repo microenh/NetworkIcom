@@ -78,3 +78,6 @@ Bytes 0x13 and 0x14 are another seuqence number. The radio's sequence numbers ap
 The host sends an "Open/Close" packet with a close Request.
 I've not identified a response from the Radio, but it should stop sending CI-V packets.
 The host sends a disconnect packet to stop the radio sending "Ping" and "Idle" packets.
+
+## Update 2/14/2022 💞
+The radio is now responding to CI-V queries reliably. What was needed was to send a ConnInfo packet from the host.

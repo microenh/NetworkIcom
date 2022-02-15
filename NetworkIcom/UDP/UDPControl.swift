@@ -24,8 +24,15 @@ class UDPControl: UDPBase {
     
     private var haveToken = false
     
+    private var radioName = ""
+    
+    private var civPort: UInt16
+    private var user: String
+    
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
+        self.civPort = port
+        self.user = user
         
         super.init(host: host, port: port, user: user, password: password, computer: computer)
     }
@@ -35,19 +42,20 @@ class UDPControl: UDPBase {
         super.invalidateTimers()
     }
     
-    private var retryShutdown = false
+//    private var retryShutdown = false
     
     func disconnect() {
         basePublished.send(.state("Disconnecting..."))
+        send(data: self.packetCreate.disconnectPacket())
         if self.haveToken {
             send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
             self.armResendTimer()
-            retryShutdown = true
-        } else {
-            self.invalidateTimers()
-            self.disconnecting = true
-            self.send(data: self.packetCreate.disconnectPacket())
-            self.armIdleTimer()
+//            retryShutdown = true
+//        } else {
+//            self.invalidateTimers()
+//            self.disconnecting = true
+//            self.send(data: self.packetCreate.disconnectPacket())
+//            self.armIdleTimer()
         }
     }
     
@@ -103,6 +111,8 @@ class UDPControl: UDPBase {
             typealias t = TokenDefinition
             if current[t.reqRep].uint8 == 0 {
                 send(data: packetCreate.connInfoPacket(replyTo: current))
+            } else {
+                resendTimer?.invalidate()
             }
         case CapabilitesDefinition.dataLength:
             typealias c = CapabilitesDefinition
@@ -110,10 +120,14 @@ class UDPControl: UDPBase {
             armTokenRenewTimer()
             armPingTimer()
             armIdleTimer()
+            radioName = current[c.radio].string
             published.send(.radioCivAddr(current[c.civAddr].uint8))
             basePublished.send(.state("Connected"))
             basePublished.send(.connected(true))
             resendTimer?.invalidate()
+            let packet = packetCreate.connInfoPacket(radioName: radioName, userName: user,
+                                                     civPort: UInt32(civPort), audioPort: 50003)
+            send(data: packet)
         default:
             break
         }
@@ -140,10 +154,9 @@ class UDPControl: UDPBase {
         typealias l = LoginResponseDefinition
         packetCreate.token = current[t.token].uint32
         retryPacket = packetCreate.tokenPacket(tokenType: TokenType.acknowledge)
-        track(data: retryPacket)
         send(data: retryPacket)
         armResendTimer()
-        basePublished.send(.state("Getting Token"))
+        basePublished.send(.state("ACK Token"))
     }
 
     private func armTokenRenewTimer() {

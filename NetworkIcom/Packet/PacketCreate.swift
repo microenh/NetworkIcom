@@ -165,7 +165,6 @@ class PacketCreate {
         packet[o.length] = Data(UInt16(1))
         packet[o.sequence] = Data(civSequence.bigEndian)
         packet[o.request] = Data(open ? OpenClosePacketType.open : OpenClosePacketType.close)
-        print (packet.dump())
         return packet
     }
     
@@ -181,7 +180,7 @@ class PacketCreate {
         _civHeader![c.length] = Data(UInt32(civ.headerLength + civData.count))
         _civHeader![c.sequence] = Data(sequence)
         _civHeader![civ.length] = Data(UInt16(civData.count))
-        _civHeader![civ.sequence] = Data(civSequence.bigEndian)
+        _civHeader![civ.sequence] = Data(civSequence)
 
         return _civHeader! + civData
     }
@@ -269,42 +268,42 @@ class PacketCreate {
         return result
     }
     
-//    func connInfoPacket(radioName: String,
-//                        userName: String,
-//                        civPort: UInt32,
-//                        audioPort: UInt32) -> Data {
-//        typealias c = ControlDefinition
-//        typealias t = TokenDefinition
-//        typealias ci = ConnInfoDefinition
-//        var packet = Data(count: ci.dataLength)
-//        packet[c.length] = Data(UInt32(ci.dataLength))
-//        packet[c.sequence] = Data(sequence)
-//        packet[c.sendId] = Data(myId)
-//        packet[t.code] = Data(PacketCode.connInfo)
-//        packet[t.res] = Data(CommInfoType.commInfo)
-//        packet[t.sequence] = Data(innerSequence)
-//        packet[t.tokReq] = Data(tokRequest)
-//        packet[t.commCap] = Data(CommonCapType.commonCap)
-//        // packet[ci.macAddr] = macAddr
-//        packet[ci.radio] = Data(radioName)
-//        packet[ci.userName] = encode(userName)
-//        packet[ci.enableRx] = Data(UInt8(1))
-//        packet[ci.enableTx] = Data(UInt8(1))
-//        packet[ci.rxCodec] = Data(UInt8(4))
-//        packet[ci.txCodec] = Data(UInt8(4))
-//        packet[ci.rxSamp] = Data(UInt32(48000).bigEndian)
-//        packet[ci.txSamp] = Data(UInt32(48000).bigEndian)
-//        packet[ci.civPort] = Data(UInt32(civPort).bigEndian)
-//        packet[ci.audioPort] = Data(UInt32(audioPort).bigEndian)
-//        packet[ci.txBuffer] = Data(UInt32(1024 * 1024 * 3200).bigEndian)
-//        packet[ci.convert] = Data(UInt8(1))
-//        if let remoteId = remoteId {
-//            packet[c.recvId] = Data(remoteId)
-//        }
-//        if let token = token {
-//            packet[t.token] = Data(token)
-//        }
-//        return packet
-//    }
+    func connInfoPacket(radioName: String,
+                        userName: String,
+                        civPort: UInt32,
+                        audioPort: UInt32) -> Data {
+        typealias c = ControlDefinition
+        typealias t = TokenDefinition
+        typealias ci = ConnInfoDefinition
+        var packet = Data(count: ci.dataLength)
+        packet[c.length] = Data(UInt32(ci.dataLength))
+        packet[c.sequence] = Data(sequence)
+        packet[c.sendId] = Data(myId)
+        packet[t.code] = Data(PacketCode.connInfo)
+        packet[t.res] = Data(CommInfoType.commInfo)
+        packet[t.sequence] = Data(innerSequence)
+        packet[t.tokReq] = Data(tokRequest)
+        packet[t.commCap] = Data(CommonCapType.commonCap)
+        // packet[ci.macAddr] = macAddr
+        packet[ci.radio] = Data(radioName)
+        packet[ci.userName] = encode(userName)
+        packet[ci.enableRx] = Data(UInt8(1))
+        packet[ci.enableTx] = Data(UInt8(1))
+        packet[ci.rxCodec] = Data(UInt8(4))
+        packet[ci.txCodec] = Data(UInt8(4))
+        packet[ci.rxSamp] = Data(UInt32(48000).bigEndian)
+        packet[ci.txSamp] = Data(UInt32(48000).bigEndian)
+        packet[ci.civPort] = Data(UInt32(civPort).bigEndian)
+        packet[ci.audioPort] = Data(UInt32(audioPort).bigEndian)
+        packet[ci.txBuffer] = Data(UInt32(1024 * 1024 * 3200).bigEndian)
+        packet[ci.convert] = Data(UInt8(1))
+        if let remoteId = remoteId {
+            packet[c.recvId] = Data(remoteId)
+        }
+        if let token = token {
+            packet[t.token] = Data(token)
+        }
+        return packet
+    }
 
 }

@@ -37,7 +37,7 @@ class UDPBase {
     var retryPacket = Data()
     
     var disconnecting = false
-
+    
     init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
         let portObject = NWEndpoint.Port(integerLiteral: port)

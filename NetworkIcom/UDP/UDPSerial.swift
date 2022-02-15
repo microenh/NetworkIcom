@@ -25,6 +25,7 @@ class UDPSerial: UDPBase {
         basePublished.send(.state("Disconnecting..."))
         self.invalidateTimers()
         self.disconnecting = true
+        self.send(data: self.packetCreate.disconnectPacket())
         self.send(data: self.packetCreate.openClosePacket(open: false))
         self.armIdleTimer()
     }
@@ -44,7 +45,7 @@ class UDPSerial: UDPBase {
     }
     
     private func sendIfNeeded() {
-        if !waitReply, let data = sendQueue.dequeue() {
+        if !waitReply || true, let data = sendQueue.dequeue() {
             waitReply = true
             let civPacket = packetCreate.civPacket(civData: data)
             // print(civPacket.dump())
