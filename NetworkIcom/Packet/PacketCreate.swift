@@ -270,8 +270,8 @@ class PacketCreate {
     
     func connInfoPacket(radioName: String,
                         userName: String,
-                        civPort: UInt32,
-                        audioPort: UInt32) -> Data {
+                        civPort: UInt16,
+                        audioPort: UInt16) -> Data {
         typealias c = ControlDefinition
         typealias t = TokenDefinition
         typealias ci = ConnInfoDefinition

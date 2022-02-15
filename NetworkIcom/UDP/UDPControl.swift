@@ -27,11 +27,14 @@ class UDPControl: UDPBase {
     private var radioName = ""
     
     private var civPort: UInt16
+    private var audioPort: UInt16
     private var user: String
     
-    override init(host: String, port: UInt16,
-         user: String, password: String, computer: String) {
-        self.civPort = port
+    init(host: String, port: UInt16,
+         user: String, password: String, computer: String,
+                  serialPort: UInt16, audioPort: UInt16) {
+        self.civPort = serialPort
+        self.audioPort = audioPort
         self.user = user
         
         super.init(host: host, port: port, user: user, password: password, computer: computer)
@@ -126,7 +129,7 @@ class UDPControl: UDPBase {
             basePublished.send(.connected(true))
             resendTimer?.invalidate()
             let packet = packetCreate.connInfoPacket(radioName: radioName, userName: user,
-                                                     civPort: UInt32(civPort), audioPort: 50003)
+                                                     civPort: civPort, audioPort: audioPort)
             send(data: packet)
         default:
             break

@@ -12,6 +12,12 @@ import Combine
 class UDPSerial: UDPBase {
     
     private(set) var civ: CIV
+    
+    enum Published {
+        case sendQueueSize(Int)
+    }
+    
+    var published = PassthroughSubject<Published, Never>()
 
     init(host: String, port: UInt16,
          user: String, password: String, computer: String,
@@ -41,11 +47,13 @@ class UDPSerial: UDPBase {
                                          selector: selector,
                                          data: data)
         sendQueue.enqueue(civPacket)
+        published.send(.sendQueueSize(sendQueue.size))
         sendIfNeeded()
     }
     
     private func sendIfNeeded() {
-        if !waitReply || true, let data = sendQueue.dequeue() {
+        if !waitReply, let data = sendQueue.dequeue() {
+            published.send(.sendQueueSize(sendQueue.size))
             waitReply = true
             let civPacket = packetCreate.civPacket(civData: data)
             // print(civPacket.dump())

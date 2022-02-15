@@ -23,8 +23,6 @@ class UDPBase {
         case connected(Bool)
     }
     
-// 16000000 0000 0500 2b99f7d5 6139beea c001 0001 0004
-    
     var basePublished = PassthroughSubject<BasePublished, Never>()
     
     var connection: NWConnection?

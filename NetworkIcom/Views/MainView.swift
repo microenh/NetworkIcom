@@ -12,6 +12,7 @@ struct MainView: View {
     @ObservedObject var icomVM = IcomVM(host: "192.168.12.196",
                                         controlPort: 50001,
                                         serialPort: 50002,
+                                        audioPort: 50003,
                                         user: "n8me",
                                         password: "msrkmsrk",
                                         computer: "MAC-MINI",
@@ -40,6 +41,7 @@ struct MainView: View {
                     }
                 Text(icomVM.modeFilter.description)
                 Text(icomVM.attenuation.description)
+                Text("Queue size: \(icomVM.queueSize)")
                 Button("CIV-Command") {
                     icomVM.serial?.send(command: 0x03)
                 }

@@ -23,10 +23,12 @@ class IcomVM: ObservableObject {
     @Published var attenuation = Attenuation.attOff
     @Published var connected = false
     @Published var printDump = ""
+    @Published var queueSize = 0
 
     private let host: String
     private let controlPort: UInt16
     private let serialPort: UInt16
+    private let audioPort: UInt16
     private let user: String
     private let password: String
     private let computer: String
@@ -38,6 +40,7 @@ class IcomVM: ObservableObject {
     init(host: String,
          controlPort: UInt16,
          serialPort: UInt16,
+         audioPort: UInt16,
          user: String,
          password: String,
          computer: String,
@@ -46,6 +49,7 @@ class IcomVM: ObservableObject {
         self.host = host
         self.controlPort = controlPort
         self.serialPort = serialPort
+        self.audioPort = audioPort
         self.user = user
         self.password = password
         self.computer = computer
@@ -59,7 +63,9 @@ class IcomVM: ObservableObject {
                              port: controlPort,
                              user: user,
                              password: password,
-                             computer: computer)
+                             computer: computer,
+                             serialPort: serialPort,
+                             audioPort: audioPort)
         control?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateControlBaseData(data)
         }.store(in: &controlCancellables)
@@ -109,14 +115,17 @@ class IcomVM: ObservableObject {
                            user: user, password: password, computer: computer,
                            radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr)
         serial?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateSerialBaseData(data)
+        }.store(in: &serialCancellables)
+        serial?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialData(data)
         }.store(in: &serialCancellables)
-        serial?.civ.published.receive(on: DispatchQueue.main).sink { [weak self] data in
+        serial?.civ.civPpublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateCIVData(data)
         }.store(in: &serialCancellables)
     }
     
-    private func updateSerialData(_ data: UDPBase.BasePublished) {
+    private func updateSerialBaseData(_ data: UDPBase.BasePublished) {
         switch data {
         case .latency(let latency):
             self.serialLatency = latency
@@ -137,7 +146,15 @@ class IcomVM: ObservableObject {
         }
     }
     
-    private func updateCIVData(_ data: CIV.Published) {
+    private func updateSerialData(_ data: UDPSerial.Published) {
+        switch data {
+            
+        case .sendQueueSize(let size):
+            self.queueSize = size
+        }
+    }
+    
+    private func updateCIVData(_ data: CIV.CIVPublished) {
         switch data {
         case .frequency(let frequency):
             self.frequency = frequency

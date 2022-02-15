@@ -10,14 +10,14 @@ import Combine
 
 class CIV {
     
-    enum Published {
+    enum CIVPublished {
         case frequency(Int)
         case modeFilter(ModeFilter)
         case attenuation(Attenuation)
         case printDump(String)
     }
     
-    var published = PassthroughSubject<Published, Never>()
+    var civPpublished = PassthroughSubject<CIVPublished, Never>()
     
     private let radioCivAddr: UInt8
     private let hostCivAddr: UInt8
@@ -52,20 +52,22 @@ class CIV {
         guard d[c.source].uint8 == radioCivAddr else {
             return
         }
-        isReply = !isUnsolicited(data: d)
+        if !isUnsolicited(data: d) {
+            isReply = true
+        }
         switch d[c.civCmd].uint8 {
         case 0x00, 0x03:
-            published.send(.frequency(Int(frequencyBuffer: d.dropFirst(c.dataStart))))
+            civPpublished.send(.frequency(Int(frequencyBuffer: d.dropFirst(c.dataStart))))
         case 0x01, 0x04:
-            published.send(.modeFilter(ModeFilter(buffer: d.dropFirst(c.dataStart))))
+            civPpublished.send(.modeFilter(ModeFilter(buffer: d.dropFirst(c.dataStart))))
         case 0x11:
-            published.send(.attenuation(Attenuation(buffer: d.dropFirst(c.dataStart))))
+            civPpublished.send(.attenuation(Attenuation(buffer: d.dropFirst(c.dataStart))))
         case 0xfa:  // NAK
-            published.send(.printDump("NAK"))
+            civPpublished.send(.printDump("NAK"))
         case 0xfb:  // ACK
-            published.send(.printDump("ACK"))
+            civPpublished.send(.printDump("ACK"))
         default:
-            published.send(.printDump(d.dump()))
+            civPpublished.send(.printDump(d.dump()))
         }
     }
     
@@ -96,10 +98,11 @@ class CIV {
      this is a scope data packet, unsolicited
      */
     func isUnsolicited(data: Data) -> Bool {
-        if data.count > 2, data[2] == 0x00 {
+        typealias c = CIVDefinition
+        if data.count > 2 + c.dataStart, data[2 + c.dataStart] == 0x00 {
             return true
         }
-        if data.count > 5, data[4] == 0x27, data[5] == 0x00 {
+        if data.count > 5 + c.dataStart, data[4 + c.dataStart] == 0x27, data[5 + c.dataStart] == 0x00 {
             return true
         }
         return false
