@@ -151,6 +151,17 @@ class PacketCreate {
         return packet
     }
 
+    func disconnectPacket(replyTo: Data) -> Data {
+        typealias c = ControlDefinition
+        var packet = Data(count: c.dataLength)
+        packet[c.length] = Data(UInt32(c.dataLength))
+        packet[c.type] = Data(ControlPacketType.disconnect)
+        packet[c.sendId] = replyTo[c.recvId]
+        packet[c.recvId] = replyTo[c.sendId]
+        packet[c.sequence] = Data(UInt16(1))
+        return packet
+    }
+
     func openClosePacket(open: Bool) -> Data {
         typealias c = ControlDefinition
         typealias o = OpenCloseDefinition

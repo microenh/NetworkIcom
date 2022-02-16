@@ -50,16 +50,15 @@ class UDPControl: UDPBase {
     func disconnect() {
         basePublished.send(.state("Disconnecting..."))
         send(data: self.packetCreate.disconnectPacket())
+        self.invalidateTimers()
+        self.disconnecting = true
         if self.haveToken {
             send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
-            self.armResendTimer()
-//            retryShutdown = true
+            // self.armResendTimer()
+            // retryShutdown = true
 //        } else {
-//            self.invalidateTimers()
-//            self.disconnecting = true
-//            self.send(data: self.packetCreate.disconnectPacket())
-//            self.armIdleTimer()
         }
+        self.armIdleTimer()
     }
     
 //    // force "Hard" disconnect, when normal disconnect fails.

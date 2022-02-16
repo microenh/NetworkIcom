@@ -18,6 +18,8 @@ struct MainView: View {
                                         computer: "MAC-MINI",
                                         hostCivAddr: 0xe0)
     
+    @State var state = false
+    
     var body: some View {
         VStack {
             VStack {
@@ -30,24 +32,43 @@ struct MainView: View {
             }
             Divider()
             VStack {
-                Text("Serial")
-                    .font(.title)
-                Text("State: \(icomVM.serialState)")
-                Text("Latency: \(icomVM.serialLatency)")
-                Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
-                Text("Frequency: \(icomVM.frequency)")
-                    .onTapGesture {
-                        icomVM.frequency = 0
-                    }
-                Text(icomVM.modeFilter.description)
-                Text(icomVM.attenuation.description)
-                Text("Queue size: \(icomVM.queueSize)")
-                Button("CIV-Command") {
-                    icomVM.serial?.send(command: 0x03)
+                VStack {
+                    Text("Serial")
+                        .font(.title)
+                    Text("State: \(icomVM.serialState)")
+                    Text("Latency: \(icomVM.serialLatency)")
+                    Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
+                    Text("Frequency: \(icomVM.frequency)")
+                        .onTapGesture {
+                            icomVM.frequency = 0
+                        }
+                    Text(icomVM.modeFilter.description)
+                    Text(icomVM.attenuation.description)
+                    Text("Queue size: \(icomVM.queueSize)")
                 }
-                Text(icomVM.printDump)
-                    .font(.system(size: 10, design: .monospaced))
-                    .fixedSize()
+                VStack {
+                    Button("CI-V") {
+                        state.toggle()
+                        // icomVM.readOperatingFrequency()
+                        // icomVM.setOperatingFrequency(frequency: 3_815_000)
+                        // icomVM.readOperatingMode()
+                        // icomVM.readAttenuation()
+                        // icomVM.readSsbRxHpfLpf()
+                        // icomVM.setOperatingMode(mode: .am, filter: .fil2)
+                        // icomVM.exchangeMainSub()
+                        // icomVM.equalizeMainSub()
+                        // icomVM.dualWatch(on: state)
+                        // icomVM.dualWatch()
+                        // icomVM.subBand(on: state)
+                        // icomVM.subBand()
+                        // icomVM.selectMemory(channel: 100)
+                        // icomVM.memoryToVFO()
+                        icomVM.memoryClear()
+                    }
+                    Text(icomVM.printDump)
+                        .font(.system(size: 10, design: .monospaced))
+                        .fixedSize()
+                }
             }
             Divider()
             VStack {

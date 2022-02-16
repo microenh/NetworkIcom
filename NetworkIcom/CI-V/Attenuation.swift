@@ -25,8 +25,8 @@ enum Attenuation: UInt8, Identifiable, CaseIterable, CustomStringConvertible {
     case att42 = 0x42
     case att45 = 0x45
     
-    init(buffer: Data) {
-        self = Attenuation(rawValue: buffer.first ?? Attenuation.attOff.rawValue) ?? .attOff
+    init(value: UInt8) {
+        self = Attenuation(rawValue: value) ?? .attOff
     }
 
     var id: UInt8 {self.rawValue}

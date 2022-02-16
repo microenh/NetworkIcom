@@ -40,14 +40,15 @@ extension Data {
         return value
     }
     
-    func dump(columns: Int = 16) -> String {
+    var dump: String {
+        let columns = 16
         var result = ""
         for i in stride(from: 0, to: self.count, by: columns) {
             let j = Swift.min(i + columns, self.count)
             let k = i + columns - j
             
-            let hex = (self[i..<j].map() {b in String(format: "%02x", b)} + Array(repeating: "  ", count: k)).joined(separator: " ")
-            let ascii = self[i..<j].map() {b in (32..<128).contains(b) ? String(format: "%c", b)  : "."}.joined(separator: "")
+            let hex = (self[startIndex + i..<startIndex + j].map() {b in String(format: "%02x", b)} + Array(repeating: "  ", count: k)).joined(separator: " ")
+            let ascii = self[startIndex + i..<startIndex + j].map() {b in (32..<128).contains(b) ? String(format: "%c", b)  : "."}.joined(separator: "")
             result += "\r" + hex + " | " + ascii
         }
         return result

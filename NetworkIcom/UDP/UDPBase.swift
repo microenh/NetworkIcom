@@ -91,6 +91,7 @@ class UDPBase {
     }
     
     func startConnection() {
+        send(data: packetCreate.disconnectPacket())
         armResendTimer()
         retryPacket = packetCreate.areYouTherePacket()
         send(data: retryPacket)
@@ -150,7 +151,13 @@ class UDPBase {
             }
         } else {
             // Ping request from radio
-            send(data: packetCreate.pingPacket(replyTo: current))
+            if current[c.recvId].uint32 == packetCreate.myId {
+                send(data: packetCreate.pingPacket(replyTo: current))
+            } else {
+                // happens if there is an incomplete shutdown of the link
+                // (i.e. the application crashed)                
+                send(data: packetCreate.disconnectPacket(replyTo: current))
+            }
         }
     }
     
@@ -181,7 +188,7 @@ class UDPBase {
     func onIdleTimer(timer: Timer) {
         if disconnecting {
             invalidateTimers()
-            disconnecting = false
+            // disconnecting = false
             basePublished.send(.state("Disconnected"))
             basePublished.send(.connected(false))
             connection?.cancel()

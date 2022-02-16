@@ -40,8 +40,8 @@ class UDPSerial: UDPBase {
     private var waitReply = false
     func send(command: UInt8,
               subCommand: UInt8? = nil,
-              selector: UInt8? = nil,
-              data: [UInt8]? = nil) {
+              selector: UInt16? = nil,
+              data: Data? = nil) {
         let civPacket = civ.buildRequest(command: command,
                                          subCommand: subCommand,
                                          selector: selector,

@@ -46,47 +46,52 @@ class CIV {
 
     private(set) var isReply = false
     
-    func decode(_ d: Data) {
-        typealias c = CIVDefinition
-        isReply = false
-        guard d[c.source].uint8 == radioCivAddr else {
-            return
-        }
-        if !isUnsolicited(data: d) {
-            isReply = true
-        }
-        switch d[c.civCmd].uint8 {
-        case 0x00, 0x03:
-            civPpublished.send(.frequency(Int(frequencyBuffer: d.dropFirst(c.dataStart))))
-        case 0x01, 0x04:
-            civPpublished.send(.modeFilter(ModeFilter(buffer: d.dropFirst(c.dataStart))))
-        case 0x11:
-            civPpublished.send(.attenuation(Attenuation(buffer: d.dropFirst(c.dataStart))))
-        case 0xfa:  // NAK
-            civPpublished.send(.printDump("NAK"))
-        case 0xfb:  // ACK
-            civPpublished.send(.printDump("ACK"))
-        default:
-            civPpublished.send(.printDump(d.dump()))
-        }
-    }
-    
     func buildRequest(command: UInt8,
                       subCommand: UInt8? = nil,
-                      selector: UInt8? = nil,
-                      data: [UInt8]? = nil) -> Data {
+                      selector: UInt16? = nil,
+                      data: Data? = nil) -> Data {
         var result = [0xfe, 0xfe, radioCivAddr, hostCivAddr, command]
         if let subCommand = subCommand {
             result.append(subCommand)
         }
         if let selector = selector {
-            result.append(selector)
+            result.append(contentsOf: Data(selector.bigEndian))
         }
         if let data = data {
             result.append(contentsOf: data)
         }
         result.append(0xfd)
         return Data(result)
+    }
+    
+    private var current = Data()
+    
+    func decode(_ d: Data) {
+        current = d
+        typealias c = CIVPacketDefinition
+        isReply = false
+        guard current[c.src].uint8 == radioCivAddr else {
+            return
+        }
+        if !isUnsolicited() {
+            isReply = true
+        }
+        switch d[c.cmd].uint8 {
+        case 0x00, 0x03:
+            civPpublished.send(.frequency(Int(frequencyBuffer: current[c.frequency])))
+        case 0x01, 0x04:
+            civPpublished.send(.modeFilter(ModeFilter(buffer: current[c.modeFilter])))
+        case 0x11:
+            civPpublished.send(.attenuation(Attenuation(value: current[c.attenuation].uint8)))
+        case 0xfa:  // NAK
+            civPpublished.send(.printDump("NAK"))
+        case 0xfb:  // ACK
+            civPpublished.send(.printDump("ACK"))
+        default:
+            print (current.count)
+            let x = current.dropFirst(CIVDefinition.headerLength).dump
+            civPpublished.send(.printDump(x))
+        }
     }
     
     /*
@@ -97,12 +102,12 @@ class CIV {
      if the command is 0x27 and the subCommand is 0x00
      this is a scope data packet, unsolicited
      */
-    func isUnsolicited(data: Data) -> Bool {
-        typealias c = CIVDefinition
-        if data.count > 2 + c.dataStart, data[2 + c.dataStart] == 0x00 {
+    func isUnsolicited() -> Bool {
+        typealias c = CIVPacketDefinition
+        if current.count > c.dest.0, current[c.dest].uint8 == 0x00 {
             return true
         }
-        if data.count > 5 + c.dataStart, data[4 + c.dataStart] == 0x27, data[5 + c.dataStart] == 0x00 {
+        if current.count > c.subCmd.0, current[c.cmd].uint8 == 0x27, current[c.subCmd].uint8 == 0x00 {
             return true
         }
         return false

@@ -44,18 +44,26 @@ struct OpenCloseDefinition {
     // 16000000 0000 0100 0c7fc352 c5ad823e c0 0100 0000 05
 }
 
+// UDP packet containing CI-V string
 struct CIVDefinition {
     static let headerLength = 0x15
-    static let dataStart = 0x1a
     // Control
     static let cmd      = (0x10, 1) // 0xc1
     static let length   = (0x11, 2) // length of CI-V packet (incl fefe and fd) little-endian
     static let sequence = (0x13, 2) // radio big-endian, computer little-endian
-    // CI-V string
-    static let dest     = (0x17, 1)
-    static let source   = (0x18, 1)
-    static let civCmd   = (0x19, 1)
     // sample packet: 1e0000000000900fc5ad823e0c7fc352 c1 0900 000d fefee09815020000fd
+}
+
+// offsets within UDP packet of CI-V Packet elements
+struct CIVPacketDefinition {
+    static let dest        = (0x17, 1)
+    static let src         = (0x18, 1)
+    static let cmd         = (0x19, 1)
+    static let subCmd      = (0x1a, 1)
+    static let selector    = (0x1b, 2)
+    static let frequency   = (0x1a, 5)
+    static let modeFilter  = (0x1a, 2)
+    static let attenuation = (0x1a, 1)
 }
 
 struct RetransmitDefinition {

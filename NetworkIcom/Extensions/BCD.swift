@@ -27,4 +27,8 @@ extension UInt8 {
         Data([(self.toBCD)])
     }
     
+    var buffer2: Data {
+        Data([(self / 100).toBCD, (self % 100).toBCD])
+    }
+    
 }
