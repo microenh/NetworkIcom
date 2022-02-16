@@ -48,6 +48,7 @@
 		4D321E8627B35F250023568A /* DataUIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8527B35F250023568A /* DataUIntExtensions.swift */; };
 		4D321E8727B35F250023568A /* DataUIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8527B35F250023568A /* DataUIntExtensions.swift */; };
 		4D321E8927B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
+		4D85C29827BD8E88006EFAC4 /* CIVDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */; };
 		4D94D8BB27B6A44700F89E74 /* PacketCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */; };
 		4D94D8BC27B6A7E300F89E74 /* PacketCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */; };
 		4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424A27B548AB0064882D /* IcomVM.swift */; };
@@ -101,6 +102,7 @@
 		4D321E7827B35EE60023568A /* CloseDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloseDelegate.swift; sourceTree = "<group>"; };
 		4D321E8527B35F250023568A /* DataUIntExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataUIntExtensions.swift; sourceTree = "<group>"; };
 		4D321E8827B35FE40023568A /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
+		4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVDecode.swift; sourceTree = "<group>"; };
 		4D8C308D27BAECC600E16826 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketCreate.swift; sourceTree = "<group>"; };
 		4DC4424A27B548AB0064882D /* IcomVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcomVM.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 				4D00FD9127B5F33F00FCE939 /* Mode.swift */,
 				4D00FD8827B5F31600FCE939 /* ModeFilter.swift */,
 				4D00FD9927B6048C00FCE939 /* CIV.swift */,
+				4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */,
 			);
 			path = "CI-V";
 			sourceTree = "<group>";
@@ -407,6 +410,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D85C29827BD8E88006EFAC4 /* CIVDecode.swift in Sources */,
 				4D00FD9A27B6048C00FCE939 /* CIV.swift in Sources */,
 				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
 				4D0A661A27BC8AFC00704B4D /* CIVCommands.swift in Sources */,

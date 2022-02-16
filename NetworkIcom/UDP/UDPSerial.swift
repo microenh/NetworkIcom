@@ -17,13 +17,17 @@ class UDPSerial: UDPBase {
         case sendQueueSize(Int)
     }
     
+    let civDecode: (Data) -> ()
+    
     var published = PassthroughSubject<Published, Never>()
 
     init(host: String, port: UInt16,
          user: String, password: String, computer: String,
-         radioCivAddr: UInt8, hostCivAddr: UInt8) {
+         radioCivAddr: UInt8, hostCivAddr: UInt8,
+         civDecode: @escaping (Data) -> ()) {
         
         civ = CIV(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
+        self.civDecode = civDecode
         super.init(host: host, port: port, user: user, password: password, computer: computer)
     }
     
@@ -69,11 +73,17 @@ class UDPSerial: UDPBase {
             return
         }
         if current.count > c.headerLength && current[c.cmd].uint8 == CIVCode.code {
-            civ.decode(current)
-            if civ.isReply {
+            // print (current.dump)
+            let civData = Data(current.dropFirst(c.headerLength))
+            // print (civData.dump)
+            if !civ.isUnsolicited(civData: civData) {
                 waitReply = false
                 sendIfNeeded()
             }
+            civDecode(civData)
+//            DispatchQueue.main.async { [weak self] in
+//                self?.civDecode(civData)
+//            }
             return
         }
         switch current.count {

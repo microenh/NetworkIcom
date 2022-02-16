@@ -18,11 +18,7 @@ class IcomVM: ObservableObject {
     @Published var serialLatency = 0.0
     @Published var serialState = ""
     @Published var serialRetransmitCount = 0
-    @Published var frequency = 0
-    @Published var modeFilter = ModeFilter(mode: .lsb, filter: .fil1)
-    @Published var attenuation = Attenuation.attOff
     @Published var connected = false
-    @Published var printDump = ""
     @Published var queueSize = 0
 
     private let host: String
@@ -36,6 +32,7 @@ class IcomVM: ObservableObject {
 
     var control: UDPControl?
     var serial: UDPSerial?
+    var civDecode: CIVDecode
     
     init(host: String,
          controlPort: UInt16,
@@ -54,6 +51,8 @@ class IcomVM: ObservableObject {
         self.password = password
         self.computer = computer
         self.hostCivAddr = hostCivAddr
+        
+        self.civDecode = CIVDecode(hostCivAddr: hostCivAddr)
     }
     
     private var controlCancellables: Set<AnyCancellable> = []
@@ -113,15 +112,13 @@ class IcomVM: ObservableObject {
         serialCancellables = []
         serial = UDPSerial(host: host, port: serialPort,
                            user: user, password: password, computer: computer,
-                           radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr)
+                           radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr,
+                           civDecode: civDecode.decode)
         serial?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialBaseData(data)
         }.store(in: &serialCancellables)
         serial?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialData(data)
-        }.store(in: &serialCancellables)
-        serial?.civ.civPpublished.receive(on: DispatchQueue.main).sink { [weak self] data in
-            self?.updateCIVData(data)
         }.store(in: &serialCancellables)
     }
     
@@ -154,16 +151,4 @@ class IcomVM: ObservableObject {
         }
     }
     
-    private func updateCIVData(_ data: CIV.CIVPublished) {
-        switch data {
-        case .frequency(let frequency):
-            self.frequency = frequency
-        case .modeFilter(let modeFilter):
-            self.modeFilter = modeFilter
-        case .attenuation(let attenuation):
-            self.attenuation = attenuation
-        case .printDump(let p):
-            self.printDump = p
-        }
-    }
 }

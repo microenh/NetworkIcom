@@ -54,16 +54,16 @@ struct CIVDefinition {
     // sample packet: 1e0000000000900fc5ad823e0c7fc352 c1 0900 000d fefee09815020000fd
 }
 
-// offsets within UDP packet of CI-V Packet elements
+// offsets in CI-V data
 struct CIVPacketDefinition {
-    static let dest        = (0x17, 1)
-    static let src         = (0x18, 1)
-    static let cmd         = (0x19, 1)
-    static let subCmd      = (0x1a, 1)
-    static let selector    = (0x1b, 2)
-    static let frequency   = (0x1a, 5)
-    static let modeFilter  = (0x1a, 2)
-    static let attenuation = (0x1a, 1)
+    static let dest        = (0x02, 1)
+    static let src         = (0x03, 1)
+    static let cmd         = (0x04, 1)
+    static let subCmd      = (0x05, 1)
+    static let selector    = (0x06, 2)
+    static let frequency   = (0x05, 5)
+    static let modeFilter  = (0x05, 2)
+    static let attenuation = (0x05, 1)
 }
 
 struct RetransmitDefinition {

@@ -38,18 +38,18 @@ struct MainView: View {
                     Text("State: \(icomVM.serialState)")
                     Text("Latency: \(icomVM.serialLatency)")
                     Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
-                    Text("Frequency: \(icomVM.frequency)")
+                    Text("Frequency: \(icomVM.civDecode.frequency)")
                         .onTapGesture {
-                            icomVM.frequency = 0
+                            icomVM.civDecode.frequency = 0
                         }
-                    Text(icomVM.modeFilter.description)
-                    Text(icomVM.attenuation.description)
+                    Text(icomVM.civDecode.modeFilter.description)
+                    Text(icomVM.civDecode.attenuation.description)
                     Text("Queue size: \(icomVM.queueSize)")
                 }
                 VStack {
                     Button("CI-V") {
                         state.toggle()
-                        // icomVM.readOperatingFrequency()
+                        icomVM.readOperatingFrequency()
                         // icomVM.setOperatingFrequency(frequency: 3_815_000)
                         // icomVM.readOperatingMode()
                         // icomVM.readAttenuation()
@@ -63,9 +63,9 @@ struct MainView: View {
                         // icomVM.subBand()
                         // icomVM.selectMemory(channel: 100)
                         // icomVM.memoryToVFO()
-                        icomVM.memoryClear()
+                        // icomVM.memoryClear()
                     }
-                    Text(icomVM.printDump)
+                    Text(icomVM.civDecode.printDump)
                         .font(.system(size: 10, design: .monospaced))
                         .fixedSize()
                 }
