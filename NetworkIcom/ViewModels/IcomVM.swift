@@ -32,7 +32,7 @@ class IcomVM: ObservableObject {
 
     var control: UDPControl?
     var serial: UDPSerial?
-    var civDecode: CIVDecode
+    var civDecode: (Data) -> ()
     
     init(host: String,
          controlPort: UInt16,
@@ -41,7 +41,8 @@ class IcomVM: ObservableObject {
          user: String,
          password: String,
          computer: String,
-         hostCivAddr: UInt8) {
+         hostCivAddr: UInt8,
+         civDecode: @escaping (Data) -> ()) {
         
         self.host = host
         self.controlPort = controlPort
@@ -52,7 +53,7 @@ class IcomVM: ObservableObject {
         self.computer = computer
         self.hostCivAddr = hostCivAddr
         
-        self.civDecode = CIVDecode(hostCivAddr: hostCivAddr)
+        self.civDecode = civDecode
     }
     
     private var controlCancellables: Set<AnyCancellable> = []
@@ -113,7 +114,7 @@ class IcomVM: ObservableObject {
         serial = UDPSerial(host: host, port: serialPort,
                            user: user, password: password, computer: computer,
                            radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr,
-                           civDecode: civDecode.decode)
+                           civDecode: civDecode)
         serial?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialBaseData(data)
         }.store(in: &serialCancellables)

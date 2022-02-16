@@ -8,15 +8,23 @@
 import SwiftUI
 
 struct MainView: View {
-    
-    @ObservedObject var icomVM = IcomVM(host: "192.168.12.196",
-                                        controlPort: 50001,
-                                        serialPort: 50002,
-                                        audioPort: 50003,
-                                        user: "n8me",
-                                        password: "msrkmsrk",
-                                        computer: "MAC-MINI",
-                                        hostCivAddr: 0xe0)
+        
+    @ObservedObject var civDecode: CIVDecode
+    @ObservedObject var icomVM: IcomVM
+
+    init() {
+        civDecode = CIVDecode(hostCivAddr: 0xe0)
+        
+        icomVM = IcomVM(host: "192.168.12.196",
+                        controlPort: 50001,
+                        serialPort: 50002,
+                        audioPort: 50003,
+                        user: "n8me",
+                        password: "msrkmsrk",
+                        computer: "MAC-MINI",
+                        hostCivAddr: 0xe0,
+                        civDecode: civDecode.decode)
+    }
     
     @State var state = false
     
@@ -38,12 +46,12 @@ struct MainView: View {
                     Text("State: \(icomVM.serialState)")
                     Text("Latency: \(icomVM.serialLatency)")
                     Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
-                    Text("Frequency: \(icomVM.civDecode.frequency)")
+                    Text("Frequency: \(civDecode.frequency)")
                         .onTapGesture {
-                            icomVM.civDecode.frequency = 0
+                            civDecode.frequency = 0
                         }
-                    Text(icomVM.civDecode.modeFilter.description)
-                    Text(icomVM.civDecode.attenuation.description)
+                    Text(civDecode.modeFilter.description)
+                    Text(civDecode.attenuation.description)
                     Text("Queue size: \(icomVM.queueSize)")
                 }
                 VStack {
@@ -65,7 +73,7 @@ struct MainView: View {
                         // icomVM.memoryToVFO()
                         // icomVM.memoryClear()
                     }
-                    Text(icomVM.civDecode.printDump)
+                    Text(civDecode.printDump)
                         .font(.system(size: 10, design: .monospaced))
                         .fixedSize()
                 }
