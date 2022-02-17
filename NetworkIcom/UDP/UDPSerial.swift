@@ -76,14 +76,13 @@ class UDPSerial: UDPBase {
             // print (current.dump)
             let civData = Data(current.dropFirst(c.headerLength))
             // print (civData.dump)
-            civDecode(civData)
             if !civ.isUnsolicited(civData: civData) {
                 waitReply = false
                 sendIfNeeded()
             }
-//            DispatchQueue.main.async { [weak self] in
-//                self?.civDecode(civData)
-//            }
+            DispatchQueue.main.async { [weak self] in
+                self?.civDecode(civData)
+            }
             return
         }
         switch current.count {

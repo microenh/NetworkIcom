@@ -13,9 +13,10 @@ struct MainView: View {
     @ObservedObject var icomVM: IcomVM
 
     init() {
-        civDecode = CIVDecode(hostCivAddr: 0xe0)
         
-        icomVM = IcomVM(host: "192.168.12.196",
+        let civDecode = CIVDecode(hostCivAddr: 0xe0)
+        
+        let icomVM = IcomVM(host: "192.168.12.196",
                         controlPort: 50001,
                         serialPort: 50002,
                         audioPort: 50003,
@@ -24,10 +25,14 @@ struct MainView: View {
                         computer: "MAC-MINI",
                         hostCivAddr: 0xe0,
                         civDecode: civDecode.decode)
+        
+        self.civDecode = civDecode
+        self.icomVM = icomVM
     }
     
     @State var state = false
-    
+    @State var state2 = false
+
     var body: some View {
         VStack {
             VStack {
@@ -56,8 +61,12 @@ struct MainView: View {
                 }
                 VStack {
                     Button("CI-V") {
+                        // icomVM.serial?.send(command: 0x1a, subCommand: 0x00, data: Data([UInt8(0), 0x01]))
                         state.toggle()
-                        icomVM.readOperatingFrequency()
+                        if !state {
+                            state2.toggle()
+                        }
+                        // icomVM.readOperatingFrequency()
                         // icomVM.setOperatingFrequency(frequency: 3_815_000)
                         // icomVM.readOperatingMode()
                         // icomVM.readAttenuation()
@@ -72,6 +81,20 @@ struct MainView: View {
                         // icomVM.selectMemory(channel: 100)
                         // icomVM.memoryToVFO()
                         // icomVM.memoryClear()
+                        // icomVM.startPgmMemoryScan()
+                        // icomVM.selectΔFrequencySpan(span: .kHz100)
+                        // icomVM.readSetSplit(on: state)
+                        // icomVM.readSetTuneStep(step: state ? .hz100 : .off)
+                        // icomVM.readSetAttenuation(attn: state ? .att18 : .attOff)
+                        // icomVM.readSetRxAnt(ant2: state, rxOn: state2)
+                        // icomVM.speak(speech: .mode)
+                        // icomVM.readSetLevel0x14(which: .afGain, value: state ? 0 : 255)
+                        // icomVM.readSetLevel0x14(which: .afGain)
+                        // icomVM.readMeter(which: .current)
+                        // icomVM.readSetPreamp(which: state ? 2 : 0)
+                        // icomVM.readSetPreamp()
+                        icomVM.readSetAGC(which: state ? 3 : 1)
+                        icomVM.readSetAGC()
                     }
                     Text(civDecode.printDump)
                         .font(.system(size: 10, design: .monospaced))
