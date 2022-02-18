@@ -313,5 +313,4 @@ extension IcomVM {
         serial?.send(command: 0x19, subCommand: 0x00)
     }
     
-    func readSsbRxHpfLpf()        { serial?.send(command: 0x1a, subCommand: 0x05, selector: 0x01) }
 }

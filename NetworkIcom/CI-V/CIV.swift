@@ -39,14 +39,14 @@ class CIV {
     
     func buildRequest(command: UInt8,
                       subCommand: UInt8? = nil,
-                      selector: UInt16? = nil,
+                      selector: Data? = nil,
                       data: Data? = nil) -> Data {
         var result = [0xfe, 0xfe, radioCivAddr, hostCivAddr, command]
         if let subCommand = subCommand {
             result.append(subCommand)
         }
         if let selector = selector {
-            result.append(contentsOf: Data(selector.bigEndian))
+            result.append(contentsOf: selector)
         }
         if let data = data {
             result.append(contentsOf: data)

@@ -44,7 +44,7 @@ class UDPSerial: UDPBase {
     private var waitReply = false
     func send(command: UInt8,
               subCommand: UInt8? = nil,
-              selector: UInt16? = nil,
+              selector: Data? = nil,
               data: Data? = nil) {
         let civPacket = civ.buildRequest(command: command,
                                          subCommand: subCommand,
@@ -80,9 +80,10 @@ class UDPSerial: UDPBase {
                 waitReply = false
                 sendIfNeeded()
             }
-            DispatchQueue.main.async { [weak self] in
-                self?.civDecode(civData)
-            }
+//            DispatchQueue.main.async { [weak self] in
+//                self?.civDecode(civData)
+//            }
+            self.civDecode(civData)
             return
         }
         switch current.count {

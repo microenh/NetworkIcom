@@ -62,44 +62,88 @@ enum Tones: UInt16 {
     case t254_1 = 2541
 }
 
-
-
 enum BandStack : UInt8 {
     case latest = 1
     case mid
     case oldest
 }
 
+struct MemoryContents {
+    let selected: UInt8
+    let frequency: Int
+    let mode: Mode
+    let filter: Filter
+    let dataMode: DataMode
+    let squelchType: SquelchType
+    let repeaterTone: Tones
+    let toneSquelch: Tones
+    let memoryName: String
+    
+    var data: Data {
+        selected.data + frequency.frequencyBuffer + mode.rawValue.data +
+        filter.rawValue.data + (dataMode.rawValue << 4 + squelchType.rawValue).data +
+        repeaterTone.rawValue.toneBuffer + toneSquelch.rawValue.toneBuffer + memoryName.dataPaddedWithSpaces(length: 10)
+    }
+}
+
+struct BandstackContents {
+    let frequency: Int
+    let mode: Mode
+    let filter: Filter
+    let dataMode: DataMode
+    let squelchType: SquelchType
+    let repeaterTone: Tones
+    let toneSquelch: Tones
+    
+    var data: Data {
+        frequency.frequencyBuffer + mode.rawValue.data +
+        filter.rawValue.data + (dataMode.rawValue << 4 + squelchType.rawValue).data +
+        repeaterTone.rawValue.toneBuffer + toneSquelch.rawValue.toneBuffer
+    }
+}
+
+struct HpfLpf {
+    let hpf: UInt8
+    let lpf: UInt8
+    
+    var data: Data {
+        hpf.buffer + lpf.buffer
+    }
+}
+
+
 extension IcomVM {
     
-    func readMemoryContents(memory: UInt8) {
-        serial?.send(command: 0x1a, subCommand: 0x00, data: memory.buffer2)
-    }
-    
-    func setMemoryContents(memory: UInt8,
-                           selected: UInt8,
-                           frequency: Int,
-                           mode: Mode,
-                           filter: Filter,
-                           dataMode: DataMode,
-                           squelchType: SquelchType,
-                           repeaterTone: Tones,
-                           toneSquelch: Tones,
-                           memoryName: String) {
-        
-        let nameData = (Data(memoryName.compactMap{$0.asciiValue}) + Data(repeating: 0x20, count: 10)).prefix(10)
-        let data = memory.buffer2 + selected.data + frequency.frequencyBuffer + mode.rawValue.data +
-        filter.rawValue.data + (dataMode.rawValue << 4 + squelchType.rawValue).data +
-        repeaterTone.rawValue.toneBuffer + toneSquelch.rawValue.toneBuffer + nameData
-        
-        serial?.send(command: 0x1a, subCommand: 0x00, data: data)
+    func readSetMemoryContents(memory: UInt8, contents: MemoryContents? = nil) {
+        serial?.send(command: 0x1a, subCommand: 0x00, selector: UInt16(memory).bcdSelector, data: contents?.data)
     }
     
     func clearMemoryContents(memory: UInt8) {
         serial?.send(command: 0x1a, subCommand: 0x00, data: memory.buffer2 + UInt8(0xff).data)
     }
     
-    func readBandStackRegister(band: Band, which: BandStack) {
-        serial?.send(command: 0x1a, subCommand: 0x01, data: band.rawValue.data + which.rawValue.data)
+    func readSetBandStackRegister(band: Band, which: BandStack, contents: BandstackContents? = nil) {
+        serial?.send(command: 0x1a, subCommand: 0x01,
+                     data: band.rawValue.data + which.rawValue.data + (contents?.data ?? Data()))
     }
+    
+    // use empty String to clear memory
+    func readSetMemoryKeyer(which: UInt8, message: String? = nil) {
+        serial?.send(command: 0x1a, subCommand: 0x02, data: which.buffer + (message?.dataPaddedWithSpaces(length: 70) ?? Data()))
+    }
+    
+    // SSB/CW/PSK: 0 ... 40, RTTY: 0 ... 31, AM: 0 ... 49
+    func readSetIFFilterWidth(width: UInt8? = nil) {
+        serial?.send(command: 0x1a, subCommand: 0x03, data: width?.buffer)
+    }
+    
+    // 0 ... 13
+    func readSetAGCTimeConstant(time: UInt8? = nil) {
+        serial?.send(command: 0x1a, subCommand: 0x04, data: time?.buffer)
+    }
+    
+    func readSetSsbRxHpfLpf(hpfLpf: HpfLpf? = nil) {
+        serial?.send(command: 0x1a, subCommand: 0x05, selector: UInt16(1).bcdSelector, data: hpfLpf?.data)
+    }
+
 }

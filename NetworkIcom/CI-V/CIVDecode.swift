@@ -27,18 +27,33 @@ class CIVDecode: ObservableObject {
         }
         switch current[c.cmd].uint8 {
         case 0x00, 0x03:
-            frequency = Int(frequencyBuffer: current[c.frequency])
+            let frequency = Int(frequencyBuffer: current[c.frequency])
+            DispatchQueue.main.async { [weak self] in
+                self?.frequency = frequency
+            }
         case 0x01, 0x04:
-            modeFilter = ModeFilter(buffer: current[c.modeFilter])
+            let modeFilter = ModeFilter(buffer: current[c.modeFilter])
+            DispatchQueue.main.async { [weak self] in
+                self?.modeFilter = modeFilter
+            }
         case 0x11:
-            attenuation = Attenuation(value: current[c.attenuation].uint8)
+            let attenuation = Attenuation(value: current[c.attenuation].uint8)
+            DispatchQueue.main.async { [weak self] in
+                self?.attenuation = attenuation
+            }
         case 0xfa:  // NAK
-            printDump = "NAK"
+            DispatchQueue.main.async { [weak self] in
+                self?.printDump = "NAK"
+            }
         case 0xfb:  // ACK
-            printDump = "ACK"
+            DispatchQueue.main.async { [weak self] in
+                self?.printDump = "ACK"
+            }
         default:
             // print (current.dropFirst(6).dump)
-            printDump = current.dump
+            DispatchQueue.main.async { [weak self] in
+                self?.printDump = current.dump
+            }
         }
     }
 }

@@ -30,5 +30,12 @@ extension UInt8 {
     var buffer2: Data {
         Data([(self / 100).toBCD, (self % 100).toBCD])
     }
+}
+
+extension UInt16 {
     
+    // 9876 -> Data([0x98, 0x76])
+    var bcdSelector: Data {
+        Data([UInt8(self / 100).toBCD, UInt8((self % 100)).toBCD])
+    }
 }
