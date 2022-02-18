@@ -93,8 +93,41 @@ struct MainView: View {
                         // icomVM.readMeter(which: .current)
                         // icomVM.readSetPreamp(which: state ? 2 : 0)
                         // icomVM.readSetPreamp()
-                        icomVM.readSetAGC(which: state ? 3 : 1)
-                        icomVM.readSetAGC()
+                        // icomVM.readSetAGC(value: state ? .fast : .slow)
+                        // icomVM.readSetAGC()
+                        // icomVM.readSetAPF(value: state ? .wide : .off)
+                        // icomVM.readSetAPF()
+                        // let which = Code0x16OnOff.speechComp
+                        // icomVM.readSetCode0x16OnOff(which: which, on: state)
+                        // icomVM.readSetCode0x16OnOff(which: which)
+                        // icomVM.readSetBreakIn(value: state ? .full : .off)
+                        // icomVM.readSetBreakIn()
+                        // icomVM.readSetSSBTxBandwidth(value: state ? .wide : .mid)
+                        // icomVM.readSetSSBTxBandwidth()
+                        // icomVM.readTransceiverID()
+                        // if state {
+                        //     icomVM.sendCW(message: "CQ CQ CQ DE N8ME N8ME ^AR^")
+                        // } else {
+                        //     icomVM.stopCW()
+                        // }
+                        // icomVM.power(on: state)
+//
+//                        icomVM.setMemoryContents(memory: 1,
+//                                                 selected: 0,
+//                                                 frequency: 3_815_000,
+//                                                 mode: .lsb,
+//                                                 filter: .fil1,
+//                                                 dataMode: .off,
+//                                                 squelchType: .off,
+//                                                 repeaterTone: .t88_5,
+//                                                 toneSquelch: .t88_5,
+//                                                 memoryName: "")
+//
+//                        icomVM.readMemoryContents(memory: 1)
+//
+//                        icomVM.clearMemoryContents(memory: 100)
+                        
+                        icomVM.readBandStackRegister(band: .band80, which: .latest)
                     }
                     Text(civDecode.printDump)
                         .font(.system(size: 10, design: .monospaced))
@@ -103,7 +136,7 @@ struct MainView: View {
             }
             Divider()
             VStack {
-                Button(icomVM.connected ? "Disconnect" :"Connect") {
+                Button(icomVM.connected ? "Disconnect" : "Connect") {
                     if icomVM.connected {
                         icomVM.disconnectControl()
                     } else {

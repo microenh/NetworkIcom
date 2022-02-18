@@ -37,4 +37,10 @@ extension Int {
     var tone: Double {
         Double(self) * 0.1
     }
+    
+    // frequency is times 10 (885 == 88.5)
+    var toneBuffer : Data {
+        Data([UInt8(0), UInt8(self / 100).toBCD, UInt8(self % 100).toBCD])
+        
+    }
 }

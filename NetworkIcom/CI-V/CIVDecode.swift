@@ -37,7 +37,7 @@ class CIVDecode: ObservableObject {
         case 0xfb:  // ACK
             printDump = "ACK"
         default:
-            // print (current.count)
+            // print (current.dropFirst(6).dump)
             printDump = current.dump
         }
     }
