@@ -58,6 +58,7 @@
 		4DA6C39A27BF34FC0028F79A /* UInt16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DA6C39927BF34FC0028F79A /* UInt16.swift */; };
 		4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424A27B548AB0064882D /* IcomVM.swift */; };
 		4DC4424D27B5532F0064882D /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424C27B5532F0064882D /* Locks.swift */; };
+		4DC581D427C1796700A02CB9 /* BandscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC581D327C1796700A02CB9 /* BandscopeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,6 +118,7 @@
 		4DA6C39927BF34FC0028F79A /* UInt16.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UInt16.swift; sourceTree = "<group>"; };
 		4DC4424A27B548AB0064882D /* IcomVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcomVM.swift; sourceTree = "<group>"; };
 		4DC4424C27B5532F0064882D /* Locks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locks.swift; sourceTree = "<group>"; };
+		4DC581D327C1796700A02CB9 /* BandscopeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BandscopeView.swift; sourceTree = "<group>"; };
 		4DCF2D2A27B9B886002A1E5A /* RS-BA1 Analysis.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RS-BA1 Analysis.txt"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -204,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				4D321E4727B358620023568A /* MainView.swift */,
+				4DC581D327C1796700A02CB9 /* BandscopeView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -429,6 +432,7 @@
 				4D00FD9A27B6048C00FCE939 /* CIV.swift in Sources */,
 				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
 				4D0A661A27BC8AFC00704B4D /* CIVCommands.swift in Sources */,
+				4DC581D427C1796700A02CB9 /* BandscopeView.swift in Sources */,
 				4D00FD7327B5CD9600FCE939 /* UDPSerial.swift in Sources */,
 				4DA6C39827BF06560028F79A /* CIVCommands0x18.swift in Sources */,
 				4D51F8F627BDEABC002E98E9 /* UInt8.swift in Sources */,
@@ -636,6 +640,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -663,6 +668,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

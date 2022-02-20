@@ -64,6 +64,14 @@ struct CIVPacketDefinition {
     static let frequency   = (0x05, 5)
     static let modeFilter  = (0x05, 2)
     static let attenuation = (0x05, 1)
+    static let panMainSub  = (0x06, 1)
+    static let panOrder    = (0x07, 1)
+    static let panDivision = (0x08, 1)
+    static let panScopeMode = (0x09, 1)
+    static let panLower     = (0x0a, 5)
+    static let panUpper     = (0x0f, 5)
+    static let panOutOfRange = (0x14, 1)
+    static let panData       = (0x15, 689)
 }
 
 struct RetransmitDefinition {

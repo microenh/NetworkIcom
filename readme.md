@@ -81,3 +81,6 @@ The host sends a disconnect packet to stop the radio sending "Ping" and "Idle" p
 
 ## Update 2/14/2022 💞
 The radio is now responding to CI-V queries reliably. What was needed was to send a ConnInfo packet from the host.
+
+## Update 2/19/2022
+Panadapter is working.

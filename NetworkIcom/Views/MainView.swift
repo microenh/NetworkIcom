@@ -11,6 +11,8 @@ struct MainView: View {
         
     @ObservedObject var civDecode: CIVDecode
     @ObservedObject var icomVM: IcomVM
+    
+    @Environment(\.openURL) var openURL
 
     init() {
         
@@ -34,7 +36,7 @@ struct MainView: View {
     @State var state2 = false
     @State var counter = ""
     @State var counter2 = ""
-
+    
     var body: some View {
         VStack {
             VStack {
@@ -171,6 +173,12 @@ struct MainView: View {
                         icomVM.connectControl()
                     }
                 }
+            }
+            Divider()
+            VStack {
+                Text("Pan Timing: \(civDecode.panadapter.2)")
+                BandscopeView(data: (civDecode.panadapter.0, civDecode.panadapter.1))
+                    .frame(width: 689, height: 200)
             }
         }
         .frame(minWidth: 200)
