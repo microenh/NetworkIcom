@@ -13,16 +13,18 @@ class CIVDecode: ObservableObject {
     @Published var modeFilter = ModeFilter(mode: .lsb, filter: .fil1)
     @Published var attenuation = Attenuation.attOff
     @Published var printDump = ""
-    @Published var panadapter = (Data(), Data(), 0.0)
-    
+    @Published var panadapterMain = (Data(), Data(), 0.0)
+    @Published var panadapterSub = (Data(), Data(), 0.0)
+
     let hostCivAddr: UInt8
     
-    static let historyCount = 10
+    static let historyCount = 40
+    static let points = 689
     
-    var panHistory = Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: 689)
-    var panIndex = -1
-   
-    var lastPan = Date.now
+    var panHistory = [Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: CIVDecode.points),
+                      Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: CIVDecode.points)]
+    var panHistoryIndex = [0, 0]
+    var lastPanTime = [Date.now, Date.now]
     
     init (hostCivAddr: UInt8) {
         self.hostCivAddr = hostCivAddr
@@ -50,22 +52,28 @@ class CIVDecode: ObservableObject {
                 self?.attenuation = attenuation
             }
         case 0x27:
-            if current[c.subCmd].uint8 == 0 {
+            switch current[c.subCmd].uint8 {
+            case UInt8(0):
+                let panIndex = Int(current[c.panMainSub].uint8)
                 let data = Data(current.dropFirst(c.panData.0).dropLast())
-                panIndex += 1
-                if panIndex >= CIVDecode.historyCount {
-                    panIndex = 0
+                for (i,j) in data.enumerated() {
+                    panHistory[panIndex][i][panHistoryIndex[panIndex]] = j
                 }
-                for i in 0..<689 {
-                    panHistory[i][panIndex] = data[i]
-                }
-                let data2 = Data(panHistory.map{$0.max() ?? 0})
+                panHistoryIndex[panIndex] = (panHistoryIndex[panIndex] + 1) % CIVDecode.historyCount
+                let data2 = Data(panHistory[panIndex].map{$0.max() ?? 0})
                 let current = Date.now
-                let delta = current.timeIntervalSince(lastPan) * 1000
-                lastPan = current
+                let delta = current.timeIntervalSince(lastPanTime[panIndex]) * 1000
+                lastPanTime[panIndex] = current
                 DispatchQueue.main.async { [weak self] in
-                    self?.panadapter = (data, data2, delta)
+                    if let self = self {
+                        if panIndex == 0 {
+                            self.panadapterMain = (data, data2, delta)
+                        } else {
+                            self.panadapterSub = (data, data2, delta)
+                        }
+                    }
                 }
+            default: break
             }
         case 0xfa:  // NAK
             DispatchQueue.main.async { [weak self] in

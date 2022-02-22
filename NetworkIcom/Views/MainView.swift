@@ -176,9 +176,14 @@ struct MainView: View {
             }
             Divider()
             VStack {
-                Text("Pan Timing: \(civDecode.panadapter.2)")
-                BandscopeView(data: (civDecode.panadapter.0, civDecode.panadapter.1))
-                    .frame(width: 689, height: 200)
+//                Text("Pan Timing: \(civDecode.panadapterMain.2)")
+                BandscopeView(data: (civDecode.panadapterMain.0, civDecode.panadapterMain.1))
+                    .fixedSize()
+                    // .frame(width: 693, height: 298)
+//                Text("Pan Timing: \(civDecode.panadapterSub.2)")
+//                BandscopeView(data: (civDecode.panadapterSub.0, civDecode.panadapterSub.1))
+//                    .fixedSize()
+//                    .frame(width: 694, height: 299)
             }
         }
         .frame(minWidth: 200)
