@@ -42,8 +42,6 @@ struct MainView: View {
             VStack {
 //                Text("Control")
 //                    .font(.title)
-                Text("State: \(icomVM.controlState)")
-                Text("Latency: \(icomVM.controlLatency)")
                 // Text("Retransmit Count: \(icomVM.controlRetransmitCount)")
                 // Text("CI-V Addr: \(String(format: "0x%02x", icomVM.radioCivAddr))")
             }
@@ -55,17 +53,25 @@ struct MainView: View {
                     // Text("State: \(icomVM.serialState)")
                     // Text("Latency: \(icomVM.serialLatency)")
                     // Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
-                    Text("Frequency: \(civDecode.frequency)")
-                        .onTapGesture {
-                            civDecode.frequency = 0
-                        }
+                    Text("\(String(format: "%0.3f", Double(civDecode.frequency) / 1_000_000)) MHz")
+                        .font(.largeTitle)
+//                        .onTapGesture {
+//                            civDecode.frequency = 0
+//                        }
                     Text(civDecode.modeFilter.description)
 //                    Text(civDecode.attenuation.description)
 //                    Text("Queue size: \(icomVM.queueSize)")
                 }
                 VStack {
                     HStack {
-                        Button("CI-V") {
+                        Text("Waterfall")
+                        Button("Clear") {
+                            civDecode.waterfallClear(which: 0)
+                        }
+//                        Button("Clear Sub") {
+//                            civDecode.waterfallClear(which: 1)
+//                        }
+                        Button(state ? "Stop" : "Start") {
 //                             icomVM.serial?.send(command: 0x1a, subCommand: 0x00, data: Data([UInt8(0), 0x01]))
                             state.toggle()
                             if !state {
@@ -154,10 +160,10 @@ struct MainView: View {
                             icomVM.readSetScopeWaveOn(on: state)
                             icomVM.readSetScopeWaveOn()
                         }
-                        TextField("Value 1", text: $counter)
-                            .fixedSize()
-                        TextField("Value 2", text: $counter2)
-                            .fixedSize()
+//                        TextField("Value 1", text: $counter)
+//                            .fixedSize()
+//                        TextField("Value 2", text: $counter2)
+//                            .fixedSize()
                     }
 //                    Text(civDecode.printDump)
 //                        .font(.system(size: 10, design: .monospaced))
@@ -167,14 +173,14 @@ struct MainView: View {
             VStack {
 //                Text("Pan Timing: \(civDecode.panadapterMain.2)")
                 BandscopeView(data: (civDecode.panadapterMain.0, civDecode.panadapterMain.1))
-                    .frame(width: 694, height: 299)
-                civDecode.image
-                    .frame(width: 694, height: 100)
-                    // .frame(width: 693, height: 298)
+                    .frame(width: 694, height: 200)
+                Image(decorative: civDecode.waterfallContexts[0].makeImage()!, scale: 1.0)
+                    .frame(width: 689, height: 100)
 //                Text("Pan Timing: \(civDecode.panadapterSub.2)")
 //                BandscopeView(data: (civDecode.panadapterSub.0, civDecode.panadapterSub.1))
-//                    .fixedSize()
-//                    .frame(width: 694, height: 299)
+//                    .frame(width: 694, height: 200)
+//                Image(decorative: civDecode.waterfallContexts[1].makeImage()!, scale: 1.0)
+//                    .frame(width: 689, height: 100)
             }
             VStack {
                 Button(icomVM.connected ? "Disconnect" : "Connect") {
@@ -184,6 +190,12 @@ struct MainView: View {
                         icomVM.connectControl()
                     }
                 }
+                HStack {
+                    Text("State: \(icomVM.controlState)")
+                    Text("Latency: \(icomVM.controlLatency)")
+                }
+                .font(.footnote)
+
             }
         }
         .frame(minWidth: 200)

@@ -12,11 +12,11 @@ import Combine
 class IcomVM: ObservableObject {
     
     @Published var controlLatency = 0.0
-    @Published var controlState = ""
+    @Published var controlState = "Disconnected"
     @Published var controlRetransmitCount = 0
     @Published var radioCivAddr = UInt8(0)
     @Published var serialLatency = 0.0
-    @Published var serialState = ""
+    @Published var serialState = "Disconnected"
     @Published var serialRetransmitCount = 0
     @Published var connected = false
     @Published var queueSize = 0
@@ -133,6 +133,8 @@ class IcomVM: ObservableObject {
             self.serialRetransmitCount = count
         case .connected(let connected):
             if connected {
+                serial?.send(command: 0x03)  // frequency
+                serial?.send(command: 0x04)  // mode-filter
             } else {
                 serial = nil
                 serialCancellables = []

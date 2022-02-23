@@ -11,6 +11,7 @@ import SwiftUI
 struct WaterfallSettings {
     static let columns = 689
     static let rows = 100
+    static let waterfallGain = 4
 }
 
 class CIVDecode: ObservableObject {
@@ -21,30 +22,25 @@ class CIVDecode: ObservableObject {
     @Published var printDump = ""
     @Published var panadapterMain = (Data(), Data(), 0.0)
     @Published var panadapterSub = (Data(), Data(), 0.0)
-    @Published var image: Image
-    private var context: CGContext
-    private let colorMap: [PixelColor]
-    private let data: UnsafeMutableRawPointer
-    private let secondRow: UnsafeMutableRawPointer
+    private(set) var waterfallContexts: [CGContext]
+    private let colorMap: Array<PixelColor>
     private static let bytesPerPixel = MemoryLayout<PixelColor>.size
     private static let bytesPerRow = CIVDecode.bytesPerPixel * WaterfallSettings.columns
     private static let bytesToMove = bytesPerRow * (WaterfallSettings.rows - 1)
-
-
+    
     let hostCivAddr: UInt8
     
     static let historyCount = 40
-    static let points = 689
     
-    var panHistory = [Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: CIVDecode.points),
-                      Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: CIVDecode.points)]
+    var panHistory = [Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: WaterfallSettings.columns),
+                      Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: WaterfallSettings.columns)]
     var panHistoryIndex = [0, 0]
     var lastPanTime = [Date.now, Date.now]
     
     init (hostCivAddr: UInt8) {
         self.hostCivAddr = hostCivAddr
-        colorMap = setColors(palette: FLDigiPalette.cyan)
-        let context = CGContext(
+        colorMap = setColors(palette: FLDigiPalette.fldigi)
+        let contextMain = CGContext(
             data: nil,
             width: WaterfallSettings.columns,
             height: WaterfallSettings.rows,
@@ -52,14 +48,18 @@ class CIVDecode: ObservableObject {
             bytesPerRow: CIVDecode.bytesPerRow,
             space: CGColorSpaceCreateDeviceRGB(),
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        context.setAllowsAntialiasing(false)
-        context.setShouldAntialias(false)
-        context.setFillColor(.clear)
-        
-        data = context.data!
-        self.context = context
-        secondRow = data.advanced(by: CIVDecode.bytesPerRow)
-        image = Image(decorative: context.makeImage()!, scale: 1.0)
+        let contextSub = CGContext(
+            data: nil,
+            width: WaterfallSettings.columns,
+            height: WaterfallSettings.rows,
+            bitsPerComponent: 8,
+            bytesPerRow: CIVDecode.bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+
+        self.waterfallContexts = [contextMain, contextSub]
+        waterfallClear(which: 0)
+        waterfallClear(which: 1)
     }
     
     func decode(_ current: Data) {
@@ -96,12 +96,18 @@ class CIVDecode: ObservableObject {
                 let current = Date.now
                 let delta = current.timeIntervalSince(lastPanTime[panIndex]) * 1000
                 lastPanTime[panIndex] = current
-                updateData(newData: data)
+                
+                if let waterfallData = waterfallContexts[panIndex].data {
+                    // move existing data down one row and insert new data row at top
+                    waterfallData.advanced(by: CIVDecode.bytesPerRow).copyMemory(from: waterfallData, byteCount: CIVDecode.bytesToMove)
+                    let pixelData = data.map{colorMap[min(WaterfallSettings.waterfallGain * Int($0), 255)]}
+                    waterfallData.copyMemory(from: pixelData, byteCount: CIVDecode.bytesPerRow)
+                }
+                
                 DispatchQueue.main.async { [weak self] in
                     if let self = self {
                         if panIndex == 0 {
                             self.panadapterMain = (data, data2, delta)
-                            self.image = Image(decorative: self.context.makeImage()!, scale: 1.0)
                         } else {
                             self.panadapterSub = (data, data2, delta)
                         }
@@ -125,16 +131,12 @@ class CIVDecode: ObservableObject {
         }
     }
     
-    func clear() {
-        context.fill(CGRect(x: 0, y: 0, width: WaterfallSettings.columns-1, height: WaterfallSettings.rows - 1))
+    func waterfallClear(which: Int) {
+        if let data = waterfallContexts[which].data {
+            data.initializeMemory(as: PixelColor.self,
+                                  repeating: .black,
+                                  count: WaterfallSettings.columns * WaterfallSettings.rows)
+        }
     }
     
-    func updateData(newData: Data) {
-        // move existing data down one row
-        secondRow.copyMemory(from: data, byteCount: CIVDecode.bytesToMove)
-        
-        let pixelData = newData.map{colorMap[min(4 * Int($0), 255)]}
-        data.copyMemory(from: pixelData, byteCount: CIVDecode.bytesPerRow)
-    }
-
 }
