@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Panadapter: Shape {
     let data: Data
-    let maxY = CGFloat(100)
+    let maxY = CGFloat(200)
     
     func path(in rect: CGRect) -> Path {
         var p = Path()
@@ -46,9 +46,7 @@ struct BandscopeView: View {
                 Panadapter(data: data.1)
                     .foregroundColor(.yellow.opacity(0.1))
             )
-            // .background(Image("panadapterBG"))
             .background(BGGrid().stroke(.gray, lineWidth: 1.0))
-            .frame(width: 400, height: 100)
     }
 }
 

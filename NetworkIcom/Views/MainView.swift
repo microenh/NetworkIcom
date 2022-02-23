@@ -40,28 +40,28 @@ struct MainView: View {
     var body: some View {
         VStack {
             VStack {
-                Text("Control")
-                    .font(.title)
+//                Text("Control")
+//                    .font(.title)
                 Text("State: \(icomVM.controlState)")
                 Text("Latency: \(icomVM.controlLatency)")
-                Text("Retransmit Count: \(icomVM.controlRetransmitCount)")
-                Text("CI-V Addr: \(String(format: "0x%02x", icomVM.radioCivAddr))")
+                // Text("Retransmit Count: \(icomVM.controlRetransmitCount)")
+                // Text("CI-V Addr: \(String(format: "0x%02x", icomVM.radioCivAddr))")
             }
-            Divider()
+//            Divider()
             VStack {
                 VStack {
-                    Text("Serial")
-                        .font(.title)
-                    Text("State: \(icomVM.serialState)")
-                    Text("Latency: \(icomVM.serialLatency)")
-                    Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
+//                    Text("Serial")
+//                        .font(.title)
+                    // Text("State: \(icomVM.serialState)")
+                    // Text("Latency: \(icomVM.serialLatency)")
+                    // Text("Retransmit Count: \(icomVM.serialRetransmitCount)")
                     Text("Frequency: \(civDecode.frequency)")
                         .onTapGesture {
                             civDecode.frequency = 0
                         }
                     Text(civDecode.modeFilter.description)
-                    Text(civDecode.attenuation.description)
-                    Text("Queue size: \(icomVM.queueSize)")
+//                    Text(civDecode.attenuation.description)
+//                    Text("Queue size: \(icomVM.queueSize)")
                 }
                 VStack {
                     HStack {
@@ -159,12 +159,23 @@ struct MainView: View {
                         TextField("Value 2", text: $counter2)
                             .fixedSize()
                     }
-                    Text(civDecode.printDump)
-                        .font(.system(size: 10, design: .monospaced))
-                        .fixedSize()
+//                    Text(civDecode.printDump)
+//                        .font(.system(size: 10, design: .monospaced))
+//                        .fixedSize()
                 }
             }
-            Divider()
+            VStack {
+//                Text("Pan Timing: \(civDecode.panadapterMain.2)")
+                BandscopeView(data: (civDecode.panadapterMain.0, civDecode.panadapterMain.1))
+                    .frame(width: 694, height: 299)
+                civDecode.image
+                    .frame(width: 694, height: 100)
+                    // .frame(width: 693, height: 298)
+//                Text("Pan Timing: \(civDecode.panadapterSub.2)")
+//                BandscopeView(data: (civDecode.panadapterSub.0, civDecode.panadapterSub.1))
+//                    .fixedSize()
+//                    .frame(width: 694, height: 299)
+            }
             VStack {
                 Button(icomVM.connected ? "Disconnect" : "Connect") {
                     if icomVM.connected {
@@ -173,17 +184,6 @@ struct MainView: View {
                         icomVM.connectControl()
                     }
                 }
-            }
-            Divider()
-            VStack {
-//                Text("Pan Timing: \(civDecode.panadapterMain.2)")
-                BandscopeView(data: (civDecode.panadapterMain.0, civDecode.panadapterMain.1))
-                    .fixedSize()
-                    // .frame(width: 693, height: 298)
-//                Text("Pan Timing: \(civDecode.panadapterSub.2)")
-//                BandscopeView(data: (civDecode.panadapterSub.0, civDecode.panadapterSub.1))
-//                    .fixedSize()
-//                    .frame(width: 694, height: 299)
             }
         }
         .frame(minWidth: 200)
