@@ -32,7 +32,6 @@ struct BGGrid: Shape {
         p.addRect(rect)
         p.move(to: CGPoint(x: rect.midX, y: rect.minY))
         p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
-                 
         return p
     }
 }
@@ -41,12 +40,14 @@ struct BandscopeView: View {
     let data: (Data, Data)
     var body: some View {
         Panadapter(data: data.0)
-            .foregroundColor(.yellow)
+            .foregroundColor(.yellow.opacity(0.5))
             .background (
                 Panadapter(data: data.1)
                     .foregroundColor(.yellow.opacity(0.1))
             )
-            .background(BGGrid().stroke(.gray, lineWidth: 1.0))
+            .background(BGGrid()
+                            .stroke(.gray, lineWidth: 1.0)
+                            .background(.black))
     }
 }
 

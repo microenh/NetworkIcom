@@ -77,85 +77,7 @@ struct MainView: View {
                             if !state {
                                 state2.toggle()
                             }
-//                             icomVM.readOperatingFrequency()
-//                             icomVM.setOperatingFrequency(frequency: 3_815_000)
-//                             icomVM.readOperatingMode()
-//                             icomVM.readAttenuation()
-//                             icomVM.readSsbRxHpfLpf()
-//                             icomVM.setOperatingMode(mode: .am, filter: .fil2)
-//                             icomVM.exchangeMainSub()
-//                             icomVM.equalizeMainSub()
-//                             icomVM.dualWatch(on: state)
-//                             icomVM.dualWatch()
-//                             icomVM.subBand(on: state)
-//                             icomVM.subBand()
-//                             icomVM.selectMemory(channel: 100)
-//                             icomVM.memoryToVFO()
-//                             icomVM.memoryClear()
-//                             icomVM.startPgmMemoryScan()
-//                             icomVM.selectΔFrequencySpan(span: .kHz100)
-//                             icomVM.readSetSplit(on: state)
-//                             icomVM.readSetTuneStep(step: state ? .hz100 : .off)
-//                             icomVM.readSetAttenuation(attn: state ? .att18 : .attOff)
-//                             icomVM.readSetRxAnt(ant2: state, rxOn: state2)
-//                             icomVM.speak(speech: .mode)
-//                             icomVM.readSetLevel0x14(which: .afGain, value: state ? 0 : 255)
-//                             icomVM.readSetLevel0x14(which: .afGain)
-//                             icomVM.readMeter(which: .current)
-//                             icomVM.readSetPreamp(which: state ? 2 : 0)
-//                             icomVM.readSetPreamp()
-//                             icomVM.readSetAGC(value: state ? .fast : .slow)
-//                             icomVM.readSetAGC()
-//                             icomVM.readSetAPF(value: state ? .wide : .off)
-//                             icomVM.readSetAPF()
-//                             let which = Code0x16OnOff.speechComp
-//                             icomVM.readSetCode0x16OnOff(which: which, on: state)
-//                             icomVM.readSetCode0x16OnOff(which: which)
-//                             icomVM.readSetBreakIn(value: state ? .full : .off)
-//                             icomVM.readSetBreakIn()
-//                             icomVM.readSetSSBTxBandwidth(value: state ? .wide : .mid)
-//                             icomVM.readSetSSBTxBandwidth()
-//                             icomVM.readTransceiverID()
-//                             if state {
-//                                 icomVM.sendCW(message: "CQ CQ CQ DE N8ME N8ME ^AR^")
-//                             } else {
-//                                 icomVM.stopCW()
-//                             }
-//                             icomVM.power(on: state)
 
-//                            for i in UInt8(1)..<100 {
-//                                icomVM.readSetMemoryContents(
-//                                    memory: i,
-//                                    contents: MemoryContents(
-//                                        selected: 0,
-//                                        frequency: 3_815_000,
-//                                        mode: .lsb,
-//                                        filter: .fil1,
-//                                        dataMode: .off,
-//                                        squelchType: .off,
-//                                        repeaterTone: .t88_5,
-//                                        toneSquelch: .t88_5,
-//                                        memoryName: "MEM \(i)"))
-//                                 icomVM.readSetMemoryContents(memory: i)
-//                                 icomVM.clearMemoryContents(memory: i)
-//                            }
-//                            icomVM.readSetBandStackRegister(
-//                                band: .band80, which: .oldest,
-//                                contents: BandstackContents(
-//                                    frequency: 7_815_000,
-//                                    mode: .lsb,
-//                                    filter: .fil1,
-//                                    dataMode: .off,
-//                                    squelchType: .off,
-//                                    repeaterTone: .t88_5,
-//                                    toneSquelch: .t88_5))
-//                            icomVM.readSetMemoryKeyer(which: UInt8(counter) ?? 1, message: "")
-//                            icomVM.readSetIFFilterWidth(width: UInt8(counter) ?? 1)
-//                            icomVM.readSetIFFilterWidth()
-//                            icomVM.readSetAGCTimeConstant(time: UInt8(counter) ?? 0)
-//                            icomVM.readSetAGCTimeConstant()
-//                            icomVM.readSetSsbRxHpfLpf(hpfLpf: HpfLpf(hpf: UInt8(counter) ?? 0, lpf: UInt8(counter2) ?? 25))
-//                            icomVM.readSetSsbRxHpfLpf()
                             
                             icomVM.readSetScopeWaveOn(on: state)
                             icomVM.readSetScopeWaveOn()
@@ -172,10 +94,19 @@ struct MainView: View {
             }
             VStack {
 //                Text("Pan Timing: \(civDecode.panadapterMain.2)")
-                BandscopeView(data: (civDecode.panadapterMain.0, civDecode.panadapterMain.1))
+                BandscopeView(data: (civDecode.panadapterMain.panadapter, civDecode.panadapterMain.history))
                     .frame(width: 694, height: 200)
+                HStack {
+                    Text("\(String(format: "%0.4f", Double(civDecode.panadapterMain.panLower) / 1_000_000)) MHz")
+                        .font(.footnote)
+                    Spacer()
+                    Text("\(String(format: "%0.4f", Double(civDecode.panadapterMain.panUpper) / 1_000_000)) MHz")
+                        .font(.footnote)
+                }
                 Image(decorative: civDecode.waterfallContexts[0].makeImage()!, scale: 1.0)
-                    .frame(width: 689, height: 100)
+                    .frame(width: 691, height: 100)
+                    .background(BGGrid().stroke(.gray, lineWidth: 1.0))
+                
 //                Text("Pan Timing: \(civDecode.panadapterSub.2)")
 //                BandscopeView(data: (civDecode.panadapterSub.0, civDecode.panadapterSub.1))
 //                    .frame(width: 694, height: 200)
@@ -192,13 +123,13 @@ struct MainView: View {
                 }
                 HStack {
                     Text("State: \(icomVM.controlState)")
-                    Text("Latency: \(icomVM.controlLatency)")
+                    Text("Latency: \(String(format: "%0.2f", icomVM.controlLatency)) msec")
                 }
                 .font(.footnote)
 
             }
         }
-        .frame(minWidth: 200)
+        .frame(width: 700)
         .padding()
     }
 }

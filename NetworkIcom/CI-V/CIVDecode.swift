@@ -20,8 +20,20 @@ class CIVDecode: ObservableObject {
     @Published var modeFilter = ModeFilter(mode: .lsb, filter: .fil1)
     @Published var attenuation = Attenuation.attOff
     @Published var printDump = ""
-    @Published var panadapterMain = (Data(), Data(), 0.0)
-    @Published var panadapterSub = (Data(), Data(), 0.0)
+    @Published var panadapterMain = (
+        panadapter: Data(),
+        history: Data(),
+        timing: 0.0,
+        scopeMode: UInt8(0),
+        panLower: 0,
+        panUpper: 0)
+    @Published var panadapterSub = (
+        panadapter: Data(),
+        history: Data(),
+        timing: 0.0,
+        scopeMode: UInt8(0),
+        panLower: 0,
+        panUpper: 0)
     private(set) var waterfallContexts: [CGContext]
     private let colorMap: Array<PixelColor>
     private static let bytesPerPixel = MemoryLayout<PixelColor>.size
@@ -87,16 +99,42 @@ class CIVDecode: ObservableObject {
             switch current[c.subCmd].uint8 {
             case UInt8(0):
                 let panIndex = Int(current[c.panMainSub].uint8)
+                
+                let lower = Int(frequencyBuffer: current[c.panLower])
+                let upper = Int(frequencyBuffer: current[c.panUpper])
+                let scopeMode = current[c.panScopeMode].uint8
+                
+                var panLower: Int
+                var panUpper: Int
+                
+
+                
+                if scopeMode == 0 {
+                    panLower = lower - upper
+                    panUpper = lower + upper
+                } else {
+                    panLower = lower
+                    panUpper = upper
+                }
+                
+                // print ("l: \(lower), u: \(upper)")
+                
+                // calculate time since last update (msec)
+                let currentTime = Date.now
+                let delta = currentTime.timeIntervalSince(lastPanTime[panIndex]) * 1000
+                lastPanTime[panIndex] = currentTime
+                
+                // panadapter data
                 let data = Data(current.dropFirst(c.panData.0).dropLast())
+                // save to history
                 for (i,j) in data.enumerated() {
                     panHistory[panIndex][i][panHistoryIndex[panIndex]] = j
                 }
-                panHistoryIndex[panIndex] = (panHistoryIndex[panIndex] + 1) % CIVDecode.historyCount
+                // max history data
                 let data2 = Data(panHistory[panIndex].map{$0.max() ?? 0})
-                let current = Date.now
-                let delta = current.timeIntervalSince(lastPanTime[panIndex]) * 1000
-                lastPanTime[panIndex] = current
+                panHistoryIndex[panIndex] = (panHistoryIndex[panIndex] + 1) % CIVDecode.historyCount
                 
+                // update waterfall
                 if let waterfallData = waterfallContexts[panIndex].data {
                     // move existing data down one row and insert new data row at top
                     waterfallData.advanced(by: CIVDecode.bytesPerRow).copyMemory(from: waterfallData, byteCount: CIVDecode.bytesToMove)
@@ -104,12 +142,13 @@ class CIVDecode: ObservableObject {
                     waterfallData.copyMemory(from: pixelData, byteCount: CIVDecode.bytesPerRow)
                 }
                 
+                // update publisher
                 DispatchQueue.main.async { [weak self] in
                     if let self = self {
                         if panIndex == 0 {
-                            self.panadapterMain = (data, data2, delta)
+                            self.panadapterMain = (data, data2, delta, scopeMode, panLower, panUpper)
                         } else {
-                            self.panadapterSub = (data, data2, delta)
+                            self.panadapterSub = (data, data2, delta, scopeMode, panLower, panUpper)
                         }
                     }
                 }
