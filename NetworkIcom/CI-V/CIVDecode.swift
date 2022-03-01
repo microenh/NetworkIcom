@@ -12,6 +12,7 @@ struct WaterfallSettings {
     static let columns = 689
     static let rows = 100
     static let waterfallGain = 4
+    static let historyCount = 40
 }
 
 class CIVDecode: ObservableObject {
@@ -42,10 +43,9 @@ class CIVDecode: ObservableObject {
     
     let hostCivAddr: UInt8
     
-    static let historyCount = 40
     
-    var panHistory = [Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: WaterfallSettings.columns),
-                      Array(repeating: Array(repeating: UInt8(0), count: CIVDecode.historyCount), count: WaterfallSettings.columns)]
+    var panHistory = [Array(repeating: Array(repeating: UInt8(0), count: WaterfallSettings.historyCount), count: WaterfallSettings.columns),
+                      Array(repeating: Array(repeating: UInt8(0), count: WaterfallSettings.historyCount), count: WaterfallSettings.columns)]
     var panHistoryIndex = [0, 0]
     var lastPanTime = [Date.now, Date.now]
     
@@ -132,7 +132,7 @@ class CIVDecode: ObservableObject {
                 }
                 // max history data
                 let data2 = Data(panHistory[panIndex].map{$0.max() ?? 0})
-                panHistoryIndex[panIndex] = (panHistoryIndex[panIndex] + 1) % CIVDecode.historyCount
+                panHistoryIndex[panIndex] = (panHistoryIndex[panIndex] + 1) % WaterfallSettings.historyCount
                 
                 // update waterfall
                 if let waterfallData = waterfallContexts[panIndex].data {
