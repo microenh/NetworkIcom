@@ -46,6 +46,9 @@ class CIVDecode: ObservableObject {
     
     var panHistory = [Array(repeating: Array(repeating: UInt8(0), count: WaterfallSettings.historyCount), count: WaterfallSettings.columns),
                       Array(repeating: Array(repeating: UInt8(0), count: WaterfallSettings.historyCount), count: WaterfallSettings.columns)]
+    
+    var panMax = [Data(count: WaterfallSettings.columns), Data(count: WaterfallSettings.columns)]
+    
     var panHistoryIndex = [0, 0]
     var lastPanTime = [Date.now, Date.now]
     
@@ -128,10 +131,18 @@ class CIVDecode: ObservableObject {
                 let data = Data(current.dropFirst(c.panData.0).dropLast())
                 // save to history
                 for (i,j) in data.enumerated() {
+                    let curMax = panMax[panIndex][i]
+                    let aboutToBeDeleted = panHistory[panIndex][i][panHistoryIndex[panIndex]]
                     panHistory[panIndex][i][panHistoryIndex[panIndex]] = j
+                    
+                    if j > curMax {
+                        panMax[panIndex][i] = j
+                    } else if aboutToBeDeleted == curMax {
+                        panMax[panIndex][i] = panHistory[panIndex][i].max() ?? 0
+                    }
                 }
                 // max history data
-                let data2 = Data(panHistory[panIndex].map{$0.max() ?? 0})
+                // panMax[panIndex] = Data(panHistory[panIndex].map{$0.max() ?? 0})
                 panHistoryIndex[panIndex] = (panHistoryIndex[panIndex] + 1) % WaterfallSettings.historyCount
                 
                 // update waterfall
@@ -146,9 +157,9 @@ class CIVDecode: ObservableObject {
                 DispatchQueue.main.async { [weak self] in
                     if let self = self {
                         if panIndex == 0 {
-                            self.panadapterMain = (data, data2, delta, scopeMode, panLower, panUpper)
+                            self.panadapterMain = (data, self.panMax[panIndex], delta, scopeMode, panLower, panUpper)
                         } else {
-                            self.panadapterSub = (data, data2, delta, scopeMode, panLower, panUpper)
+                            self.panadapterSub = (data, self.panMax[panIndex], delta, scopeMode, panLower, panUpper)
                         }
                     }
                 }
