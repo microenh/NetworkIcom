@@ -158,6 +158,10 @@ struct CapabilitesDefinition {
     static let capG      = (0xa3, 2)
 }
 
+struct AudioDefinition {
+    static let headerLength = 0x18
+}
+
 // -----------------------------
 
 struct ControlPacketType {

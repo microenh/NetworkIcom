@@ -32,6 +32,8 @@ class IcomVM: ObservableObject {
 
     var control: UDPControl?
     var serial: UDPSerial?
+    var audio: UDPAudio?
+    
     var civDecode: (Data) -> ()
     
     init(host: String,
@@ -94,6 +96,7 @@ class IcomVM: ObservableObject {
             self.connected = connected
             if connected {
                 connectSerial()
+                connectAudio()
             } else {
                 control = nil
                 controlCancellables = []
@@ -147,6 +150,50 @@ class IcomVM: ObservableObject {
     }
     
     private func updateSerialData(_ data: UDPSerial.Published) {
+        switch data {
+            
+        case .sendQueueSize(let size):
+            self.queueSize = size
+        }
+    }
+    
+    private var audioCancellables: Set<AnyCancellable> = []
+    private func connectAudio() {
+        audioCancellables = []
+        audio = UDPAudio(host: host, port: audioPort,
+                         user: user, password: password, computer: computer)
+        audio?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateAudioBaseData(data)
+        }.store(in: &audioCancellables)
+        audio?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
+            self?.updateAudioData(data)
+        }.store(in: &audioCancellables)
+    }
+    
+    private func updateAudioBaseData(_ data: UDPBase.BasePublished) {
+        switch data {
+        case .latency(let latency):
+            self.serialLatency = latency
+        case .state(let state):
+            self.serialState = state
+        case .retransmitCount(let count):
+            self.serialRetransmitCount = count
+        case .connected(let connected):
+            if connected {
+                serial?.send(command: 0x03)  // frequency
+                serial?.send(command: 0x04)  // mode-filter
+            } else {
+                serial = nil
+                serialCancellables = []
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                    self?.control?.disconnect()
+                }
+                // control?.disconnect()
+            }
+        }
+    }
+    
+    private func updateAudioData(_ data: UDPAudio.Published) {
         switch data {
             
         case .sendQueueSize(let size):

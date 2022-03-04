@@ -31,6 +31,8 @@
 		4D00FD9B27B6048C00FCE939 /* CIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9927B6048C00FCE939 /* CIV.swift */; };
 		4D0A661A27BC8AFC00704B4D /* CIVCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0A661927BC8AFC00704B4D /* CIVCommands.swift */; };
 		4D0A661C27BCA01B00704B4D /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0A661B27BCA01B00704B4D /* Bool.swift */; };
+		4D18891D27D1A2810005878D /* UDPAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D18891C27D1A2810005878D /* UDPAudio.swift */; };
+		4D18892027D1ABFE0005878D /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4D18891F27D1ABFE0005878D /* DequeModule */; };
 		4D321E4627B358620023568A /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4527B358620023568A /* MainApp.swift */; };
 		4D321E4827B358620023568A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4727B358620023568A /* MainView.swift */; };
 		4D321E4A27B358630023568A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D321E4927B358630023568A /* Assets.xcassets */; };
@@ -93,6 +95,7 @@
 		4D00FD9927B6048C00FCE939 /* CIV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIV.swift; sourceTree = "<group>"; };
 		4D0A661927BC8AFC00704B4D /* CIVCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVCommands.swift; sourceTree = "<group>"; };
 		4D0A661B27BCA01B00704B4D /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
+		4D18891C27D1A2810005878D /* UDPAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPAudio.swift; sourceTree = "<group>"; };
 		4D321E4227B358620023568A /* NetworkIcom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkIcom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D321E4527B358620023568A /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
 		4D321E4727B358620023568A /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -132,6 +135,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D18892027D1ABFE0005878D /* DequeModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,6 +176,7 @@
 				4D00FD6C27B5CA4600FCE939 /* UDPSerial.swift */,
 				4D321E7027B359110023568A /* UDPControl.swift */,
 				4D00FD9427B5F38C00FCE939 /* UDPBase.swift */,
+				4D18891C27D1A2810005878D /* UDPAudio.swift */,
 			);
 			path = UDP;
 			sourceTree = "<group>";
@@ -322,6 +327,9 @@
 			dependencies = (
 			);
 			name = NetworkIcom;
+			packageProductDependencies = (
+				4D18891F27D1ABFE0005878D /* DequeModule */,
+			);
 			productName = NetworkIcom;
 			productReference = 4D321E4227B358620023568A /* NetworkIcom.app */;
 			productType = "com.apple.product-type.application";
@@ -394,6 +402,9 @@
 				Base,
 			);
 			mainGroup = 4D321E3927B358620023568A;
+			packageReferences = (
+				4D18891E27D1ABFE0005878D /* XCRemoteSwiftPackageReference "swift-collections" */,
+			);
 			productRefGroup = 4D321E4327B358620023568A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -465,6 +476,7 @@
 				4D00FD7A27B5F1E400FCE939 /* Frequency.swift in Sources */,
 				4D321E8627B35F250023568A /* DataUIntExtensions.swift in Sources */,
 				4D321E8327B35EE60023568A /* CloseDelegate.swift in Sources */,
+				4D18891D27D1A2810005878D /* UDPAudio.swift in Sources */,
 				4D00FD8627B5F31000FCE939 /* Attenuation.swift in Sources */,
 				4D00FD9227B5F33F00FCE939 /* Mode.swift in Sources */,
 				4D0A661C27BCA01B00704B4D /* Bool.swift in Sources */,
@@ -804,6 +816,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4D18891E27D1ABFE0005878D /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4D18891F27D1ABFE0005878D /* DequeModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D18891E27D1ABFE0005878D /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = DequeModule;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4D321E3A27B358620023568A /* Project object */;
 }

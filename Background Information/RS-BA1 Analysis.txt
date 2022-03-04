@@ -218,6 +218,7 @@ Capabilities (0xa8)
 00
 9001                             0xa3 capG                   UInt16
 000000
+
                                                                                                                                                                                            
 ConnInfo From Radio (0x90)
 <0x40 bytes> Token
@@ -244,6 +245,43 @@ ConnInfo From Host (0x90)
 0000c353                         0x80 audio port 50003 (be)  UInt32
 00000064                         0x84 tx buffer 100 (be)     UInt32
 01                               0x88 convert                Bool
+00000000000000
+
+
+
+
+// Single Channel - From WithoutWire
+90000000000004000c7fc3514bd82c9d00000080010300030000d1062aaba6eb000000000000001080000090c7098d6d00000000000000000000000000000000
+49432d37363130000000000000000000
+00000000000000000000000000000000
+74496a33000000000000000000000000
+01
+01
+04  <-
+04
+0000bb80  48000
+0000bb80  48000
+0000c352  50002
+0000c353  50003
+000000c8  200
+01
+00000000000000
+
+// Dual Chanel - From WithoutWire
+90000000000004000c7fc35130e435dd00000080010300030000875b319e72ce000000000000001080000090c7098d6d00000000000000000000000000000000
+49432d37363130000000000000000000
+00000000000000000000000000000000
+74496a33000000000000000000000000
+01
+01
+10 <-
+04
+0000bb80
+0000bb80
+0000c352
+0000c353
+000000c8
+01
 00000000000000
 
 Status Packet (0x50)
@@ -448,4 +486,46 @@ ConnInfo to Radio
 90000000 0000 0400 0c7fc351 58ac1d65 000000 8001 0300 0300 00 80c6 7a586739 000000000000001080000090c7098d6d0000000000000000000000000000000049432d373631300000000000000000000000000000000000000000000000000074496a33000000000000000000000000010104040000bb800000bb800000c3520000c353000000c80100000000000000
 
 Panadapter data packets come every 240 msec (slow - 12%) 120 (medium - 23% CPU) 33 (fast - 39% CPU)
+3/1/2022 - Changed history algorithm
+Instead of calculating max on every bin, check if new value > max, if so update max
+check if value to be deleted == max, if so recalculate max, else no change
 
+Audio: Rx based on WithoutWire
+ 
+Host sends control 0x03 (are you there)
+Radio sends control 0x04 (I am here) then starts sending audio
+
+Noted that host sends control 0x06 and radio responds, but radio is already sending audio
+
+Audio appears to be in two alternating packets first  with a length of 1388 and then with a length of 580
+24 (0x18) byte header  1388 - 24 = 1364 0x554: 580 - 24 = 556 0x22c:  1364 + 556 = 1920
+
+len1          seq1 id       id       typ? seq2      len2
+6c050000 0000 0000 c495bdd2 0c7fc353 8106 0000 0000 0554 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+                                                         0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0a00 0a00 1800 1a00
+                                                         2b00 2f00 4200 4600 5b00 5e00 7500 7900 9300 9800 b400 d000 d400 ec00 e600 f100 dc00 d000 a700 8100
+                                                         4600 0a00 caff 85ff 4cff 11ff e1fe d2fe c3fe d7fe ebfe 19ff 43ff 77ff 9eff c0ff cdff c9ff adff 7fff
+                                                         38ff e0fe 8bfe 26fe d9fd 83fd 57fd 27fd 28fd 25fd 50fd 72fd b4fd e7fd 2afe 57fe 7afe 9dfe a6fe adfe
+                                                         9efe 90fe 71fe 5afe 35fe 1afe f0fd d2fd a0fd 77fd 38fd f1fc b9fc 6bfc 39fc fbfb e9fb d9fb 02fc 3afc ...
+                                                         1103 f8fe fafa 35f7 cef3 eff0 c8ee 86ed 58ed 5cee a2f0 29f4 d1f8
+                                                         
+44020000 0000 0100 c495bdd2 0c7fc353 8006 0001 0000 022c 5efe7e04cd0ad2101116191a861c111d971b2018d812170c55041cfcfef38cec46e688e18bde61ddf
+                                                         2dd00e02ee312e73deb43efcff2a4f5a7f7d9f859f958f918f9d6f8c8f812f9c0f9c4faf6fb1dfdf8
+                                                         fd41febcfd44fcd1f976f668f2f8ed90e99de58de2c2e083e0f2e10ee5ade982ef22f614fdda03fa0
+                                                         9140fe6124e154d160e16d514f712d210c10e110df90b910bd70baf0ce70d3d0f72104b119a114811
+                                                         5810e90e290d580bbe09a4084208bb081e0a5d0c4e0fa8121c164d19de1b7e1dee1d0d1dd01a5117c
+                                                         1126b0da807da0160fc8ef7a9f3e2f04cefe2ee8aef15f145f3d4f57cf8fcfa1afdabfe94ffcdff59
+                                                         ff4efec9fcf2faf3f8f4f61bf58af355f289f129f130f18df12cf2f3f2ccf39cf44df5d2f524f640f
+                                                         62cf6f4f5aaf55df51ff5fdf402f530f581f5e8f555f6b2f6e4f6d6f679f6bff5a4f431f379f196ef
+                                                         a6edcfeb3bea0be95ae842e8d0e803ead4eb32ee04f12cf489f7fafa5dfe950187041c074009e50a0
+                                                         10c8b0c830ceb0bcf0a3e0952072a05ed02c500e1fe6cfd8efc66fc04fd6afe8d004b037606d6092d
+                                                         0d3a10c01295149a15c5152015ca13f511dd0fc10de20b7c0ab809af09650ad10bd10d3310c612531
+                                                         5a1178219d41a841b881be21aa019d5179515f4120710de0c870911068d020effb1fb98f8eaf5d3f3
+                                                         80f217f2b3f260f416f7b1fafafea5035108970c131069125213a4125710870c730779010cfba4f4b
+                                                         eeec8e911e6cae303e3a3e36fe510e825eb47ee17f147f3a9f42cf5e2f4
+
+6c050000 0000 0200 c495bdd2 0c7fc353 8106 0002 0000 0554 f7f3aef259f148f0bfeff1eff5f0c0f229f5eff7bdfa36fdfffed1ff7dfff2fd44fbabf77ff328ef1 ...
+44020000 0000 0300 c495bdd2 0c7fc353 8006 0003 0000 022c 53ff8800b501c4029f0339048e049f0475042004b6034b03f502c602ca0208037f032704f604dc05c ...
+
+seq1 reset after control 0x06
+seq2 continues

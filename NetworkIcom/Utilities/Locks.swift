@@ -9,4 +9,5 @@ import Foundation
 
 struct Locks {
     static let sendLock = NSLock()
+    static let audioLock = NSLock()
 }
