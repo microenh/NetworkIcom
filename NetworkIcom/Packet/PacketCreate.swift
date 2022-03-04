@@ -266,14 +266,14 @@ class PacketCreate {
         result[t.res] = Data(UInt16(0x03))
         // result[t.reqRep] = Data(UInt16(0x01))
         // result[ci.userName] = encode(user)
-        // result[ci.enableRx] = Data(UInt8(0x01))
+        result[ci.enableRx] = Data(UInt8(0x01))
         // result[ci.enableTx] = Data(UInt8(0x01))
-        // result[ci.rxCodec] = UInt8(0x04).data
-        // result[ci.txCodec] = UInt8(0x04).data
-        // result[ci.rxSamp] = UInt32(16000).bigEndian.data
-        // result[ci.txSamp] = UInt32( 8000).bigEndian.data
-        // result[ci.civPort] = Data(UInt32(50002).bigEndian)
-        // result[ci.audioPort] = UInt32(50003).bigEndian.data
+        result[ci.rxCodec] = Data(Constants.rxCodec)
+        result[ci.txCodec] = Data(Constants.txCodec)
+        result[ci.rxSamp] = Data(UInt32(Constants.rxSampleRate).bigEndian)
+        result[ci.txSamp] = Data(UInt32(Constants.txSampleRate).bigEndian)
+        result[ci.civPort] = Data(UInt32(50002).bigEndian)
+        result[ci.audioPort] = Data(UInt32(50003).bigEndian)
         // result[ci.txBuffer] = UInt32(100).bigEndian.data
         // result[ci.convert] = Data(UInt8(0x01))
         return result
@@ -300,10 +300,10 @@ class PacketCreate {
         packet[ci.userName] = encode(userName)
         packet[ci.enableRx] = Data(UInt8(1))
         packet[ci.enableTx] = Data(UInt8(1))
-        packet[ci.rxCodec] = Data(UInt8(4))
-        packet[ci.txCodec] = Data(UInt8(4))
-        packet[ci.rxSamp] = Data(UInt32(48000).bigEndian)
-        packet[ci.txSamp] = Data(UInt32(48000).bigEndian)
+        packet[ci.rxCodec] = Data(Constants.rxCodec)
+        packet[ci.txCodec] = Data(Constants.txCodec)
+        packet[ci.rxSamp] = Data(UInt32(Constants.rxSampleRate).bigEndian)
+        packet[ci.txSamp] = Data(UInt32(Constants.txSampleRate).bigEndian)
         packet[ci.civPort] = Data(UInt32(civPort).bigEndian)
         packet[ci.audioPort] = Data(UInt32(audioPort).bigEndian)
         packet[ci.txBuffer] = Data(UInt32(1024 * 1024 * 3200).bigEndian)

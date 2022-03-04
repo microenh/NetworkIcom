@@ -150,11 +150,11 @@ class IcomVM: ObservableObject {
     }
     
     private func updateSerialData(_ data: UDPSerial.Published) {
-        switch data {
-            
-        case .sendQueueSize(let size):
-            self.queueSize = size
-        }
+//        switch data {
+//
+//        case .sendQueueSize(let size):
+//            self.queueSize = size
+//        }
     }
     
     private var audioCancellables: Set<AnyCancellable> = []

@@ -21,33 +21,47 @@ class UDPAudio: UDPBase {
     
     private let engine: AVAudioEngine
 
-    private var deque = Deque<Int16>()
+    private var rxAudioBuffer = [Int16]()
+    
+    private var notificationCounter = 0
 
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
         
         engine = AVAudioEngine()
         let output = engine.outputNode
-        let outputFormat = output.inputFormat(forBus: 0)
+        // let outputFormat = output.inputFormat(forBus: 0)
+        
+        // print (outputFormat.sampleRate)
         
         let inputFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
-                                    sampleRate: outputFormat.sampleRate,
+                                        sampleRate: Double(Constants.rxSampleRate), //outputFormat.sampleRate,
                                     interleaved: true,
-                                    channelLayout: AVAudioChannelLayout(layoutTag: kAudioChannelLayoutTag_Stereo)!)
+                                    channelLayout: AVAudioChannelLayout(layoutTag: kAudioChannelLayoutTag_Mono)!)
 
         super.init(host: host, port: port, user: user, password: password, computer: computer)
         let srcNode = AVAudioSourceNode { [weak self] isSilence, _, frameCount, audioBufferList -> OSStatus in
-            isSilence.pointee = true
+            // isSilence.pointee = true
             if let self = self {
-                if self.deque.count >= 2 * frameCount {
+                if self.notificationCounter == 0 {
+                    self.notificationCounter = 50
+                    self.published.send(.sendQueueSize(self.rxAudioBuffer.count))
+                } else {
+                    self.notificationCounter -= 1
+                }
+                let buf: UnsafeMutableBufferPointer<Int16> = UnsafeMutableBufferPointer(UnsafeMutableAudioBufferListPointer(audioBufferList)[0])
+                if self.rxAudioBuffer.count >= frameCount {
                     Locks.audioLock.lock()
-                    let buf: UnsafeMutableBufferPointer<Int16> = UnsafeMutableBufferPointer(UnsafeMutableAudioBufferListPointer(audioBufferList)[0])
                     for frame in 0..<Int(frameCount) {
-                        buf[frame * 2] = self.deque.removeFirst()
-                        buf[frame * 2 + 1] = self.deque.removeFirst()
+                        buf[frame] = self.rxAudioBuffer[frame]
                     }
+                    self.rxAudioBuffer.removeFirst(Int(frameCount))
                     Locks.audioLock.unlock()
-                    isSilence.pointee = false
+                    // isSilence.pointee = false
+                } else {
+                    for frame in 0..<Int(frameCount) {
+                        buf[frame] = 0
+                    }
                 }
             }
             return noErr
@@ -77,15 +91,10 @@ class UDPAudio: UDPBase {
             return
         }
         if current.count > c.headerLength {
-            let audioData = current.dropFirst(c.headerLength)
             Locks.audioLock.lock()
-            audioData.withUnsafeBytes { (dataPtr: UnsafeRawBufferPointer) in
-                for i in 0..<audioData.count / 2 {
-                    let i16 = dataPtr.load(fromByteOffset: i * 2, as: Int16.self)
-                    deque.append(i16)
-                }
+            current.dropFirst(c.headerLength).withUnsafeBytes{ (dPtr: UnsafeRawBufferPointer) in
+                rxAudioBuffer.append(contentsOf: Array(dPtr.bindMemory(to: Int16.self)))
             }
-            
             Locks.audioLock.unlock()
 //            DispatchQueue.main.async { [weak self] in
 //                self?.civDecode(civData)
@@ -100,8 +109,10 @@ class UDPAudio: UDPBase {
                 packetCreate.remoteId = current[p.sendId].uint32
                 basePublished.send(.state("Connected"))
                 basePublished.send(.connected(true))
-                armIdleTimer()
-                armPingTimer()
+                
+                self.invalidateTimers()
+                // armIdleTimer()
+                // armPingTimer()
             default:
                 break
             }

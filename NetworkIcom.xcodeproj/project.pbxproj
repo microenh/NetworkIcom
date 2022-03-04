@@ -31,6 +31,7 @@
 		4D00FD9B27B6048C00FCE939 /* CIV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00FD9927B6048C00FCE939 /* CIV.swift */; };
 		4D0A661A27BC8AFC00704B4D /* CIVCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0A661927BC8AFC00704B4D /* CIVCommands.swift */; };
 		4D0A661C27BCA01B00704B4D /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0A661B27BCA01B00704B4D /* Bool.swift */; };
+		4D10B85A27D2B7D8002D3179 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D10B85927D2B7D8002D3179 /* Constants.swift */; };
 		4D18891D27D1A2810005878D /* UDPAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D18891C27D1A2810005878D /* UDPAudio.swift */; };
 		4D18892027D1ABFE0005878D /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4D18891F27D1ABFE0005878D /* DequeModule */; };
 		4D321E4627B358620023568A /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4527B358620023568A /* MainApp.swift */; };
@@ -95,6 +96,7 @@
 		4D00FD9927B6048C00FCE939 /* CIV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIV.swift; sourceTree = "<group>"; };
 		4D0A661927BC8AFC00704B4D /* CIVCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVCommands.swift; sourceTree = "<group>"; };
 		4D0A661B27BCA01B00704B4D /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
+		4D10B85927D2B7D8002D3179 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		4D18891C27D1A2810005878D /* UDPAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPAudio.swift; sourceTree = "<group>"; };
 		4D321E4227B358620023568A /* NetworkIcom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkIcom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D321E4527B358620023568A /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				4D0A661927BC8AFC00704B4D /* CIVCommands.swift */,
 				4DA6C39727BF06560028F79A /* CIVCommands0x18.swift */,
 				4D903C9827C048C400182DC2 /* CIVCommandsScope.swift */,
+				4D10B85927D2B7D8002D3179 /* Constants.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -448,6 +451,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D85C29827BD8E88006EFAC4 /* CIVDecode.swift in Sources */,
+				4D10B85A27D2B7D8002D3179 /* Constants.swift in Sources */,
 				4D00FD9A27B6048C00FCE939 /* CIV.swift in Sources */,
 				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
 				4D0A661A27BC8AFC00704B4D /* CIVCommands.swift in Sources */,

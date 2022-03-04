@@ -59,8 +59,8 @@ struct MainView: View {
 //                            civDecode.frequency = 0
 //                        }
                     Text(civDecode.modeFilter.description)
-//                    Text(civDecode.attenuation.description)
-//                    Text("Queue size: \(icomVM.queueSize)")
+                    Text(civDecode.attenuation.description)
+                    Text("Queue size: \(icomVM.queueSize)")
                 }
                 VStack {
                     HStack {
