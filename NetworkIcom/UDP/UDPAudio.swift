@@ -28,9 +28,9 @@ class UDPAudio: UDPBase {
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
         
-        let deviceID = UInt32(58)
-        Audio.setOutputDevice(newDeviceID: deviceID)
-        Audio.setDeviceVolume(deviceID: deviceID, leftChannelLevel: 1, rightChannelLevel: 1)
+//        let deviceID = UInt32(58)
+//        Audio.setOutputDevice(newDeviceID: deviceID)
+//        Audio.setDeviceVolume(deviceID: deviceID, leftChannelLevel: 1, rightChannelLevel: 1)
         
         engine = AVAudioEngine()
         // print(engine.attachedNodes)

@@ -61,6 +61,7 @@
 		4D94D8BC27B6A7E300F89E74 /* PacketCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */; };
 		4DA6C39827BF06560028F79A /* CIVCommands0x18.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DA6C39727BF06560028F79A /* CIVCommands0x18.swift */; };
 		4DA6C39A27BF34FC0028F79A /* UInt16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DA6C39927BF34FC0028F79A /* UInt16.swift */; };
+		4DC1C59527D52FA400683D5B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D10B85927D2B7D8002D3179 /* Constants.swift */; };
 		4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424A27B548AB0064882D /* IcomVM.swift */; };
 		4DC4424D27B5532F0064882D /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4424C27B5532F0064882D /* Locks.swift */; };
 		4DC581D427C1796700A02CB9 /* BandscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC581D327C1796700A02CB9 /* BandscopeView.swift */; };
@@ -500,6 +501,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D321E7227B359110023568A /* UDPControl.swift in Sources */,
+				4DC1C59527D52FA400683D5B /* Constants.swift in Sources */,
 				4D00FD8A27B5F31600FCE939 /* ModeFilter.swift in Sources */,
 				4D00FD9727B6017300FCE939 /* Locks.swift in Sources */,
 				4D321E8227B35EE60023568A /* Encode.swift in Sources */,

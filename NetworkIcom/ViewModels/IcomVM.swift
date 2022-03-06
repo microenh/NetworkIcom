@@ -77,9 +77,16 @@ class IcomVM: ObservableObject {
     }
     
     func disconnectControl() {
+        var disconnectControl = true
+        if let audio = audio {
+            audio.disconnect()
+            disconnectControl = false
+        }
         if let serial = serial {
             serial.disconnect()
-        } else {
+            disconnectControl = false
+        }
+        if disconnectControl {
             control?.disconnect()
         }
     }
