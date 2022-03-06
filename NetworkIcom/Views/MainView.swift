@@ -121,6 +121,10 @@ struct MainView: View {
                         icomVM.connectControl()
                     }
                 }
+                Button("Audio Info") {
+                    print(Audio.getOutputDevices() ?? "none")
+                    // print(Audio.getDeviceVolume(deviceID: 51))
+                }
                 HStack {
                     Text("State: \(icomVM.controlState)")
                     Text("Latency: \(String(format: "%0.2f", icomVM.controlLatency)) msec")

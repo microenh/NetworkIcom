@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct MainApp: App {
     @NSApplicationDelegateAdaptor(CloseDelegate.self) var closeDelegate
-
+    
     var body: some Scene {
         WindowGroup {
             MainView()

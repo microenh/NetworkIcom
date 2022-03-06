@@ -28,38 +28,41 @@ class UDPAudio: UDPBase {
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
         
-        engine = AVAudioEngine()
-        let output = engine.outputNode
-        // let outputFormat = output.inputFormat(forBus: 0)
+        let deviceID = UInt32(58)
+        Audio.setOutputDevice(newDeviceID: deviceID)
+        Audio.setDeviceVolume(deviceID: deviceID, leftChannelLevel: 1, rightChannelLevel: 1)
         
-        // print (outputFormat.sampleRate)
+        engine = AVAudioEngine()
+        // print(engine.attachedNodes)
+        let output = engine.outputNode
         
         let inputFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
-                                        sampleRate: Double(Constants.rxSampleRate), //outputFormat.sampleRate,
-                                    interleaved: true,
-                                    channelLayout: AVAudioChannelLayout(layoutTag: kAudioChannelLayoutTag_Mono)!)
+                                        sampleRate: Double(Constants.rxSampleRate),
+                                        interleaved: true,
+                                        channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxStereo
+                                                                            ? kAudioChannelLayoutTag_Stereo
+                                                                            : kAudioChannelLayoutTag_Mono)!)
 
         super.init(host: host, port: port, user: user, password: password, computer: computer)
-        let srcNode = AVAudioSourceNode { [weak self] isSilence, _, frameCount, audioBufferList -> OSStatus in
-            // isSilence.pointee = true
+        let srcNode = AVAudioSourceNode { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
             if let self = self {
                 if self.notificationCounter == 0 {
-                    self.notificationCounter = 50
+                    self.notificationCounter = 200
                     self.published.send(.sendQueueSize(self.rxAudioBuffer.count))
                 } else {
                     self.notificationCounter -= 1
                 }
-                let buf: UnsafeMutableBufferPointer<Int16> = UnsafeMutableBufferPointer(UnsafeMutableAudioBufferListPointer(audioBufferList)[0])
-                if self.rxAudioBuffer.count >= frameCount {
+                let buf = UnsafeMutableBufferPointer<Int16>(UnsafeMutableAudioBufferListPointer(audioBufferList)[0])
+                let adjFrameCount = (Constants.rxStereo ? 2 : 1) * Int(frameCount)
+                if self.rxAudioBuffer.count >= adjFrameCount {
                     Locks.audioLock.lock()
-                    for frame in 0..<Int(frameCount) {
+                    for frame in 0..<adjFrameCount {
                         buf[frame] = self.rxAudioBuffer[frame]
                     }
-                    self.rxAudioBuffer.removeFirst(Int(frameCount))
+                    self.rxAudioBuffer.removeFirst(adjFrameCount)
                     Locks.audioLock.unlock()
-                    // isSilence.pointee = false
                 } else {
-                    for frame in 0..<Int(frameCount) {
+                    for frame in 0..<adjFrameCount {
                         buf[frame] = 0
                     }
                 }
@@ -83,7 +86,7 @@ class UDPAudio: UDPBase {
         self.send(data: self.packetCreate.disconnectPacket())
         self.armIdleTimer()
     }
-       
+    
     override func receive(data: Data) {
         typealias c = AudioDefinition
         current = data
@@ -96,9 +99,6 @@ class UDPAudio: UDPBase {
                 rxAudioBuffer.append(contentsOf: Array(dPtr.bindMemory(to: Int16.self)))
             }
             Locks.audioLock.unlock()
-//            DispatchQueue.main.async { [weak self] in
-//                self?.civDecode(civData)
-//            }
             return
         }
         switch current.count {
