@@ -49,16 +49,18 @@ class UDPControl: UDPBase {
     
     func disconnect() {
         basePublished.send(.state("Disconnecting..."))
-        send(data: self.packetCreate.disconnectPacket())
-        self.invalidateTimers()
-        self.disconnecting = true
-        if self.haveToken {
+        send(data: packetCreate.connInfoPacket(radioName: radioName, userName: user,
+                                               civPort: civPort, audioPort: audioPort))
+        send(data: packetCreate.disconnectPacket())
+        invalidateTimers()
+        disconnecting = true
+        if haveToken {
             send(data: packetCreate.tokenPacket(tokenType: TokenType.remove))
             // self.armResendTimer()
             // retryShutdown = true
 //        } else {
         }
-        self.armIdleTimer()
+        armIdleTimer()
     }
     
 //    // force "Hard" disconnect, when normal disconnect fails.
@@ -128,7 +130,8 @@ class UDPControl: UDPBase {
             basePublished.send(.connected(true))
             resendTimer?.invalidate()
             let packet = packetCreate.connInfoPacket(radioName: radioName, userName: user,
-                                                     civPort: civPort, audioPort: audioPort)
+                                                     civPort: civPort, audioPort: audioPort,
+                                                     enableRx: true, enableTx: false)
             send(data: packet)
         default:
             break

@@ -50,9 +50,12 @@ class UDPBase {
 
         connection = NWConnection(host: hostObject, port: portObject, using: params)
         connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
-        connection?.start(queue: DispatchQueue.global())
         
         basePublished.send(.state("Connecting"))
+    }
+    
+    func start() {    
+        connection?.start(queue: DispatchQueue.global())
     }
     
     func invalidateTimers() {
@@ -64,12 +67,16 @@ class UDPBase {
     func stateUpdateHandler(newState: NWConnection.State) {
         switch newState {
         case .ready:
-            startReceive()
             startConnection()
-        case .failed(_), .cancelled:
+            startReceive()
+        case .failed(let error):
             basePublished.send(.connected(false))
+            basePublished.send(.state("Connection failed \(error)"))
             connection = nil
-            break
+        case .cancelled:
+            basePublished.send(.connected(false))
+            basePublished.send(.state("Connection cancelled"))
+            connection = nil
         default:
             break
         }
@@ -91,6 +98,7 @@ class UDPBase {
     }
     
     func startConnection() {
+        disconnecting = false
         send(data: packetCreate.disconnectPacket())
         armResendTimer()
         retryPacket = packetCreate.areYouTherePacket()
@@ -188,7 +196,7 @@ class UDPBase {
     func onIdleTimer(timer: Timer) {
         if disconnecting {
             invalidateTimers()
-            // disconnecting = false
+            disconnecting = false
             basePublished.send(.state("Disconnected"))
             basePublished.send(.connected(false))
             connection?.cancel()

@@ -75,6 +75,7 @@ class IcomVM: ObservableObject {
         control?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateControlData(data)
         }.store(in: &controlCancellables)
+        control?.start()
     }
     
     func disconnectControl() {
@@ -132,6 +133,7 @@ class IcomVM: ObservableObject {
         serial?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialData(data)
         }.store(in: &serialCancellables)
+        serial?.start()
     }
     
     private func updateSerialBaseData(_ data: UDPBase.BasePublished) {
@@ -176,6 +178,7 @@ class IcomVM: ObservableObject {
         audio?.published.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateAudioData(data)
         }.store(in: &audioCancellables)
+        audio?.start()
     }
     
     private func updateAudioBaseData(_ data: UDPBase.BasePublished) {

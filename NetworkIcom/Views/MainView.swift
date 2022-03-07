@@ -119,12 +119,18 @@ struct MainView: View {
                         icomVM.connectControl()
                     }
                 }
-                Button("Audio Info") {
-                    print(Audio.getOutputDevices() ?? "none")
-                }
-                HStack {
-                    Text("State: \(icomVM.controlState)")
-                    Text("Latency: \(String(format: "%0.2f", icomVM.controlLatency)) msec")
+//                Button("Audio Info") {
+//                    print(Audio.getOutputDevices())
+//                    print(Audio.getInputDevices())
+//                }
+                VStack {
+                    HStack {
+                        Text("Control State: \(icomVM.controlState)")
+                        if icomVM.connected {
+                            Text("Latency: \(String(format: "%0.2f", icomVM.controlLatency)) msec")
+                        }
+                    }
+                    Text("Serial State: \(icomVM.serialState)")
                     Text("Audio State: \(icomVM.audioState)")
                 }
                 .font(.footnote)

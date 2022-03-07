@@ -282,7 +282,9 @@ class PacketCreate {
     func connInfoPacket(radioName: String,
                         userName: String,
                         civPort: UInt16,
-                        audioPort: UInt16) -> Data {
+                        audioPort: UInt16,
+                        enableRx: Bool = false,
+                        enableTx: Bool = false) -> Data {
         typealias c = ControlDefinition
         typealias t = TokenDefinition
         typealias ci = ConnInfoDefinition
@@ -298,8 +300,8 @@ class PacketCreate {
         // packet[ci.macAddr] = macAddr
         packet[ci.radio] = Data(radioName)
         packet[ci.userName] = encode(userName)
-        packet[ci.enableRx] = Data(UInt8(1))
-        packet[ci.enableTx] = Data(UInt8(1))
+        packet[ci.enableRx] = Data(enableRx ? UInt8(1) : 0)
+        packet[ci.enableTx] = Data(enableTx ? UInt8(1) : 0)
         packet[ci.rxCodec] = Data(Constants.rxCodec)
         packet[ci.txCodec] = Data(Constants.txCodec)
         packet[ci.rxSamp] = Data(UInt32(Constants.rxSampleRate).bigEndian)

@@ -24,7 +24,7 @@ class UDPAudio: UDPBase {
     private var rxAudioBuffer = [Int16]()
     
     private var notificationCounter = 0
-
+    
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
                 
@@ -44,14 +44,14 @@ class UDPAudio: UDPBase {
                                  UInt32(MemoryLayout<AudioDeviceID>.size))
         }
             
+        super.init(host: host, port: port, user: user, password: password, computer: computer)
+        
         let radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
                                         sampleRate: Double(Constants.rxSampleRate),
                                         interleaved: true,
                                         channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
-
-        super.init(host: host, port: port, user: user, password: password, computer: computer)
         
-        let srcNode = AVAudioSourceNode { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
+        let srcNode = AVAudioSourceNode(format: radioFormat) { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
             if let self = self {
                 if self.notificationCounter == 0 {
                     self.notificationCounter = 200
@@ -60,6 +60,10 @@ class UDPAudio: UDPBase {
                     self.notificationCounter -= 1
                 }
                 let buf = UnsafeMutableBufferPointer<Int16>(UnsafeMutableAudioBufferListPointer(audioBufferList)[0])
+                // if self.notificationCounter == 200 {
+                    // print (frameCount)
+                // }
+                
                 let adjFrameCount = (Constants.rxStereo ? 2 : 1) * Int(frameCount)
                 if self.rxAudioBuffer.count >= adjFrameCount {
                     Locks.audioLock.lock()
@@ -78,19 +82,28 @@ class UDPAudio: UDPBase {
         }
         engine.attach(srcNode)
         engine.connect(srcNode, to: output, format: radioFormat)
+
         do {
             try engine.start()
         } catch {
             basePublished.send(.state("Could not start engine: \(error)"))
         }
-
     }
     
+    override func startConnection() {
+        disconnecting = false
+        retryPacket = packetCreate.areYouTherePacket()
+        send(data: retryPacket)
+    }
+
+    
     func disconnect() {
+        engine.stop()
         basePublished.send(.state("Disconnecting..."))
-        self.invalidateTimers()
-        self.disconnecting = true
-        self.send(data: self.packetCreate.disconnectPacket())
+        invalidateTimers()
+        disconnecting = true
+        // send(data: self.packetCreate.disconnectPacket())
+        armIdleTimer()
     }
     
     override func receive(data: Data) {
@@ -113,8 +126,9 @@ class UDPAudio: UDPBase {
             switch current[p.type].uint16 {
             case ControlPacketType.iAmHere:
                 packetCreate.remoteId = current[p.sendId].uint32
-                basePublished.send(.state("Connected"))
                 basePublished.send(.connected(true))
+                basePublished.send(.state("Connected"))
+
                 
                 self.invalidateTimers()
                 // armIdleTimer()

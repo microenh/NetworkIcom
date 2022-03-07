@@ -8,7 +8,8 @@
 // This appears to manipulate the system default devices, not set an individual device.
 
 /*
- static func getOutputDevices() -> [AudioDeviceID: String]?
+ static func getOutputDevices() -> [AudioDeviceID: String]
+ static func getInputDevices() -> [AudioDeviceID: String]
  static func isOutputDevice(deviceID: AudioDeviceID) -> Bool
  static func getAggregateDeviceSubDeviceList(deviceID: AudioDeviceID) -> [AudioDeviceID]
  static func isAggregateDevice(deviceID: AudioDeviceID) -> Bool
@@ -23,17 +24,14 @@ import CoreAudio
 
 public class Audio {
     
-    static func getOutputDevices() -> [AudioDeviceID: String]? {
-        var result: [AudioDeviceID: String] = [:]
-        let devices = getAllDevices()
-        
-        for device in devices {
-            if isOutputDevice(deviceID: device) {
-                result[device] = getDeviceName(deviceID: device)
-            }
-        }
-        
-        return result
+    static func getOutputDevices() -> [AudioDeviceID: String] {
+        let devices = getAllDevices().filter{isOutputDevice(deviceID: $0)}
+        return Dictionary(uniqueKeysWithValues: zip(devices, devices.map{getDeviceName(deviceID: $0)}))
+    }
+    
+    static func getInputDevices() -> [AudioDeviceID: String] {
+        let devices = getAllDevices().filter{!isOutputDevice(deviceID: $0)}
+        return Dictionary(uniqueKeysWithValues: zip(devices, devices.map{getDeviceName(deviceID: $0)}))
     }
     
     static func isOutputDevice(deviceID: AudioDeviceID) -> Bool {
@@ -97,7 +95,7 @@ public class Audio {
         AudioObjectSetPropertyData(deviceID, &propertyAddress, 0, nil, propertySize, &rightLevel)
     }
     
-    static func setOutputDevice(newDeviceID: AudioDeviceID) {
+    static func setDefaultOutputDevice(newDeviceID: AudioDeviceID) {
         let propertySize = UInt32(MemoryLayout<UInt32>.size)
         var deviceID = newDeviceID
         

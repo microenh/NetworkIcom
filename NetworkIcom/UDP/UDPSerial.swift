@@ -66,6 +66,11 @@ class UDPSerial: UDPBase {
         }
     }
     
+    override func onIdleTimer(timer: Timer) {
+        waitReply = false
+        super .onIdleTimer(timer: timer)
+    }
+    
     override func receive(data: Data) {
         typealias c = CIVDefinition
         current = data
