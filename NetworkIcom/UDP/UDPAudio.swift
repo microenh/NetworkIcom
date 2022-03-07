@@ -36,6 +36,20 @@ class UDPAudio: UDPBase {
         // print(engine.attachedNodes)
         let output = engine.outputNode
         
+        
+        // get the low level input audio unit from the engine:
+        let outputUnit = output.audioUnit!
+        // use core audio low level call to set the input device:
+        var outputDeviceID: AudioDeviceID = 51  // replace with actual, dynamic value: 73 = right monitor, 51 = headphones
+        AudioUnitSetProperty(outputUnit,
+                             kAudioOutputUnitProperty_CurrentDevice,
+                             kAudioUnitScope_Global,
+                             0,
+                             &outputDeviceID,
+                             UInt32(MemoryLayout<AudioDeviceID>.size))
+        
+        
+        
         let inputFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
                                         sampleRate: Double(Constants.rxSampleRate),
                                         interleaved: true,
