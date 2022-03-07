@@ -27,37 +27,30 @@ class UDPAudio: UDPBase {
 
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
-        
-//        let deviceID = UInt32(58)
-//        Audio.setOutputDevice(newDeviceID: deviceID)
-//        Audio.setDeviceVolume(deviceID: deviceID, leftChannelLevel: 1, rightChannelLevel: 1)
-        
+                
         engine = AVAudioEngine()
-        // print(engine.attachedNodes)
         let output = engine.outputNode
         
-        
+        // force desired output soundcard
         // get the low level input audio unit from the engine:
-        let outputUnit = output.audioUnit!
-        // use core audio low level call to set the input device:
-        var outputDeviceID: AudioDeviceID = 51  // replace with actual, dynamic value: 73 = right monitor, 51 = headphones
-        AudioUnitSetProperty(outputUnit,
-                             kAudioOutputUnitProperty_CurrentDevice,
-                             kAudioUnitScope_Global,
-                             0,
-                             &outputDeviceID,
-                             UInt32(MemoryLayout<AudioDeviceID>.size))
-        
-        
-        
-        let inputFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
+        if let outputUnit = output.audioUnit {
+            // use core audio low level call to set the input device:
+            var outputDeviceID: AudioDeviceID = 51  // replace with actual, dynamic value: 73 = right monitor, 51 = headphones
+            AudioUnitSetProperty(outputUnit,
+                                 kAudioOutputUnitProperty_CurrentDevice,
+                                 kAudioUnitScope_Global,
+                                 0,
+                                 &outputDeviceID,
+                                 UInt32(MemoryLayout<AudioDeviceID>.size))
+        }
+            
+        let radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
                                         sampleRate: Double(Constants.rxSampleRate),
                                         interleaved: true,
-                                        channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxStereo
-                                                                            ? kAudioChannelLayoutTag_Stereo
-                                                                            : kAudioChannelLayoutTag_Mono)!)
+                                        channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
 
         super.init(host: host, port: port, user: user, password: password, computer: computer)
+        
         let srcNode = AVAudioSourceNode { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
             if let self = self {
                 if self.notificationCounter == 0 {
@@ -84,11 +77,11 @@ class UDPAudio: UDPBase {
             return noErr
         }
         engine.attach(srcNode)
-        engine.connect(srcNode, to: output, format: inputFormat)
+        engine.connect(srcNode, to: output, format: radioFormat)
         do {
             try engine.start()
         } catch {
-            print("Could not start engine: \(error)")
+            basePublished.send(.state("Could not start engine: \(error)"))
         }
 
     }
@@ -98,7 +91,6 @@ class UDPAudio: UDPBase {
         self.invalidateTimers()
         self.disconnecting = true
         self.send(data: self.packetCreate.disconnectPacket())
-        self.armIdleTimer()
     }
     
     override func receive(data: Data) {

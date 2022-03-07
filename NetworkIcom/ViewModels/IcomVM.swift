@@ -17,6 +17,7 @@ class IcomVM: ObservableObject {
     @Published var radioCivAddr = UInt8(0)
     @Published var serialLatency = 0.0
     @Published var serialState = "Disconnected"
+    @Published var audioState = "Disconnected"
     @Published var serialRetransmitCount = 0
     @Published var connected = false
     @Published var queueSize = 0
@@ -179,24 +180,17 @@ class IcomVM: ObservableObject {
     
     private func updateAudioBaseData(_ data: UDPBase.BasePublished) {
         switch data {
-        case .latency(let latency):
-            self.serialLatency = latency
         case .state(let state):
-            self.serialState = state
+            self.audioState = state
         case .retransmitCount(let count):
             self.serialRetransmitCount = count
         case .connected(let connected):
-            if connected {
-                serial?.send(command: 0x03)  // frequency
-                serial?.send(command: 0x04)  // mode-filter
-            } else {
-                serial = nil
-                serialCancellables = []
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                    self?.control?.disconnect()
-                }
-                // control?.disconnect()
+            if !connected {
+                audio = nil
+                audioCancellables = []
             }
+        default:
+            break
         }
     }
     
