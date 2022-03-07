@@ -9,7 +9,6 @@ import Foundation
 import Network
 import Combine
 import AVFoundation
-import DequeModule
 
 class UDPAudio: UDPBase {
     
@@ -60,10 +59,6 @@ class UDPAudio: UDPBase {
                     self.notificationCounter -= 1
                 }
                 let buf = UnsafeMutableBufferPointer<Int16>(UnsafeMutableAudioBufferListPointer(audioBufferList)[0])
-                // if self.notificationCounter == 200 {
-                    // print (frameCount)
-                // }
-                
                 let adjFrameCount = (Constants.rxStereo ? 2 : 1) * Int(frameCount)
                 if self.rxAudioBuffer.count >= adjFrameCount {
                     Locks.audioLock.lock()
@@ -82,6 +77,7 @@ class UDPAudio: UDPBase {
         }
         engine.attach(srcNode)
         engine.connect(srcNode, to: output, format: radioFormat)
+        
 
         do {
             try engine.start()
