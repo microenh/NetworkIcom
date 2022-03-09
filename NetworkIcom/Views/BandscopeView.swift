@@ -47,7 +47,7 @@ struct BandscopeView: View {
             )
             .background(BGGrid()
                             .stroke(.gray, lineWidth: 1.0)
-                            .background(.black))
+                            .background(Color.black))
     }
 }
 

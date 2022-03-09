@@ -50,7 +50,7 @@ class CIVDecode: ObservableObject {
     var panMax = [Data(count: WaterfallSettings.columns), Data(count: WaterfallSettings.columns)]
     
     var panHistoryIndex = [0, 0]
-    var lastPanTime = [Date.now, Date.now]
+    var lastPanTime = [Date(), Date()]
     
     init (hostCivAddr: UInt8) {
         self.hostCivAddr = hostCivAddr
@@ -123,7 +123,7 @@ class CIVDecode: ObservableObject {
                 // print ("l: \(lower), u: \(upper)")
                 
                 // calculate time since last update (msec)
-                let currentTime = Date.now
+                let currentTime = Date()
                 let delta = currentTime.timeIntervalSince(lastPanTime[panIndex]) * 1000
                 lastPanTime[panIndex] = currentTime
                 

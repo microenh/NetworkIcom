@@ -12,8 +12,6 @@ struct MainView: View {
     @ObservedObject var civDecode: CIVDecode
     @ObservedObject var icomVM: IcomVM
     
-    @Environment(\.openURL) var openURL
-
     init() {
         
         let civDecode = CIVDecode(hostCivAddr: 0xe0)
