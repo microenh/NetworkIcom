@@ -495,7 +495,7 @@ Audio: Rx based on WithoutWire
 Host sends control 0x03 (are you there)
 Radio sends control 0x04 (I am here) then starts sending audio
 
-Noted that host sends control 0x06 and radio responds, but radio is already sending audio
+Note that host sends control 0x06 and radio responds, but radio is already sending audio
 
 Audio appears to be in two alternating packets first  with a length of 1388 and then with a length of 580
 24 (0x18) byte header  1388 - 24 = 1364 0x554: 580 - 24 = 556 0x22c:  1364 + 556 = 1920
@@ -529,3 +529,62 @@ len1          seq1 id       id       typ? seq2      len2
 
 seq1 reset after control 0x06
 seq2 continues
+
+
+
+2-way  3/9/2022  (Without Wire)
+
+C -> Are you there?
+C <- I am here.
+C -> Are you ready?
+C <- I am ready.
+C -> Login
+C <- Status
+C -> Token
+C -> Token
+C <- Capabilities
+C <- ConnInfo
+C <- Token
+C -> ConnInfo (1)
+C <- Status
+C <- ConnInfo
+A -> Are you there?
+A <- I am here.
+A <- Audio (continues)
+A -> Are you ready?  (may not be needed)
+A <- I am ready.
+A <- Ping (periodically)
+A -> Ping
+A -> Audio (continues)
+
+A -> Disconnect  (radio stops sending audio)
+A -> Disconnect
+
+C -> Token
+C <- Token
+C -> Disconnect
+C -> Disconnect
+
+if the host doesn't send Are you ready?,
+radio doesn't send pings. Doesn't seem to affect performance.
+
+(1)
+90000000000004000c7fc351ab6b784c00000080010300030000844943911222000000000000001080000090c7098d6d00000000000000000000000000000000
+49432d37363130000000000000000000
+00000000000000000000000000000000
+74496a33000000000000000000000000
+01
+01
+04
+04
+0000bb80
+0000bb80
+0000c352
+0000c353
+000000c8
+01
+00000000000000
+
+
+
+

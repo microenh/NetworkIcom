@@ -24,7 +24,7 @@ class UDPAudio: UDPBase {
     
     private var notificationCounter = 0
     
-    private var saveFile: AVAudioFile?
+    private var saveFile: AVAudioFile? = nil
     private var radioFormat: AVAudioFormat
     
     private let buffer: AVAudioPCMBuffer
@@ -70,10 +70,10 @@ class UDPAudio: UDPBase {
         let fileUrl = paths[0].appendingPathComponent("ic7610.m4a")
         try? FileManager.default.removeItem(at: fileUrl)
         
-        saveFile = try? AVAudioFile(forWriting: fileUrl,
-                                   settings: settings,
-                                   commonFormat: .pcmFormatInt16,
-                                   interleaved: true)
+//        saveFile = try? AVAudioFile(forWriting: fileUrl,
+//                                   settings: settings,
+//                                   commonFormat: .pcmFormatInt16,
+//                                   interleaved: true)
         
         super.init(host: host, port: port, user: user, password: password, computer: computer)
         
@@ -167,6 +167,9 @@ class UDPAudio: UDPBase {
                 packetCreate.remoteId = current[p.sendId].uint32
                 basePublished.send(.connected(true))
                 basePublished.send(.state("Connected"))
+                
+                // let packet = packetCreate.areYouReadyPacket()
+                // send(data: packet)
 
                 
                 self.invalidateTimers()

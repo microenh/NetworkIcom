@@ -131,7 +131,7 @@ class UDPControl: UDPBase {
             resendTimer?.invalidate()
             let packet = packetCreate.connInfoPacket(radioName: radioName, userName: user,
                                                      civPort: civPort, audioPort: audioPort,
-                                                     enableRx: true, enableTx: false)
+                                                     enableRx: true, enableTx: true)
             send(data: packet)
         default:
             break

@@ -267,7 +267,7 @@ class PacketCreate {
         // result[t.reqRep] = Data(UInt16(0x01))
         // result[ci.userName] = encode(user)
         result[ci.enableRx] = Data(UInt8(0x01))
-        // result[ci.enableTx] = Data(UInt8(0x01))
+        result[ci.enableTx] = Data(UInt8(0x01))
         result[ci.rxCodec] = Data(Constants.rxCodec)
         result[ci.txCodec] = Data(Constants.txCodec)
         result[ci.rxSamp] = Data(UInt32(Constants.rxSampleRate).bigEndian)
