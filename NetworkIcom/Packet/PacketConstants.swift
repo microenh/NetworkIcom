@@ -160,6 +160,11 @@ struct CapabilitesDefinition {
 
 struct AudioDefinition {
     static let headerLength = 0x18
+    // Control
+    static let type = (0x10, 2)
+    static let sequence  = (0x12, 2)   // big-endian
+    static let length  = (0x14, 4)   // big-endian
+    // data (variable length)
 }
 
 // -----------------------------
@@ -218,4 +223,6 @@ struct PacketCode {
     
     static let civToRadio = UInt16(0x9c1)
     static let civFromRadio = UInt16(0xbc1)
+    
+    static let audio = UInt16(0x781)  // ??
 }

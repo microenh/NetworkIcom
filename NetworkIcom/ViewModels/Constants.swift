@@ -15,4 +15,5 @@ struct Constants {
     static let rxCodec = UInt8(Constants.rxStereo ? 0x10 : 0x04)  // 0x10 - stereo, 0x04 - mono
     static let rxLayout = Constants.rxStereo ? kAudioChannelLayoutTag_Stereo : kAudioChannelLayoutTag_Mono
     static let txCodec = UInt8(0x04)  // 0x10 - stereo, 0x04 - mono
+    static let txTimerFraction = 5
 }

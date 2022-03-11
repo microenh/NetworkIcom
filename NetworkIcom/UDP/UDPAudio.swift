@@ -29,6 +29,11 @@ class UDPAudio: UDPBase {
     
     private let buffer: AVAudioPCMBuffer
     private let monoChannel: UnsafeMutablePointer<Int16>
+    
+    private let nco = NCOCosine(frequency: Double(700), sampleRate: Double(Constants.rxSampleRate))
+    
+    var audioTimer: Timer?
+
 
     
     override init(host: String, port: UInt16,
@@ -39,16 +44,16 @@ class UDPAudio: UDPBase {
         
         // force desired output soundcard
         // get the low level input audio unit from the engine:
-        if let outputUnit = output.audioUnit {
-            // use core audio low level call to set the input device:
-            var outputDeviceID: AudioDeviceID = 51  // replace with actual, dynamic value: 73 = right monitor, 51 = headphones
-            AudioUnitSetProperty(outputUnit,
-                                 kAudioOutputUnitProperty_CurrentDevice,
-                                 kAudioUnitScope_Global,
-                                 0,
-                                 &outputDeviceID,
-                                 UInt32(MemoryLayout<AudioDeviceID>.size))
-        }
+//        if let outputUnit = output.audioUnit {
+//            // use core audio low level call to set the input device:
+//            var outputDeviceID: AudioDeviceID = 51  // replace with actual, dynamic value: 73 = right monitor, 51 = headphones
+//            AudioUnitSetProperty(outputUnit,
+//                                 kAudioOutputUnitProperty_CurrentDevice,
+//                                 kAudioUnitScope_Global,
+//                                 0,
+//                                 &outputDeviceID,
+//                                 UInt32(MemoryLayout<AudioDeviceID>.size))
+//        }
         
         
         radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
@@ -59,16 +64,15 @@ class UDPAudio: UDPBase {
         buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
         monoChannel = buffer.int16ChannelData![0]
         
-        let settings = [
-            AVFormatIDKey: kAudioFormatLinearPCM,
-            AVSampleRateKey: 8000,
-            AVNumberOfChannelsKey: 1
-        ]
+//        let settings = [
+//            AVFormatIDKey: kAudioFormatLinearPCM,
+//            AVSampleRateKey: 8000,
+//            AVNumberOfChannelsKey: 1
+//        ]
         
-        
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        let fileUrl = paths[0].appendingPathComponent("ic7610.m4a")
-        try? FileManager.default.removeItem(at: fileUrl)
+//        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+//        let fileUrl = paths[0].appendingPathComponent("ic7610.m4a")
+//        try? FileManager.default.removeItem(at: fileUrl)
         
 //        saveFile = try? AVAudioFile(forWriting: fileUrl,
 //                                   settings: settings,
@@ -76,6 +80,7 @@ class UDPAudio: UDPBase {
 //                                   interleaved: true)
         
         super.init(host: host, port: port, user: user, password: password, computer: computer)
+        audioTimer = Timer(timeInterval: 0.2, repeats: true, block: onAudioTimer(timer:))
         
         let srcNode = AVAudioSourceNode(format: radioFormat) { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
             if let self = self {
@@ -113,6 +118,7 @@ class UDPAudio: UDPBase {
         } catch {
             basePublished.send(.state("Could not start engine: \(error)"))
         }
+        RunLoop.main.add(audioTimer!, forMode: .common)
     }
     
     override func startConnection() {
@@ -128,7 +134,7 @@ class UDPAudio: UDPBase {
         basePublished.send(.state("Disconnecting..."))
         invalidateTimers()
         disconnecting = true
-        // send(data: self.packetCreate.disconnectPacket())
+        send(data: self.packetCreate.disconnectPacket())
         armIdleTimer()
     }
     
@@ -164,17 +170,19 @@ class UDPAudio: UDPBase {
             typealias p = ControlDefinition
             switch current[p.type].uint16 {
             case ControlPacketType.iAmHere:
-                packetCreate.remoteId = current[p.sendId].uint32
+                let remoteId = current[p.sendId].uint32
+                packetCreate.remoteId = remoteId
+                print (remoteId)
                 basePublished.send(.connected(true))
                 basePublished.send(.state("Connected"))
                 
-                // let packet = packetCreate.areYouReadyPacket()
-                // send(data: packet)
+                let packet = packetCreate.areYouReadyPacket()
+                send(data: packet)
 
                 
                 self.invalidateTimers()
                 // armIdleTimer()
-                // armPingTimer()
+                armPingTimer()
             default:
                 break
             }
@@ -185,4 +193,17 @@ class UDPAudio: UDPBase {
         }
     }
     
+
+    func onAudioTimer(timer: Timer) {
+        var data = [Int16]()
+        data.reserveCapacity(160)
+        for _ in 0..<10 {
+            data.removeAll(keepingCapacity: true)
+            for _ in 0..<160 {
+                data.append(nco.value)
+            }
+            let packet = packetCreate.audioPacket(data: data)
+            send(data: packet)
+        }
+    }
 }

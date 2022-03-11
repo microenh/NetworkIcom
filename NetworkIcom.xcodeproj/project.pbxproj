@@ -54,6 +54,7 @@
 		4D321E8927B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
 		4D51F8F627BDEABC002E98E9 /* UInt8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D51F8F527BDEABC002E98E9 /* UInt8.swift */; };
 		4D85C29827BD8E88006EFAC4 /* CIVDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */; };
+		4D8FC50F27DAD5A700B6E4E0 /* NCO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */; };
 		4D903C9727C03C7F00182DC2 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D903C9627C03C7F00182DC2 /* String.swift */; };
 		4D903C9927C048C400182DC2 /* CIVCommandsScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D903C9827C048C400182DC2 /* CIVCommandsScope.swift */; };
 		4D94D8BB27B6A44700F89E74 /* PacketCreate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */; };
@@ -123,6 +124,7 @@
 		4D7132DB27C71A48006183DD /* waterfall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = waterfall.png; sourceTree = "<group>"; };
 		4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVDecode.swift; sourceTree = "<group>"; };
 		4D8C308D27BAECC600E16826 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
+		4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCO.swift; sourceTree = "<group>"; };
 		4D903C9627C03C7F00182DC2 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		4D903C9827C048C400182DC2 /* CIVCommandsScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVCommandsScope.swift; sourceTree = "<group>"; };
 		4D94D8BA27B6A44700F89E74 /* PacketCreate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketCreate.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				4DC4424C27B5532F0064882D /* Locks.swift */,
 				4D321E8827B35FE40023568A /* Queue.swift */,
 				4D15D5E827D3F175006A3807 /* ListCoreAudioDevices.swift */,
+				4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */,
 				4D11A96E27D44A15003BF303 /* Audio.swift */,
 			);
 			path = Utilities;
@@ -485,6 +488,7 @@
 				4D00FD7A27B5F1E400FCE939 /* Frequency.swift in Sources */,
 				4D321E8627B35F250023568A /* DataUIntExtensions.swift in Sources */,
 				4D321E8327B35EE60023568A /* CloseDelegate.swift in Sources */,
+				4D8FC50F27DAD5A700B6E4E0 /* NCO.swift in Sources */,
 				4D18891D27D1A2810005878D /* UDPAudio.swift in Sources */,
 				4D00FD8627B5F31000FCE939 /* Attenuation.swift in Sources */,
 				4D00FD9227B5F33F00FCE939 /* Mode.swift in Sources */,

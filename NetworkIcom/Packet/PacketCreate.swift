@@ -308,7 +308,7 @@ class PacketCreate {
         packet[ci.txSamp] = Data(UInt32(Constants.txSampleRate).bigEndian)
         packet[ci.civPort] = Data(UInt32(civPort).bigEndian)
         packet[ci.audioPort] = Data(UInt32(audioPort).bigEndian)
-        packet[ci.txBuffer] = Data(UInt32(1024 * 1024 * 3200).bigEndian)
+        packet[ci.txBuffer] = Data(UInt32(1024 * 1024)) // Data(UInt32(1024 * 1024 * 3200))
         packet[ci.convert] = Data(UInt8(1))
         if let remoteId = remoteId {
             packet[c.recvId] = Data(remoteId)
@@ -318,5 +318,23 @@ class PacketCreate {
         }
         return packet
     }
+    
+    func audioPacket(data: [Int16]) -> Data {
+        typealias c = ControlDefinition
+        typealias a = AudioDefinition
+        let audioLen = data.count * 2
+        let newSeq = sequence
+        var packet = Data(count: a.headerLength)
+        packet[c.length] = Data(UInt32(a.headerLength + audioLen))
+        packet[c.recvId] = Data(remoteId)
+        packet[c.sendId] = Data(myId)
+        packet[c.sequence] = Data(newSeq)
+        packet[a.sequence] = Data(newSeq.bigEndian)
+        // packet[a.type] = Data(PacketCode.audio)
+        packet[a.length] = Data(UInt32(audioLen).bigEndian)
+        let myData = data.withUnsafeBytes({Data($0)})
+        return packet + myData
+    }
+
 
 }
