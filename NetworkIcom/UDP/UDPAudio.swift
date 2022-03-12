@@ -28,7 +28,7 @@ class UDPAudio: UDPBase {
     private var radioFormat: AVAudioFormat
     
     private let buffer: AVAudioPCMBuffer
-    private let monoChannel: UnsafeMutablePointer<Int16>
+    // private let monoChannel: UnsafeMutablePointer<Int8>
     
     private let nco = NCOCosine(frequency: Double(700), sampleRate: Double(Constants.rxSampleRate))
     
@@ -56,13 +56,20 @@ class UDPAudio: UDPBase {
 //        }
         
         
-        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
-                                        sampleRate: Double(Constants.rxSampleRate),
-                                        interleaved: true,
-                                        channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
+        var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
+                               bytesPerFrame: 2,
+                               channelsPerFrame: 1,
+                               coding: Codecs.Coding.linear)
+        radioFormat = AVAudioFormat(streamDescription: &absd)!
+
+        
+//        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
+//                                    sampleRate: Double(Constants.rxSampleRate),
+//                                    interleaved: true,
+//                                    channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
         
         buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
-        monoChannel = buffer.int16ChannelData![0]
+        // monoChannel = buffer.int16ChannelData![0]
         
 //        let settings = [
 //            AVFormatIDKey: kAudioFormatLinearPCM,
@@ -80,16 +87,17 @@ class UDPAudio: UDPBase {
 //                                   interleaved: true)
         
         super.init(host: host, port: port, user: user, password: password, computer: computer)
-        audioTimer = Timer(timeInterval: 0.2, repeats: true, block: onAudioTimer(timer:))
+        // audioTimer = Timer(timeInterval: 0.2, repeats: true, block: onAudioTimer(timer:))
         
         let srcNode = AVAudioSourceNode(format: radioFormat) { [weak self] _, _, frameCount, audioBufferList -> OSStatus in
             if let self = self {
                 Locks.audioLock.lock()
-                let adjFrameCount = (Constants.rxStereo ? 2 : 1) * Int(frameCount)
+                let adjFrameCount = (Codecs.isStereo(Constants.rxCodec) ? 2 : 1) * Int(frameCount)
+                print (adjFrameCount)
                 if self.notificationCounter == 0 {
                     self.notificationCounter = 200
                     let ct = self.rxAudioBuffer.count
-                    if ct >= 2 * adjFrameCount {
+                    if ct >= adjFrameCount {
                         self.rxAudioBuffer.removeFirst(ct - adjFrameCount)
                     }
                     self.published.send(.sendQueueSize(self.rxAudioBuffer.count))
@@ -118,7 +126,7 @@ class UDPAudio: UDPBase {
         } catch {
             basePublished.send(.state("Could not start engine: \(error)"))
         }
-        RunLoop.main.add(audioTimer!, forMode: .common)
+        // RunLoop.main.add(audioTimer!, forMode: .common)
     }
     
     override func startConnection() {
@@ -149,10 +157,11 @@ class UDPAudio: UDPBase {
             let audioData = current.dropFirst(c.headerLength)
             audioData.withUnsafeBytes{ (dPtr: UnsafeRawBufferPointer) in
                 let data = Array(dPtr.bindMemory(to: Int16.self))
+                print (data.count)
                 rxAudioBuffer.append(contentsOf: data)
 
                 if let saveFile = saveFile {
-                    monoChannel.assign(from: data, count: data.count)
+                    // monoChannel.assign(from: data, count: data.count)
                     buffer.frameLength = UInt32(data.count)
                     do {
                         try saveFile.write(from: buffer)
@@ -172,7 +181,6 @@ class UDPAudio: UDPBase {
             case ControlPacketType.iAmHere:
                 let remoteId = current[p.sendId].uint32
                 packetCreate.remoteId = remoteId
-                print (remoteId)
                 basePublished.send(.connected(true))
                 basePublished.send(.state("Connected"))
                 
