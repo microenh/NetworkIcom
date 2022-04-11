@@ -20,7 +20,7 @@ class UDPAudio: UDPBase {
     
     private let engine: AVAudioEngine
 
-    private var rxAudioBuffer = [Int16]()
+    private var rxAudioBuffer = [Int8]()
     
     private var notificationCounter = 0
     
@@ -28,13 +28,12 @@ class UDPAudio: UDPBase {
     private var radioFormat: AVAudioFormat
     
     private let buffer: AVAudioPCMBuffer
-    // private let monoChannel: UnsafeMutablePointer<Int8>
+    private let monoChannel: UnsafeMutableRawPointer
     
     private let nco = NCOCosine(frequency: Double(700), sampleRate: Double(Constants.rxSampleRate))
     
     var audioTimer: Timer?
-
-
+    
     
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
@@ -57,10 +56,11 @@ class UDPAudio: UDPBase {
         
         
         var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
-                               bytesPerFrame: 2,
+                               bytesPerFrame: 1,
                                channelsPerFrame: 1,
-                               coding: Codecs.Coding.linear)
+                               coding: Codecs.Coding.ulaw)
         radioFormat = AVAudioFormat(streamDescription: &absd)!
+        // print (radioFormat)
 
         
 //        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
@@ -69,23 +69,23 @@ class UDPAudio: UDPBase {
 //                                    channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
         
         buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
-        // monoChannel = buffer.int16ChannelData![0]
+        monoChannel = buffer.audioBufferList.pointee.mBuffers.mData!
+        print (buffer.audioBufferList.pointee.mBuffers.mDataByteSize)
         
-//        let settings = [
-//            AVFormatIDKey: kAudioFormatLinearPCM,
-//            AVSampleRateKey: 8000,
-//            AVNumberOfChannelsKey: 1
-//        ]
+        let settings = [
+            AVFormatIDKey: kAudioFormatULaw,
+            AVSampleRateKey: 8000,
+            AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 8
+        ]
         
-//        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-//        let fileUrl = paths[0].appendingPathComponent("ic7610.m4a")
-//        try? FileManager.default.removeItem(at: fileUrl)
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let fileUrl = paths[0].appendingPathComponent("ic7610.wav")
+        try? FileManager.default.removeItem(at: fileUrl)
         
 //        saveFile = try? AVAudioFile(forWriting: fileUrl,
-//                                   settings: settings,
-//                                   commonFormat: .pcmFormatInt16,
-//                                   interleaved: true)
-        
+//                                   settings: settings)
+
         super.init(host: host, port: port, user: user, password: password, computer: computer)
         // audioTimer = Timer(timeInterval: 0.2, repeats: true, block: onAudioTimer(timer:))
         
@@ -93,11 +93,11 @@ class UDPAudio: UDPBase {
             if let self = self {
                 Locks.audioLock.lock()
                 let adjFrameCount = (Codecs.isStereo(Constants.rxCodec) ? 2 : 1) * Int(frameCount)
-                print (adjFrameCount)
+                // print (adjFrameCount)
                 if self.notificationCounter == 0 {
                     self.notificationCounter = 200
                     let ct = self.rxAudioBuffer.count
-                    if ct >= adjFrameCount {
+                    if ct >= 4 * adjFrameCount {
                         self.rxAudioBuffer.removeFirst(ct - adjFrameCount)
                     }
                     self.published.send(.sendQueueSize(self.rxAudioBuffer.count))
@@ -107,10 +107,10 @@ class UDPAudio: UDPBase {
                 let buf1 = UnsafeMutableRawPointer(audioBufferList.pointee.mBuffers.mData)
                 if let buf1 = buf1 {
                     if self.rxAudioBuffer.count >= adjFrameCount {
-                        buf1.copyMemory(from: self.rxAudioBuffer, byteCount: adjFrameCount * 2)
+                        buf1.copyMemory(from: self.rxAudioBuffer, byteCount: adjFrameCount)
                         self.rxAudioBuffer.removeFirst(adjFrameCount)
                     } else {
-                        buf1.initializeMemory(as: UInt8.self, repeating: 0, count: adjFrameCount * 2)
+                        buf1.initializeMemory(as: UInt8.self, repeating: 0, count: adjFrameCount)
                     }
                 }
                 Locks.audioLock.unlock()
@@ -156,12 +156,14 @@ class UDPAudio: UDPBase {
             Locks.audioLock.lock()
             let audioData = current.dropFirst(c.headerLength)
             audioData.withUnsafeBytes{ (dPtr: UnsafeRawBufferPointer) in
-                let data = Array(dPtr.bindMemory(to: Int16.self))
-                print (data.count)
+                let data = Array(dPtr.bindMemory(to: Int8.self))
+                // print (data.count)
                 rxAudioBuffer.append(contentsOf: data)
 
                 if let saveFile = saveFile {
+                    // audioBuffer.mData?.copyMemory(from: data, byteCount: data.count)
                     // monoChannel.assign(from: data, count: data.count)
+                    monoChannel.copyMemory(from: data, byteCount: data.count)
                     buffer.frameLength = UInt32(data.count)
                     do {
                         try saveFile.write(from: buffer)

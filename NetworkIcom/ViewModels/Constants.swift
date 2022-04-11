@@ -76,7 +76,7 @@ struct Constants {
     static let rxLayout = Constants.rxStereo ? kAudioChannelLayoutTag_Stereo : kAudioChannelLayoutTag_Mono
 
 
-    static let rxCodec = Codecs.rxLpcm_16bit_1ch
+    static let rxCodec = Codecs.rxULaw_8bit_1ch
     static let txCodec = Codecs.txNone
     static let txTimerFraction = 5
 }
