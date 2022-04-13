@@ -13,7 +13,7 @@ struct Codecs {
     static let rxULaw_8bit_1ch  = UInt8(0x01)
     static let rxLpcm_8bit_1ch  = UInt8(0x02)
     static let rxLpcm_16bit_1ch = UInt8(0x04)
-    static let rxALaw_8bit_2ch   = UInt8(0x08)
+    static let rxALaw_8bit_2ch  = UInt8(0x08)
     static let rxLpcm_16bit_2ch = UInt8(0x10)
     static let rxULaw_8bit_2ch  = UInt8(0x20)
     
@@ -27,8 +27,8 @@ struct Codecs {
                                             rxULaw_8bit_2ch]
     
     private static let twoByteCodecs: Set = [rxLpcm_16bit_1ch,
-                                           rxLpcm_16bit_2ch,
-                                           txLpcm_16bit_1ch]
+                                             rxLpcm_16bit_2ch,
+                                             txLpcm_16bit_1ch]
     
     static func isStereo(_ codec: UInt8) -> Bool {
         Codecs.stereoCodecs.contains(codec)
@@ -60,6 +60,12 @@ struct Codecs {
             mSampleRate: sampleRate,
             mFormatID: coding.formatID,
             mFormatFlags: kAudioFormatFlagIsSignedInteger,
+            
+//            mFormatFlags: 0 // kAudioFormatFlagIsSignedInteger
+//                        | kAudioFormatFlagIsBigEndian
+//                        | kAudioFormatFlagIsPacked, // | kAudioFormatFlagsCanonical,
+
+            
             mBytesPerPacket: bytesPerFrame * channelsPerFrame,
             mFramesPerPacket: 1,
             mBytesPerFrame: bytesPerFrame,
@@ -76,7 +82,7 @@ struct Constants {
     static let rxLayout = Constants.rxStereo ? kAudioChannelLayoutTag_Stereo : kAudioChannelLayoutTag_Mono
 
 
-    static let rxCodec = Codecs.rxULaw_8bit_1ch
+    static let rxCodec = Codecs.rxLpcm_16bit_1ch
     static let txCodec = Codecs.txNone
     static let txTimerFraction = 5
 }

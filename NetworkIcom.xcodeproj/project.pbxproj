@@ -67,6 +67,8 @@
 		4DC581D427C1796700A02CB9 /* BandscopeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC581D327C1796700A02CB9 /* BandscopeView.swift */; };
 		4DE7A00A27C5DB5000DFDEB7 /* PixelColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE7A00927C5DB5000DFDEB7 /* PixelColor.swift */; };
 		4DE7A00C27C5DB5700DFDEB7 /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE7A00B27C5DB5700DFDEB7 /* Palette.swift */; };
+		4DFB8B1C2804F7A00065D75D /* CARingBufferWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4DFB8B182804F7A00065D75D /* CARingBufferWrapper.mm */; };
+		4DFB8B1D2804F7A00065D75D /* CARingBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFB8B192804F7A00065D75D /* CARingBuffer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +138,11 @@
 		4DCF2D2A27B9B886002A1E5A /* RS-BA1 Analysis.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RS-BA1 Analysis.txt"; sourceTree = "<group>"; };
 		4DE7A00927C5DB5000DFDEB7 /* PixelColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PixelColor.swift; sourceTree = "<group>"; };
 		4DE7A00B27C5DB5700DFDEB7 /* Palette.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Palette.swift; sourceTree = "<group>"; };
+		4DFB8B172804F7A00065D75D /* CARingBuffer-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CARingBuffer-Bridging-Header.h"; sourceTree = "<group>"; };
+		4DFB8B182804F7A00065D75D /* CARingBufferWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CARingBufferWrapper.mm; sourceTree = "<group>"; };
+		4DFB8B192804F7A00065D75D /* CARingBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CARingBuffer.cpp; sourceTree = "<group>"; };
+		4DFB8B1A2804F7A00065D75D /* CARingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CARingBuffer.h; sourceTree = "<group>"; };
+		4DFB8B1B2804F7A00065D75D /* CARingBufferWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CARingBufferWrapper.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +208,7 @@
 		4D00FD7E27B5F27000FCE939 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				4DFB8B162804F7800065D75D /* CARingBuffer */,
 				4D321E7827B35EE60023568A /* CloseDelegate.swift */,
 				4DC4424C27B5532F0064882D /* Locks.swift */,
 				4D321E8827B35FE40023568A /* Queue.swift */,
@@ -322,6 +330,18 @@
 			path = "Background Information";
 			sourceTree = "<group>";
 		};
+		4DFB8B162804F7800065D75D /* CARingBuffer */ = {
+			isa = PBXGroup;
+			children = (
+				4DFB8B172804F7A00065D75D /* CARingBuffer-Bridging-Header.h */,
+				4DFB8B192804F7A00065D75D /* CARingBuffer.cpp */,
+				4DFB8B1A2804F7A00065D75D /* CARingBuffer.h */,
+				4DFB8B1B2804F7A00065D75D /* CARingBufferWrapper.h */,
+				4DFB8B182804F7A00065D75D /* CARingBufferWrapper.mm */,
+			);
+			path = CARingBuffer;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -392,6 +412,7 @@
 				TargetAttributes = {
 					4D321E4127B358620023568A = {
 						CreatedOnToolsVersion = 13.2;
+						LastSwiftMigration = 1330;
 					};
 					4D321E5227B358640023568A = {
 						CreatedOnToolsVersion = 13.2;
@@ -461,12 +482,14 @@
 				4D10B85A27D2B7D8002D3179 /* Constants.swift in Sources */,
 				4D00FD9A27B6048C00FCE939 /* CIV.swift in Sources */,
 				4D321E7127B359110023568A /* UDPControl.swift in Sources */,
+				4DFB8B1C2804F7A00065D75D /* CARingBufferWrapper.mm in Sources */,
 				4D0A661A27BC8AFC00704B4D /* CIVCommands.swift in Sources */,
 				4DC581D427C1796700A02CB9 /* BandscopeView.swift in Sources */,
 				4D00FD7327B5CD9600FCE939 /* UDPSerial.swift in Sources */,
 				4DA6C39827BF06560028F79A /* CIVCommands0x18.swift in Sources */,
 				4D51F8F627BDEABC002E98E9 /* UInt8.swift in Sources */,
 				4D00FD8C27B5F33000FCE939 /* Band.swift in Sources */,
+				4DFB8B1D2804F7A00065D75D /* CARingBuffer.cpp in Sources */,
 				4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */,
 				4DC4424D27B5532F0064882D /* Locks.swift in Sources */,
 				4DE7A00C27C5DB5700DFDEB7 /* Palette.swift in Sources */,
@@ -667,6 +690,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = NetworkIcom/NetworkIcom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -689,6 +713,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "NetworkIcom/Utilities/CARingBuffer/CARingBuffer-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -698,6 +724,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = NetworkIcom/NetworkIcom.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -720,6 +747,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "NetworkIcom/Utilities/CARingBuffer/CARingBuffer-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
