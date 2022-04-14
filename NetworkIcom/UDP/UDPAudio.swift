@@ -34,7 +34,8 @@ class UDPAudio: UDPBase {
     
     var audioTimer: Timer?
     
-    private var ringBuffer = CreateRingBuffer()
+    // private var ringBuffer = CreateRingBuffer()
+    private var ringBuffer: FIFORingBuffer! = FIFORingBuffer(bytesPerFrame: 1, maxFrames: 512)
     
     private var inFrameCount = Int64(0)
     
@@ -64,18 +65,18 @@ class UDPAudio: UDPBase {
 //        }
         
         
-//        var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
-//                               bytesPerFrame: 1,
-//                               channelsPerFrame: 1,
-//                               coding: Codecs.Coding.linear)
-//        radioFormat = AVAudioFormat(streamDescription: &absd)!
-//        print (radioFormat)
+        var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
+                               bytesPerFrame: 1,
+                               channelsPerFrame: 1,
+                               coding: Codecs.Coding.linear)
+        radioFormat = AVAudioFormat(streamDescription: &absd)!
+        print (radioFormat)
 
         
-        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
-                                    sampleRate: 8000,
-                                    interleaved: true,
-                                    channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
+//        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
+//                                    sampleRate: 8000,
+//                                    interleaved: true,
+//                                    channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
         
         buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
         monoChannel = buffer.audioBufferList.pointee.mBuffers.mData!
@@ -101,10 +102,10 @@ class UDPAudio: UDPBase {
         let radioABSD = radioFormat.streamDescription.pointee
         print ("radioABSD = \(radioABSD)")
         
-        AllocateBuffer(ringBuffer,
-                       Int32(radioABSD.mChannelsPerFrame),
-                       radioABSD.mBytesPerFrame,
-                       160 * 3)
+//        AllocateBuffer(ringBuffer,
+//                       Int32(radioABSD.mChannelsPerFrame),
+//                       radioABSD.mBytesPerFrame,
+//                       160 * 3)
         let audioBufferIn = AudioBuffer(mNumberChannels: 1, mDataByteSize: 320, mData: mDataIn)
         ablIn = AudioBufferList(mNumberBuffers: 1, mBuffers: (audioBufferIn))
         
@@ -119,18 +120,22 @@ class UDPAudio: UDPBase {
                     self.inToOutSampleTimeOffset = Double(timeStamp.pointee.mSampleTime)
                     print ("inOutSampleTimeOffset = \(self.inToOutSampleTimeOffset)")
                 }
-                let outputProcErr = FetchBuffer(self.ringBuffer,
-                                                audioBufferList,
-                                                frameCount,
-                                                Int64(timeStamp.pointee.mSampleTime - self.inToOutSampleTimeOffset))
+                let fetched = self.ringBuffer.fetch(abl: audioBufferList, frameCount: Int(frameCount))
+                if fetched != frameCount {
+                    print("fetch failed: \(fetched) \(frameCount)")
+                }
+//                let outputProcErr = FetchBuffer(self.ringBuffer,
+//                                                audioBufferList,
+//                                                frameCount,
+//                                                Int64(timeStamp.pointee.mSampleTime - self.inToOutSampleTimeOffset))
                 
                 self.inToOutSampleTimeOffset += Double((frameCount - audioBufferList.pointee.mBuffers.mDataByteSize / 2))
                 
                 // print ("mDataByteSize = \(audioBufferList.pointee.mBuffers.mDataByteSize)")
                  
-                if outputProcErr > 0 {
-                    print ("FetchBuffer error \(outputProcErr)")
-                }
+//                if outputProcErr > 0 {
+//                    print ("FetchBuffer error \(outputProcErr)")
+//                }
             }
             return noErr
         }
@@ -180,31 +185,33 @@ class UDPAudio: UDPBase {
                 inFrameCount = 0
             }
             let audioData = current.dropFirst(c.headerLength)
+            // print (audioData.count)
+            ringBuffer.store(audioData)
             
-            audioData.withUnsafeBytes{ dPtr in
-                let data = Array(dPtr.bindMemory(to: Int8.self))
-                // print ("data.count \(data.count)")
-                mDataIn?.copyMemory(from: data, byteCount: data.count)
-                
-                // print ("inFrameCount = \(inFrameCount)")
-                let storeError = StoreBuffer(ringBuffer, &ablIn, UInt32(data.count / 2), inFrameCount)
-                inFrameCount += Int64(data.count / 2)
-                if storeError != 0 {
-                    print("StoreBuffer error = \(storeError)")
-                }
-
-                if let saveFile = saveFile {
-                    // audioBuffer.mData?.copyMemory(from: data, byteCount: data.count)
-                    // monoChannel.assign(from: data, count: data.count)
-                    monoChannel.copyMemory(from: data, byteCount: data.count)
-                    buffer.frameLength = UInt32(data.count)
-                    do {
-                        try saveFile.write(from: buffer)
-                    } catch {
-                        print (error)
-                    }
-                }
-            }
+//            audioData.withUnsafeBytes{ dPtr in
+//                let data = Array(dPtr.bindMemory(to: Int8.self))
+//                // print ("data.count \(data.count)")
+//                mDataIn?.copyMemory(from: data, byteCount: data.count)
+//
+//                // print ("inFrameCount = \(inFrameCount)")
+////                let storeError = StoreBuffer(ringBuffer, &ablIn, UInt32(data.count / 2), inFrameCount)
+//                inFrameCount += Int64(data.count / 2)
+////                if storeError != 0 {
+////                    print("StoreBuffer error = \(storeError)")
+////                }
+//
+//                if let saveFile = saveFile {
+//                    // audioBuffer.mData?.copyMemory(from: data, byteCount: data.count)
+//                    // monoChannel.assign(from: data, count: data.count)
+//                    monoChannel.copyMemory(from: data, byteCount: data.count)
+//                    buffer.frameLength = UInt32(data.count)
+//                    do {
+//                        try saveFile.write(from: buffer)
+//                    } catch {
+//                        print (error)
+//                    }
+//                }
+//            }
             
             return
         }
