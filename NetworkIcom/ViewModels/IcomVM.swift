@@ -20,7 +20,7 @@ class IcomVM: ObservableObject {
     @Published var audioState = "Disconnected"
     @Published var serialRetransmitCount = 0
     @Published var connected = false
-    @Published var queueSize = 0
+    @Published var underrunCount = 0
 
     private let host: String
     private let controlPort: UInt16
@@ -200,8 +200,8 @@ class IcomVM: ObservableObject {
     private func updateAudioData(_ data: UDPAudio.Published) {
         switch data {
             
-        case .sendQueueSize(let size):
-            self.queueSize = size
+        case .underrunCount(let count):
+            underrunCount = count
         }
     }
     

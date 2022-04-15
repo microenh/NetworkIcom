@@ -30,22 +30,37 @@ class FIFORingBuffer {
         free(mData)
     }
     
-    func fetch(abl: UnsafeMutablePointer<AudioBufferList>, frameCount: Int)  -> Int {
-        var totalBytes = 0
-        var count = Int(abl.pointee.mNumberBuffers)
-        let maxBytes = min(self.count / (bytesPerFrame * count), frameCount) * bytesPerFrame
-        for i in 0..<count {
-            let bytesRequested = Int(abl.pointee.mBuffers.mDataByteSize)
-            let bytesToGrant = min(maxBytes, bytesRequested)
-            if bytesToGrant < bytesRequested {
-                
-                memset(abl.pointee.mBuffers.mData?.advanced(by: bytesToGrant), 0, bytesRequested - bytesToGrant)
-            }
-            let bytes = fetch(count: bytesToGrant, dest: abl.pointee.mBuffers.mData!)
-            abl.pointee.mBuffers.mDataByteSize = UInt32(bytes)
-            totalBytes += bytes
+    /// Fill an AudioBufferList with data from the buffer
+    ///
+    /// The buffers are assumed to be large enough to handle frameCount frames.
+    /// If there is not enough data to fill the buffer, zero is used
+    ///
+    /// - Parameters:
+    ///   - abl: a pointer to the AudioBufferList
+    ///   - frameCount: the number of frames requested
+    ///   
+    /// - Returns: true on buffer underrun
+    func fetch(abl: UnsafeMutablePointer<AudioBufferList>, frameCount: Int) -> Bool {
+        var result = false
+        guard frameCount > 0 else {
+            return result
         }
-        return totalBytes
+        let bufferCount = Int(abl.pointee.mNumberBuffers)
+        let bytesRequested = frameCount * bytesPerFrame
+        withUnsafeMutablePointer(to: &abl.pointee.mBuffers) { start in
+            let ab = UnsafeMutableBufferPointer(start: start, count: bufferCount)
+            for i in 0..<bufferCount {
+                let bytesGranted = fetch(count: bytesRequested, dest: ab[i].mData!)
+                ab[i].mDataByteSize = UInt32(bytesGranted)
+                result = result || (bytesGranted < bytesRequested)
+//                if bytesGranted < bytesRequested {
+//                    // fill remaining request with 0
+//                    memset(ab[i].mData?.advanced(by: bytesGranted), 0, bytesRequested - bytesGranted)
+//                    result = true
+//                }
+            }
+        }
+        return result
     }
 
     func fetch(count: Int, dest: UnsafeMutableRawPointer) -> Int {

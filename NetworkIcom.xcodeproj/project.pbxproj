@@ -34,6 +34,7 @@
 		4D10B85A27D2B7D8002D3179 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D10B85927D2B7D8002D3179 /* Constants.swift */; };
 		4D11A96F27D44A15003BF303 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D11A96E27D44A15003BF303 /* Audio.swift */; };
 		4D15D5E927D3F175006A3807 /* ListCoreAudioDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D15D5E827D3F175006A3807 /* ListCoreAudioDevices.swift */; };
+		4D18302F28099CBB002E99E0 /* FIFORingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D18302E28099CBB002E99E0 /* FIFORingBuffer.swift */; };
 		4D18891D27D1A2810005878D /* UDPAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D18891C27D1A2810005878D /* UDPAudio.swift */; };
 		4D321E4627B358620023568A /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4527B358620023568A /* MainApp.swift */; };
 		4D321E4827B358620023568A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E4727B358620023568A /* MainView.swift */; };
@@ -54,7 +55,6 @@
 		4D321E8927B35FE40023568A /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D321E8827B35FE40023568A /* Queue.swift */; };
 		4D51F8F627BDEABC002E98E9 /* UInt8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D51F8F527BDEABC002E98E9 /* UInt8.swift */; };
 		4D85C29827BD8E88006EFAC4 /* CIVDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */; };
-		4D8885BD280840F800D52725 /* FIFORingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8885BC280840F800D52725 /* FIFORingBuffer.swift */; };
 		4D8FC50F27DAD5A700B6E4E0 /* NCO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */; };
 		4D903C9727C03C7F00182DC2 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D903C9627C03C7F00182DC2 /* String.swift */; };
 		4D903C9927C048C400182DC2 /* CIVCommandsScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D903C9827C048C400182DC2 /* CIVCommandsScope.swift */; };
@@ -103,6 +103,7 @@
 		4D10B85927D2B7D8002D3179 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		4D11A96E27D44A15003BF303 /* Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
 		4D15D5E827D3F175006A3807 /* ListCoreAudioDevices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoreAudioDevices.swift; sourceTree = "<group>"; };
+		4D18302E28099CBB002E99E0 /* FIFORingBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FIFORingBuffer.swift; sourceTree = "<group>"; };
 		4D18891C27D1A2810005878D /* UDPAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPAudio.swift; sourceTree = "<group>"; };
 		4D321E4227B358620023568A /* NetworkIcom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkIcom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D321E4527B358620023568A /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
@@ -124,7 +125,6 @@
 		4D51F8F527BDEABC002E98E9 /* UInt8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UInt8.swift; sourceTree = "<group>"; };
 		4D7132DB27C71A48006183DD /* waterfall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = waterfall.png; sourceTree = "<group>"; };
 		4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVDecode.swift; sourceTree = "<group>"; };
-		4D8885BC280840F800D52725 /* FIFORingBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FIFORingBuffer.swift; sourceTree = "<group>"; };
 		4D8C308D27BAECC600E16826 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCO.swift; sourceTree = "<group>"; };
 		4D903C9627C03C7F00182DC2 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
@@ -203,8 +203,8 @@
 		4D00FD7E27B5F27000FCE939 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				4D8885BC280840F800D52725 /* FIFORingBuffer.swift */,
 				4D321E7827B35EE60023568A /* CloseDelegate.swift */,
+				4D18302E28099CBB002E99E0 /* FIFORingBuffer.swift */,
 				4DC4424C27B5532F0064882D /* Locks.swift */,
 				4D321E8827B35FE40023568A /* Queue.swift */,
 				4D15D5E827D3F175006A3807 /* ListCoreAudioDevices.swift */,
@@ -469,6 +469,7 @@
 				4DC581D427C1796700A02CB9 /* BandscopeView.swift in Sources */,
 				4D00FD7327B5CD9600FCE939 /* UDPSerial.swift in Sources */,
 				4DA6C39827BF06560028F79A /* CIVCommands0x18.swift in Sources */,
+				4D18302F28099CBB002E99E0 /* FIFORingBuffer.swift in Sources */,
 				4D51F8F627BDEABC002E98E9 /* UInt8.swift in Sources */,
 				4D00FD8C27B5F33000FCE939 /* Band.swift in Sources */,
 				4DC4424B27B548AB0064882D /* IcomVM.swift in Sources */,
@@ -487,7 +488,6 @@
 				4D00FD9527B5F38C00FCE939 /* UDPBase.swift in Sources */,
 				4D903C9727C03C7F00182DC2 /* String.swift in Sources */,
 				4D321E8127B35EE60023568A /* Encode.swift in Sources */,
-				4D8885BD280840F800D52725 /* FIFORingBuffer.swift in Sources */,
 				4D321E4627B358620023568A /* MainApp.swift in Sources */,
 				4D00FD7727B5F1D800FCE939 /* BCD.swift in Sources */,
 				4D00FD7A27B5F1E400FCE939 /* Frequency.swift in Sources */,
