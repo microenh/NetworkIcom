@@ -81,34 +81,27 @@ class UDPAudio: UDPBase {
             mSampleRate: 8000.0,
             mFormatID: kAudioFormatLinearPCM,
             mFormatFlags: 0,
-            mBytesPerPacket: 2,
+            mBytesPerPacket: 1,
             mFramesPerPacket: 1,
-            mBytesPerFrame: 2,
+            mBytesPerFrame: 1,
             mChannelsPerFrame: 1,
-            mBitsPerChannel: 16,
+            mBitsPerChannel: 8,
             mReserved: 0)
         
         var outputFormat = AVAudioFormat(streamDescription: &outputABSD)
         
 
-        let err = AudioUnitSetProperty(outputUnit!,
-                             kAudioUnitProperty_StreamFormat,
-                             kAudioUnitScope_Output,
-                             0,
-                             &outputFormat,
-                             UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
+//        let err = AudioUnitSetProperty(outputUnit!,
+//                             kAudioUnitProperty_StreamFormat,
+//                             kAudioUnitScope_Output,
+//                             0,
+//                             &outputFormat,
+//                             UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
         
-        print ("SetFormat err, \(err)")
+//        print ("SetFormat err, \(err)")
         
         print ("outputFormat, \(outputFormat!)")
-                            
-//        AudioUnitSetProperty(<#T##inUnit: AudioUnit##AudioUnit#>,
-//                             <#T##inID: AudioUnitPropertyID##AudioUnitPropertyID#>,
-//                             <#T##inScope: AudioUnitScope##AudioUnitScope#>,
-//                             <#T##inElement: AudioUnitElement##AudioUnitElement#>,
-//                             <#T##inData: UnsafeRawPointer?##UnsafeRawPointer?#>,
-//                             <#T##inDataSize: UInt32##UInt32#>)
-                             
+                                                         
         
 //        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
 //                                    sampleRate: Double(Constants.rxSampleRate),
