@@ -59,15 +59,10 @@ struct Codecs {
         AudioStreamBasicDescription (
             mSampleRate: sampleRate,
             mFormatID: coding.formatID,
-            mFormatFlags: 0 // kAudioFormatFlagIsSignedInteger
-                        | kAudioFormatFlagIsBigEndian
-                        | kAudioFormatFlagIsPacked
-                        | 0,
-
-
+            mFormatFlags: bytesPerFrame == 2 ? kAudioFormatFlagIsSignedInteger : kAudioFormatFlagIsSignedInteger,
             mBytesPerPacket: bytesPerFrame * channelsPerFrame,
             mFramesPerPacket: 1,
-            mBytesPerFrame: bytesPerFrame,
+            mBytesPerFrame: bytesPerFrame * channelsPerFrame,
             mChannelsPerFrame: channelsPerFrame,
             mBitsPerChannel: bytesPerFrame * 8,
             mReserved: 0)
@@ -75,14 +70,15 @@ struct Codecs {
 }
 
 struct Constants {
-    static let bytesPerFrame = 1
+    static let bytesPerFrame = 2
+    static let channelsPerFrame = rxStereo ? 2 : 1
     static let rxSampleRate = 8000
     static let txSampleRate = 8000
-    static let rxStereo = false
+    static let rxStereo = true
     static let rxLayout = Constants.rxStereo ? kAudioChannelLayoutTag_Stereo : kAudioChannelLayoutTag_Mono
 
 
-    static let rxCodec = Codecs.rxLpcm_8bit_1ch
+    static let rxCodec = bytesPerFrame == 2 ? Codecs.rxLpcm_16bit_2ch : Codecs.rxALaw_8bit_2ch
     static let txCodec = Codecs.txNone
     static let txTimerFraction = 5
 }
