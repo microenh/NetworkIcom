@@ -58,7 +58,8 @@ struct MainView: View {
 //                        }
                     Text(civDecode.modeFilter.description)
                     Text(civDecode.attenuation.description)
-                    Text("Underruns: \(icomVM.underrunCount)")
+                    Text("Underrun: \(icomVM.underrunCount)")
+                    Text("Overrun: \(icomVM.overrunCount)")
                 }
                 VStack {
                     HStack {

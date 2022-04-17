@@ -21,6 +21,7 @@ class IcomVM: ObservableObject {
     @Published var serialRetransmitCount = 0
     @Published var connected = false
     @Published var underrunCount = 0
+    @Published var overrunCount = 0
 
     private let host: String
     private let controlPort: UInt16
@@ -199,9 +200,10 @@ class IcomVM: ObservableObject {
     
     private func updateAudioData(_ data: UDPAudio.Published) {
         switch data {
-            
         case .underrunCount(let count):
             underrunCount = count
+        case .overrunCount(let count):
+            overrunCount = count
         }
     }
     

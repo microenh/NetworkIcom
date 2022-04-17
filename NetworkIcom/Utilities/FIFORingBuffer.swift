@@ -85,18 +85,20 @@ class FIFORingBuffer {
         return canReturn
     }
     
-    func store(_ data: Data) {
+    /// - Returns: true on buffer overrrun
+    func store(_ data: Data) -> Bool {
         data.withUnsafeBytes{ data in
             if data.count == 0 {
-                return
+                return true
             }
+            let overrun = data.count + self.count > size
             if data.count >= size {
                 // copy last <size> bytes from source
                 let p = data.baseAddress?.advanced(by: data.count - size)
                 mData.copyMemory(from: p!, byteCount: size)
                 readIndex = 0
                 writeIndex = 0
-                return
+                return overrun
             }
             // copy from writeIndex to end
             let canCopyToEnd = min(data.count, size - writeIndex)
@@ -120,6 +122,7 @@ class FIFORingBuffer {
                 }
             }
             writeIndex = newWriteIndex % size
+            return overrun
         }
     }
     

@@ -14,6 +14,7 @@ class UDPAudio: UDPBase {
     
     enum Published {
         case underrunCount(Int)
+        case overrunCount(Int)
     }
     
     var published = PassthroughSubject<Published, Never>()
@@ -29,14 +30,19 @@ class UDPAudio: UDPBase {
 //    private let monoChannel: UnsafeMutableRawPointer
     
     private var underrunCount = 0
+    private var overrunCount = 0
     
-    private var ringBuffer: FIFORingBuffer! = FIFORingBuffer(bytesPerFrame: 2, maxFrames: 512)
+    private var ringBuffer: FIFORingBuffer! = FIFORingBuffer(bytesPerFrame: Constants.bytesPerFrame, maxFrames: 512)
     
     override init(host: String, port: UInt16,
          user: String, password: String, computer: String) {
                 
         engine = AVAudioEngine()
-        let output = engine.outputNode
+        var output = engine.outputNode
+        var outputUnit = output.audioUnit
+        
+        let outputFormatTest = engine.outputNode.outputFormat(forBus: 0)
+        print ("test format \(outputFormatTest)")
         
         // force desired output soundcard
         // get the low level input audio unit from the engine:
@@ -52,13 +58,63 @@ class UDPAudio: UDPBase {
 //        }
         
         
-        var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
-                               bytesPerFrame: 2,
-                               channelsPerFrame: 1,
-                               coding: Codecs.Coding.linear)
+//        var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
+//                               bytesPerFrame: UInt32(Constants.bytesPerFrame),
+//                               channelsPerFrame: 1,
+//                               coding: Codecs.Coding.linear)
+        
+        var absd = AudioStreamBasicDescription(mSampleRate: 8000.0,
+                                               mFormatID: kAudioFormatLinearPCM,
+                                               mFormatFlags: 0,
+                                               mBytesPerPacket: UInt32(Constants.bytesPerFrame),
+                                               mFramesPerPacket: 1,
+                                               mBytesPerFrame: UInt32(Constants.bytesPerFrame),
+                                               mChannelsPerFrame: 1,
+                                               mBitsPerChannel: UInt32(Constants.bytesPerFrame) * 8,
+                                               mReserved: 0)
         
         
         radioFormat = AVAudioFormat(streamDescription: &absd)!
+        
+        
+        var outputABSD =  AudioStreamBasicDescription (
+            mSampleRate: 8000.0,
+            mFormatID: kAudioFormatLinearPCM,
+            mFormatFlags: 0,
+            mBytesPerPacket: 2,
+            mFramesPerPacket: 1,
+            mBytesPerFrame: 2,
+            mChannelsPerFrame: 1,
+            mBitsPerChannel: 16,
+            mReserved: 0)
+        
+        var outputFormat = AVAudioFormat(streamDescription: &outputABSD)
+        
+
+        let err = AudioUnitSetProperty(outputUnit!,
+                             kAudioUnitProperty_StreamFormat,
+                             kAudioUnitScope_Output,
+                             0,
+                             &outputFormat,
+                             UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
+        
+        print ("SetFormat err, \(err)")
+        
+        print ("outputFormat, \(outputFormat!)")
+                            
+//        AudioUnitSetProperty(<#T##inUnit: AudioUnit##AudioUnit#>,
+//                             <#T##inID: AudioUnitPropertyID##AudioUnitPropertyID#>,
+//                             <#T##inScope: AudioUnitScope##AudioUnitScope#>,
+//                             <#T##inElement: AudioUnitElement##AudioUnitElement#>,
+//                             <#T##inData: UnsafeRawPointer?##UnsafeRawPointer?#>,
+//                             <#T##inDataSize: UInt32##UInt32#>)
+                             
+        
+//        radioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16,
+//                                    sampleRate: Double(Constants.rxSampleRate),
+//                                    interleaved: true,
+//                                    channelLayout: AVAudioChannelLayout(layoutTag: Constants.rxLayout)!)
+
         
         print ("radioFormat = \(radioFormat)")
         
@@ -83,7 +139,7 @@ class UDPAudio: UDPBase {
         
         let srcNode = AVAudioSourceNode(format: radioFormat) { [weak self] _, timeStamp, frameCount, audioBufferList -> OSStatus in
             if let self = self {
-                print ("frameCount: \(frameCount)")
+                // print ("frameCount: \(frameCount)")
                 Locks.audioLock.lock()
                 defer {
                     Locks.audioLock.unlock()
@@ -97,7 +153,10 @@ class UDPAudio: UDPBase {
         }
         
         engine.attach(srcNode)
-        engine.connect(srcNode, to: output, format: radioFormat)
+        engine.connect(srcNode, to: output, format: outputFormat)
+        // engine.connect(engine.mainMixerNode, to: output, format: outputFormat)
+        engine.prepare()
+    
         
         do {
             try engine.start()
@@ -112,7 +171,6 @@ class UDPAudio: UDPBase {
         send(data: retryPacket)
     }
 
-    
     func disconnect() {
         saveFile = nil
         engine.stop()
@@ -137,7 +195,10 @@ class UDPAudio: UDPBase {
         if current.count > c.headerLength {
             let audioData = current.dropFirst(c.headerLength)
             // print (audioData.count)
-            ringBuffer.store(audioData)
+            if ringBuffer.store(audioData) {
+                self.overrunCount += 1
+                self.published.send(.overrunCount(self.overrunCount))
+            }
         }
         switch current.count {
         case ControlDefinition.dataLength:
