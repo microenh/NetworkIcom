@@ -37,7 +37,9 @@ class UDPBase {
     var disconnecting = false
     
     init(host: String, port: UInt16,
-         user: String, password: String, computer: String) {
+         user: String, password: String, computer: String,
+         rxAudio: RxAudio,
+         txAudio: TxAudio) {
         let portObject = NWEndpoint.Port(integerLiteral: port)
         let hostObject = NWEndpoint.Host(host)
 
@@ -46,7 +48,11 @@ class UDPBase {
         params.allowLocalEndpointReuse = true
         params.requiredLocalEndpoint = NWEndpoint.hostPort(host: .ipv4(.any), port: portObject)
         
-        packetCreate = PacketCreate(user: user, password: password, computer: computer)
+        packetCreate = PacketCreate(user: user,
+                                    password: password,
+                                    computer: computer,
+                                    rxAudio: rxAudio,
+                                    txAudio: txAudio)
 
         connection = NWConnection(host: hostObject, port: portObject, using: params)
         connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }

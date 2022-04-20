@@ -32,11 +32,17 @@ class UDPAudio: UDPBase {
     private var underrunCount = 0
     private var overrunCount = 0
     
-    private var ringBuffer: FIFORingBuffer! = FIFORingBuffer(bytesPerFrame: Constants.bytesPerFrame * Constants.channelsPerFrame, maxFrames: 512)
+    private var ringBuffer = FIFORingBuffer()
     
-    override init(host: String, port: UInt16,
-         user: String, password: String, computer: String) {
-                
+    override init(host: String,
+                  port: UInt16,
+                  user: String,
+                  password: String,
+                  computer: String,
+                  rxAudio: RxAudio,
+                  txAudio: TxAudio) {
+                        
+        ringBuffer.bytesPerFrame = rxAudio.bytesPerFrame
         engine = AVAudioEngine()
         let output = engine.outputNode
                 
@@ -54,18 +60,12 @@ class UDPAudio: UDPBase {
 //        }
         
         
-        var absd = Codecs.absd(sampleRate: Double(Constants.rxSampleRate),
-                               bytesPerFrame: UInt32(Constants.bytesPerFrame),
-                               channelsPerFrame: UInt32(Constants.channelsPerFrame),
-                               coding: Codecs.Coding.linear)
-        
-        
-        let format = AVAudioFormat(streamDescription: &absd)
-        guard let format = format else {
+        let audioFormat = rxAudio.audioFormat
+        guard let audioFormat = audioFormat else {
             print ("bad format")
             exit(1)
         }
-        self.radioFormat = format
+        self.radioFormat = audioFormat
         
 //        let settings = [
 //            AVFormatIDKey: kAudioFormatULaw,
@@ -81,9 +81,11 @@ class UDPAudio: UDPBase {
 //        saveFile = try? AVAudioFile(forWriting: fileUrl,
 //                                   settings: settings)
 
-        super.init(host: host, port: port, user: user, password: password, computer: computer)
+        super.init(host: host, port: port,
+                   user: user, password: password, computer: computer,
+                   rxAudio: rxAudio, txAudio: txAudio)
          
-        print ("radioFormat: \(radioFormat)")
+        // print ("radioFormat: \(radioFormat)")
         let srcNode = AVAudioSourceNode(format: radioFormat) { [weak self] _, timeStamp, frameCount, audioBufferList -> OSStatus in
             if let self = self {
                 // print ("frameCount: \(frameCount)")
@@ -103,7 +105,6 @@ class UDPAudio: UDPBase {
         engine.connect(srcNode, to: output, format: radioFormat)
         // engine.prepare()
     
-        
         do {
             try engine.start()
         } catch {

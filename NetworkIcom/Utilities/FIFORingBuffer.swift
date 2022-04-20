@@ -8,28 +8,38 @@
 import Foundation
 import AVFoundation
 
+fileprivate struct Settings {
+    static let maxBytesPerFrame = 4
+    static let maxFrames = 3000
+}
+
 class FIFORingBuffer {
     
     private var mData: UnsafeMutableRawPointer!
     private var size: Int
-    private var bytesPerFrame: Int
+    private var _bytesPerFrame: UInt8
     private var readIndex: Int
     private var writeIndex = 0
     
-    init?(bytesPerFrame: Int, maxFrames: Int) {
-        self.bytesPerFrame = bytesPerFrame
-        size = bytesPerFrame * maxFrames
+    init() {
+        _bytesPerFrame = UInt8(Settings.maxBytesPerFrame)
+        size = Int(_bytesPerFrame) * Settings.maxFrames
         readIndex = size
         mData = malloc(size)
-        if mData == nil {
-            return nil
-        }
     }
     
     deinit {
         free(mData)
     }
     
+    var bytesPerFrame: UInt8 {
+        get { _bytesPerFrame }
+        set {
+            clear()
+            _bytesPerFrame = newValue
+        }
+    }
+        
     /// Fill an AudioBufferList with data from the buffer
     ///
     /// The buffers are assumed to be large enough to handle frameCount frames.
@@ -41,29 +51,28 @@ class FIFORingBuffer {
     ///   
     /// - Returns: true on buffer underrun
     func fetch(abl: UnsafeMutablePointer<AudioBufferList>, frameCount: Int) -> Bool {
-        var result = false
-        guard frameCount > 0 else {
-            return result
+        guard mData != nil else {
+            return true
         }
+        guard frameCount > 0 else {
+            return false
+        }
+        var result = false
         let bufferCount = Int(abl.pointee.mNumberBuffers)
-        let bytesRequested = frameCount * bytesPerFrame
+        let bytesRequested = frameCount * Int(_bytesPerFrame)
         withUnsafeMutablePointer(to: &abl.pointee.mBuffers) { start in
             let ab = UnsafeMutableBufferPointer(start: start, count: bufferCount)
             for i in 0..<bufferCount {
                 let bytesGranted = fetch(count: bytesRequested, dest: ab[i].mData!)
                 ab[i].mDataByteSize = UInt32(bytesGranted)
                 result = result || (bytesGranted < bytesRequested)
-//                if bytesGranted < bytesRequested {
-//                    // fill remaining request with 0
-//                    memset(ab[i].mData?.advanced(by: bytesGranted), 0, bytesRequested - bytesGranted)
-//                    result = true
-//                }
             }
         }
         return result
     }
 
-    func fetch(count: Int, dest: UnsafeMutableRawPointer) -> Int {
+    /// - Returns: bytes retrieved
+    private func fetch(count: Int, dest: UnsafeMutableRawPointer) -> Int {
         if readIndex == size {
             return 0
         }
@@ -87,7 +96,10 @@ class FIFORingBuffer {
     
     /// - Returns: true on buffer overrrun
     func store(_ data: Data) -> Bool {
-        data.withUnsafeBytes{ data in
+        data.withUnsafeBytes { data in
+            guard mData != nil else {
+                return true
+            }
             if data.count == 0 {
                 return true
             }

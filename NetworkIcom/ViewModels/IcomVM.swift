@@ -36,6 +36,9 @@ class IcomVM: ObservableObject {
     var serial: UDPSerial?
     var audio: UDPAudio?
     
+    var rxAudio: RxAudio
+    var txAudio: TxAudio
+    
     var civDecode: (Data) -> ()
     
     init(host: String,
@@ -46,6 +49,15 @@ class IcomVM: ObservableObject {
          password: String,
          computer: String,
          hostCivAddr: UInt8,
+         rxRate: UInt16,
+         rxChannels: UInt8,
+         rxSize: UInt8,
+         rxULaw: Bool,
+         rxEnable: Bool,
+         txRate: UInt16,
+         txSize: UInt8,
+         txULaw: Bool,
+         txEnable: Bool,
          civDecode: @escaping (Data) -> ()) {
         
         self.host = host
@@ -56,6 +68,17 @@ class IcomVM: ObservableObject {
         self.password = password
         self.computer = computer
         self.hostCivAddr = hostCivAddr
+        
+        rxAudio = RxAudio(rate: rxRate,
+                          channels: rxChannels,
+                          size: rxSize,
+                          uLaw: rxULaw,
+                          enable: rxEnable)
+        
+        txAudio = TxAudio(rate: txRate,
+                          size: txSize,
+                          uLaw: txULaw,
+                          enable: txEnable)
         
         self.civDecode = civDecode
     }
@@ -69,7 +92,9 @@ class IcomVM: ObservableObject {
                              password: password,
                              computer: computer,
                              serialPort: serialPort,
-                             audioPort: audioPort)
+                             audioPort: audioPort,
+                             rxAudio: rxAudio,
+                             txAudio: txAudio)
         control?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateControlBaseData(data)
         }.store(in: &controlCancellables)
@@ -127,6 +152,7 @@ class IcomVM: ObservableObject {
         serial = UDPSerial(host: host, port: serialPort,
                            user: user, password: password, computer: computer,
                            radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr,
+                           rxAudio: rxAudio, txAudio: txAudio,
                            civDecode: civDecode)
         serial?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialBaseData(data)
@@ -172,7 +198,8 @@ class IcomVM: ObservableObject {
     private func connectAudio() {
         audioCancellables = []
         audio = UDPAudio(host: host, port: audioPort,
-                         user: user, password: password, computer: computer)
+                         user: user, password: password, computer: computer,
+                         rxAudio: rxAudio, txAudio: txAudio)
         audio?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateAudioBaseData(data)
         }.store(in: &audioCancellables)

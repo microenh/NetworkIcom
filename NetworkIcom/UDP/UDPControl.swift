@@ -32,12 +32,15 @@ class UDPControl: UDPBase {
     
     init(host: String, port: UInt16,
          user: String, password: String, computer: String,
-                  serialPort: UInt16, audioPort: UInt16) {
+         serialPort: UInt16, audioPort: UInt16,
+         rxAudio: RxAudio, txAudio: TxAudio) {
         self.civPort = serialPort
         self.audioPort = audioPort
         self.user = user
         
-        super.init(host: host, port: port, user: user, password: password, computer: computer)
+        super.init(host: host, port: port,
+                   user: user, password: password, computer: computer,
+                   rxAudio: rxAudio, txAudio: txAudio)
     }
     
     override func invalidateTimers() {

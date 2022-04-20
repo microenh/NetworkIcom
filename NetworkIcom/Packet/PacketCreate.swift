@@ -25,6 +25,8 @@ class PacketCreate {
     private var user: String
     private var password: String
     private var computer: String
+    private var rxAudio: RxAudio
+    private var txAudio: TxAudio
     
     private var tokRequest = UInt16.random(in: .min ... .max)
     var token: UInt32? = nil
@@ -33,10 +35,13 @@ class PacketCreate {
     
     private var _innerSequence = UInt8(0)
         
-    init(user: String, password: String, computer: String) {
+    init(user: String, password: String, computer: String,
+         rxAudio: RxAudio, txAudio: TxAudio) {
         self.user = user
         self.password = password
         self.computer = computer
+        self.rxAudio = rxAudio
+        self.txAudio = txAudio
     }
 
     // ------------------------------------------------------------------
@@ -266,12 +271,12 @@ class PacketCreate {
         result[t.res] = Data(UInt16(0x03))
         // result[t.reqRep] = Data(UInt16(0x01))
         // result[ci.userName] = encode(user)
-        result[ci.enableRx] = Data(UInt8(0x01))
-        result[ci.enableTx] = Data(UInt8(0x01))
-        result[ci.rxCodec] = Data(Constants.rxCodec)
-        result[ci.txCodec] = Data(Constants.txCodec)
-        result[ci.rxSamp] = Data(UInt32(Constants.rxSampleRate).bigEndian)
-        result[ci.txSamp] = Data(UInt32(Constants.txSampleRate).bigEndian)
+        result[ci.enableRx] = Data(rxAudio.enable)
+        result[ci.enableTx] = Data(txAudio.enable)
+        result[ci.rxCodec] = Data(rxAudio.radioFormat)
+        result[ci.txCodec] = Data(txAudio.radioFormat)
+        result[ci.rxSamp] = Data(UInt32(rxAudio.rate).bigEndian)
+        result[ci.txSamp] = Data(UInt32(txAudio.rate).bigEndian)
         result[ci.civPort] = Data(UInt32(50002).bigEndian)
         result[ci.audioPort] = Data(UInt32(50003).bigEndian)
         // result[ci.txBuffer] = UInt32(100).bigEndian.data
@@ -300,12 +305,12 @@ class PacketCreate {
         // packet[ci.macAddr] = macAddr
         packet[ci.radio] = Data(radioName)
         packet[ci.userName] = encode(userName)
-        packet[ci.enableRx] = Data(enableRx ? UInt8(1) : 0)
-        packet[ci.enableTx] = Data(enableTx ? UInt8(1) : 0)
-        packet[ci.rxCodec] = Data(Constants.rxCodec)
-        packet[ci.txCodec] = Data(Constants.txCodec)
-        packet[ci.rxSamp] = Data(UInt32(Constants.rxSampleRate).bigEndian)
-        packet[ci.txSamp] = Data(UInt32(Constants.txSampleRate).bigEndian)
+        packet[ci.enableRx] = Data(rxAudio.enable)
+        packet[ci.enableTx] = Data(txAudio.enable)
+        packet[ci.rxCodec] = Data(rxAudio.radioFormat)
+        packet[ci.txCodec] = Data(txAudio.radioFormat)
+        packet[ci.rxSamp] = Data(UInt32(rxAudio.rate).bigEndian)
+        packet[ci.txSamp] = Data(UInt32(txAudio.rate).bigEndian)
         packet[ci.civPort] = Data(UInt32(civPort).bigEndian)
         packet[ci.audioPort] = Data(UInt32(audioPort).bigEndian)
         packet[ci.txBuffer] = Data(UInt32(1024 * 1024)) // Data(UInt32(1024 * 1024 * 3200))

@@ -24,11 +24,14 @@ class UDPSerial: UDPBase {
     init(host: String, port: UInt16,
          user: String, password: String, computer: String,
          radioCivAddr: UInt8, hostCivAddr: UInt8,
+         rxAudio: RxAudio, txAudio: TxAudio,
          civDecode: @escaping (Data) -> ()) {
         
         civ = CIV(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
         self.civDecode = civDecode
-        super.init(host: host, port: port, user: user, password: password, computer: computer)
+        super.init(host: host, port: port,
+                   user: user, password: password, computer: computer,
+                   rxAudio: rxAudio, txAudio: txAudio)
     }
     
     func disconnect() {
