@@ -40,9 +40,16 @@ class RxAudio {
         self.uLaw = uLaw
         self.enable = enable ? 1 : 0
         bytesPerFrame = channels * size
+        radioFormat = channels == 2
+             ? size == 1
+             ? uLaw ? RxAudio.rxULaw_8bit_2ch : RxAudio.rxLpcm_8bit_2ch
+             : RxAudio.rxLpcm_16bit_2ch
+             : size == 1
+             ? uLaw ? RxAudio.rxULaw_8bit_1ch : RxAudio.rxLpcm_8bit_1ch
+             : RxAudio.rxLpcm_16bit_1ch
         var absd = AudioStreamBasicDescription(mSampleRate: Float64(rate),
                                                mFormatID: size == 1 && uLaw ? kAudioFormatULaw : kAudioFormatLinearPCM,
-                                               mFormatFlags: size == 1 && uLaw ? kAudioFormatFlagIsSignedInteger : 0,
+                                               mFormatFlags: (size == 1 && !uLaw) ? 0 : kAudioFormatFlagIsSignedInteger,
                                                mBytesPerPacket: UInt32(bytesPerFrame),
                                                mFramesPerPacket: 1,
                                                mBytesPerFrame: UInt32(bytesPerFrame),
@@ -50,13 +57,6 @@ class RxAudio {
                                                mBitsPerChannel: UInt32(size) * 8,
                                                mReserved: 0)
         audioFormat = AVAudioFormat(streamDescription: &absd)
-        radioFormat = channels == 2
-          ? size == 1
-            ? uLaw ? RxAudio.rxULaw_8bit_2ch : RxAudio.rxLpcm_8bit_2ch
-            : RxAudio.rxLpcm_16bit_2ch
-          : size == 1
-            ? uLaw ? RxAudio.rxULaw_8bit_1ch : RxAudio.rxLpcm_8bit_1ch
-            : RxAudio.rxLpcm_16bit_1ch
     }
 
 }

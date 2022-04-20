@@ -49,7 +49,7 @@ class RxAudioTests: XCTestCase {
         let audioFormat = rxAudio.audioFormat
         var targetAbsd = AudioStreamBasicDescription(mSampleRate: 8000,
                                                      mFormatID: kAudioFormatLinearPCM,
-                                                     mFormatFlags: 0,
+                                                     mFormatFlags: kAudioFormatFlagIsSignedInteger,
                                                      mBytesPerPacket: 2,
                                                      mFramesPerPacket: 1,
                                                      mBytesPerFrame: 2,
@@ -66,7 +66,7 @@ class RxAudioTests: XCTestCase {
         let audioFormat = rxAudio.audioFormat
         var targetAbsd = AudioStreamBasicDescription(mSampleRate: 8000,
                                                      mFormatID: kAudioFormatLinearPCM,
-                                                     mFormatFlags: 0,
+                                                     mFormatFlags: kAudioFormatFlagIsSignedInteger,
                                                      mBytesPerPacket: 2,
                                                      mFramesPerPacket: 1,
                                                      mBytesPerFrame: 2,
@@ -100,7 +100,7 @@ class RxAudioTests: XCTestCase {
         let audioFormat = rxAudio.audioFormat
         var targetAbsd = AudioStreamBasicDescription(mSampleRate: 8000,
                                                      mFormatID: kAudioFormatLinearPCM,
-                                                     mFormatFlags: 0,
+                                                     mFormatFlags: kAudioFormatFlagIsSignedInteger,
                                                      mBytesPerPacket: 2,
                                                      mFramesPerPacket: 1,
                                                      mBytesPerFrame: 2,
@@ -117,7 +117,7 @@ class RxAudioTests: XCTestCase {
         let audioFormat = rxAudio.audioFormat
         var targetAbsd = AudioStreamBasicDescription(mSampleRate: 8000,
                                                      mFormatID: kAudioFormatLinearPCM,
-                                                     mFormatFlags: 0,
+                                                     mFormatFlags: kAudioFormatFlagIsSignedInteger,
                                                      mBytesPerPacket: 4,
                                                      mFramesPerPacket: 1,
                                                      mBytesPerFrame: 4,
@@ -134,7 +134,7 @@ class RxAudioTests: XCTestCase {
         let audioFormat = rxAudio.audioFormat
         var targetAbsd = AudioStreamBasicDescription(mSampleRate: 8000,
                                                      mFormatID: kAudioFormatLinearPCM,
-                                                     mFormatFlags: 0,
+                                                     mFormatFlags: kAudioFormatFlagIsSignedInteger,
                                                      mBytesPerPacket: 4,
                                                      mFramesPerPacket: 1,
                                                      mBytesPerFrame: 4,

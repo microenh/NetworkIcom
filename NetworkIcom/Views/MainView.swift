@@ -19,7 +19,7 @@ struct MainView: View {
                             controlPort: 50001, serialPort: 50002, audioPort: 50003,
                             user: "n8me", password: "msrkmsrk", computer: "MAC-MINI",
                             hostCivAddr: 0xe0,
-                            rxRate: 8000, rxChannels: 1, rxSize: 2, rxULaw: true, rxEnable: true,
+                            rxRate: 8000, rxChannels: 1, rxSize: 1, rxULaw: true, rxEnable: true,
                             txRate: 8000, txSize: 1, txULaw: false, txEnable: false,
                             civDecode: civDecode.decode)
         
