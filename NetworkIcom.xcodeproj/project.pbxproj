@@ -59,6 +59,8 @@
 		4D63813C280F7D7C00BD4D09 /* TxAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D63813B280F7D7C00BD4D09 /* TxAudio.swift */; };
 		4D63813D280F7D7C00BD4D09 /* TxAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D63813B280F7D7C00BD4D09 /* TxAudio.swift */; };
 		4D63813F280F82EE00BD4D09 /* TxAudioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D63813E280F82EE00BD4D09 /* TxAudioTests.swift */; };
+		4D783444281029A200780FFE /* TestRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D783443281029A200780FFE /* TestRingBuffer.swift */; };
+		4D783445281029EB00780FFE /* FIFORingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D18302E28099CBB002E99E0 /* FIFORingBuffer.swift */; };
 		4D85C29827BD8E88006EFAC4 /* CIVDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */; };
 		4D8FC50F27DAD5A700B6E4E0 /* NCO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */; };
 		4D903C9727C03C7F00182DC2 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D903C9627C03C7F00182DC2 /* String.swift */; };
@@ -131,6 +133,7 @@
 		4D63813B280F7D7C00BD4D09 /* TxAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TxAudio.swift; sourceTree = "<group>"; };
 		4D63813E280F82EE00BD4D09 /* TxAudioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TxAudioTests.swift; sourceTree = "<group>"; };
 		4D7132DB27C71A48006183DD /* waterfall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = waterfall.png; sourceTree = "<group>"; };
+		4D783443281029A200780FFE /* TestRingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRingBuffer.swift; sourceTree = "<group>"; };
 		4D85C29727BD8E88006EFAC4 /* CIVDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIVDecode.swift; sourceTree = "<group>"; };
 		4D8C308D27BAECC600E16826 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		4D8FC50E27DAD5A700B6E4E0 /* NCO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCO.swift; sourceTree = "<group>"; };
@@ -314,6 +317,7 @@
 				4D321E5727B358640023568A /* NetworkIcomTests.swift */,
 				4D638137280F614600BD4D09 /* RxAudioTests.swift */,
 				4D63813E280F82EE00BD4D09 /* TxAudioTests.swift */,
+				4D783443281029A200780FFE /* TestRingBuffer.swift */,
 			);
 			path = NetworkIcomTests;
 			sourceTree = "<group>";
@@ -518,8 +522,10 @@
 			files = (
 				4D63813D280F7D7C00BD4D09 /* TxAudio.swift in Sources */,
 				4D638138280F614600BD4D09 /* RxAudioTests.swift in Sources */,
+				4D783444281029A200780FFE /* TestRingBuffer.swift in Sources */,
 				4D321E7227B359110023568A /* UDPControl.swift in Sources */,
 				4D00FD8A27B5F31600FCE939 /* ModeFilter.swift in Sources */,
+				4D783445281029EB00780FFE /* FIFORingBuffer.swift in Sources */,
 				4D63813F280F82EE00BD4D09 /* TxAudioTests.swift in Sources */,
 				4D00FD9727B6017300FCE939 /* Locks.swift in Sources */,
 				4D321E8227B35EE60023568A /* Encode.swift in Sources */,

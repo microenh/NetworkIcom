@@ -21,9 +21,9 @@ class FIFORingBuffer {
     private var readIndex: Int
     private var writeIndex = 0
     
-    init() {
-        _bytesPerFrame = UInt8(Settings.maxBytesPerFrame)
-        size = Int(_bytesPerFrame) * Settings.maxFrames
+    init(maxBytesPerFrame: Int = Settings.maxBytesPerFrame, maxFrames: Int = Settings.maxFrames) {
+        _bytesPerFrame = UInt8(maxBytesPerFrame)
+        size = Int(_bytesPerFrame) * maxFrames
         readIndex = size
         mData = malloc(size)
     }
