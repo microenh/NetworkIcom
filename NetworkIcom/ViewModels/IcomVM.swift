@@ -151,7 +151,7 @@ class IcomVM: ObservableObject {
     private func connectAudio() {
         audioCancellables = []
         audio = UDPAudio(mConnectionInfo: connectionInfo, mPort: connectionInfo.audioPort,
-                         rxAudio: rxAudio, txAudio: txAudio)
+                         mRxAudio: rxAudio, mTxAudio: txAudio)
         audio?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateAudioBaseData(data)
         }.store(in: &audioCancellables)

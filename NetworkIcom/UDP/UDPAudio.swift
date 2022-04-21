@@ -34,14 +34,19 @@ class UDPAudio: UDPBase {
     
     private var ringBuffer = FIFORingBuffer()
     
-    private let buffer: AVAudioPCMBuffer
-    private let monoChannel: UnsafeMutablePointer<Int16>
+    private let rxAudio: RxAudio
+    private let txAudio: TxAudio
     
-    init(mConnectionInfo: ConnectionInfo,
+    private var buffer: AVAudioPCMBuffer! = nil
+    private var channelData: UnsafeMutablePointer<Int16>! = nil
+    
+    override init(mConnectionInfo: ConnectionInfo,
          mPort: UInt16,
-         rxAudio: RxAudio,
-         txAudio: TxAudio) {
+         mRxAudio: RxAudio,
+         mTxAudio: TxAudio) {
                         
+        rxAudio = mRxAudio
+        txAudio = mTxAudio
         ringBuffer.bytesPerFrame = rxAudio.bytesPerFrame
         engine = AVAudioEngine()
         let output = engine.outputNode
@@ -68,24 +73,27 @@ class UDPAudio: UDPBase {
         self.radioFormat = audioFormat
         
         let settings = [
-            AVFormatIDKey: kAudioFormatLinearPCM,  // kAudioFormatULaw,
-            AVSampleRateKey: 48000,
-            AVNumberOfChannelsKey: 1,
-            AVLinearPCMBitDepthKey: 16
+            AVFormatIDKey: rxAudio.uLaw && rxAudio.bytesPerFrame == 1 ?  kAudioFormatULaw : kAudioFormatLinearPCM,
+            AVSampleRateKey: UInt32(rxAudio.rate),
+            AVNumberOfChannelsKey: UInt32(rxAudio.channels),
+            AVLinearPCMBitDepthKey: UInt32(rxAudio.size * 8)
         ]
         
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let fileUrl = paths[0].appendingPathComponent("ic7610.wav")
         try? FileManager.default.removeItem(at: fileUrl)
         
-        saveFile = try? AVAudioFile(forWriting: fileUrl,
-                                    settings: settings,
-                                    commonFormat: .pcmFormatInt16,
-                                    interleaved: true)
         
-        print ("radioFormat: \(radioFormat)")
-        buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
-        monoChannel = buffer.int16ChannelData![0]
+        if rxAudio.size > 1 {
+            saveFile = try? AVAudioFile(forWriting: fileUrl,
+                                        settings: settings,
+                                        commonFormat: .pcmFormatInt16,
+                                        interleaved: true)
+            buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
+            channelData = buffer.int16ChannelData![0]
+        }
+        
+        // print ("radioFormat: \(radioFormat)")
 
         super.init(mConnectionInfo: mConnectionInfo, mPort: mPort,
                    mRxAudio: rxAudio, mTxAudio: txAudio)
@@ -147,22 +155,22 @@ class UDPAudio: UDPBase {
         if current.count > c.headerLength {
             let audioData = current.dropFirst(c.headerLength)
             // print (audioData.count)
+            if ringBuffer.store(audioData) {
+                self.overrunCount += 1
+                self.published.send(.overrunCount(self.overrunCount))
+            }
             audioData.withUnsafeBytes{ (dPtr: UnsafeRawBufferPointer) in
                 let data = Array(dPtr.bindMemory(to: Int16.self))
                 
                 if let saveFile = saveFile {
-                    monoChannel.assign(from: data, count: data.count)
-                    buffer.frameLength = UInt32(data.count)
+                    channelData.assign(from: data, count: data.count)
+                    buffer.frameLength = UInt32(data.count / Int(rxAudio.channels))
                     do {
                         try saveFile.write(from: buffer)
                     } catch {
                         print (error)
                     }
                 }
-            }
-            if ringBuffer.store(audioData) {
-                self.overrunCount += 1
-                self.published.send(.overrunCount(self.overrunCount))
             }
         }
         switch current.count {
