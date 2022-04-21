@@ -79,7 +79,9 @@ class UDPAudio: UDPBase {
         try? FileManager.default.removeItem(at: fileUrl)
         
         saveFile = try? AVAudioFile(forWriting: fileUrl,
-                                    settings: settings)
+                                    settings: settings,
+                                    commonFormat: .pcmFormatInt16,
+                                    interleaved: true)
         
         print ("radioFormat: \(radioFormat)")
         buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
