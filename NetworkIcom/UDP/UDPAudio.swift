@@ -67,20 +67,21 @@ class UDPAudio: UDPBase {
         }
         self.radioFormat = audioFormat
         
-//        let settings = [
-//            AVFormatIDKey: audioFormat.  // kAudioFormatULaw,
-//            AVSampleRateKey: 8000,
-//            AVNumberOfChannelsKey: 1,
-//            AVLinearPCMBitDepthKey: 8
-//        ]
+        let settings = [
+            AVFormatIDKey: kAudioFormatLinearPCM,  // kAudioFormatULaw,
+            AVSampleRateKey: 48000,
+            AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 16
+        ]
         
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let fileUrl = paths[0].appendingPathComponent("ic7610.wav")
         try? FileManager.default.removeItem(at: fileUrl)
         
         saveFile = try? AVAudioFile(forWriting: fileUrl,
-                                    settings: audioFormat.settings)
+                                    settings: settings)
         
+        print ("radioFormat: \(radioFormat)")
         buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
         monoChannel = buffer.int16ChannelData![0]
 
@@ -144,10 +145,6 @@ class UDPAudio: UDPBase {
         if current.count > c.headerLength {
             let audioData = current.dropFirst(c.headerLength)
             // print (audioData.count)
-            if ringBuffer.store(audioData) {
-                self.overrunCount += 1
-                self.published.send(.overrunCount(self.overrunCount))
-            }
             audioData.withUnsafeBytes{ (dPtr: UnsafeRawBufferPointer) in
                 let data = Array(dPtr.bindMemory(to: Int16.self))
                 
@@ -160,6 +157,10 @@ class UDPAudio: UDPBase {
                         print (error)
                     }
                 }
+            }
+            if ringBuffer.store(audioData) {
+                self.overrunCount += 1
+                self.published.send(.overrunCount(self.overrunCount))
             }
         }
         switch current.count {
