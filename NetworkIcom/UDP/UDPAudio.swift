@@ -34,6 +34,9 @@ class UDPAudio: UDPBase {
     
     private var ringBuffer = FIFORingBuffer()
     
+    private let buffer: AVAudioPCMBuffer
+    private let monoChannel: UnsafeMutablePointer<Int16>
+    
     init(mConnectionInfo: ConnectionInfo,
          mPort: UInt16,
          rxAudio: RxAudio,
@@ -65,18 +68,21 @@ class UDPAudio: UDPBase {
         self.radioFormat = audioFormat
         
 //        let settings = [
-//            AVFormatIDKey: kAudioFormatULaw,
+//            AVFormatIDKey: audioFormat.  // kAudioFormatULaw,
 //            AVSampleRateKey: 8000,
 //            AVNumberOfChannelsKey: 1,
 //            AVLinearPCMBitDepthKey: 8
 //        ]
         
-//        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-//        let fileUrl = paths[0].appendingPathComponent("ic7610.wav")
-//        try? FileManager.default.removeItem(at: fileUrl)
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let fileUrl = paths[0].appendingPathComponent("ic7610.wav")
+        try? FileManager.default.removeItem(at: fileUrl)
         
-//        saveFile = try? AVAudioFile(forWriting: fileUrl,
-//                                   settings: settings)
+        saveFile = try? AVAudioFile(forWriting: fileUrl,
+                                    settings: audioFormat.settings)
+        
+        buffer = AVAudioPCMBuffer(pcmFormat: radioFormat, frameCapacity: 2048)!
+        monoChannel = buffer.int16ChannelData![0]
 
         super.init(mConnectionInfo: mConnectionInfo, mPort: mPort,
                    mRxAudio: rxAudio, mTxAudio: txAudio)
@@ -141,6 +147,19 @@ class UDPAudio: UDPBase {
             if ringBuffer.store(audioData) {
                 self.overrunCount += 1
                 self.published.send(.overrunCount(self.overrunCount))
+            }
+            audioData.withUnsafeBytes{ (dPtr: UnsafeRawBufferPointer) in
+                let data = Array(dPtr.bindMemory(to: Int16.self))
+                
+                if let saveFile = saveFile {
+                    monoChannel.assign(from: data, count: data.count)
+                    buffer.frameLength = UInt32(data.count)
+                    do {
+                        try saveFile.write(from: buffer)
+                    } catch {
+                        print (error)
+                    }
+                }
             }
         }
         switch current.count {

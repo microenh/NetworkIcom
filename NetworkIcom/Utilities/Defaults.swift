@@ -20,9 +20,9 @@ struct Defaults {
     static let hostCIV = UInt8(0xe0)
 
     // RxAudio
-    static let rxRate: UInt16 = 8000
+    static let rxRate: UInt16 = 48000
     static let rxChannels: UInt8 = 1
-    static let rxSize: UInt8 = 1
+    static let rxSize: UInt8 = 2
     static let rxULaw: Bool = false
     static let rxEnable: Bool = true
     
