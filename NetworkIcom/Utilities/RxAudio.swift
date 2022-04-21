@@ -33,7 +33,11 @@ class RxAudio {
     ///   - size: 1, 2
     ///   - uLaw: 8-bit encoding - true: uLaw, false: lpcm  (always lpcm for 16-bit)
     ///   - enable: Bool
-    init(rate: UInt16, channels: UInt8, size: UInt8, uLaw: Bool, enable: Bool) {
+    init(rate: UInt16 = Defaults.rxRate,
+         channels: UInt8 = Defaults.rxChannels,
+         size: UInt8 = Defaults.rxSize,
+         uLaw: Bool = Defaults.rxULaw,
+         enable: Bool = Defaults.rxEnable) {
         self.rate = rate
         self.channels = channels
         self.size = size

@@ -15,13 +15,10 @@ struct MainView: View {
     init() {
         let civDecode = CIVDecode(hostCivAddr: 0xe0)
         
-        let icomVM = IcomVM(host: "192.168.12.196",
-                            controlPort: 50001, serialPort: 50002, audioPort: 50003,
-                            user: "n8me", password: "msrkmsrk", computer: "MAC-MINI",
-                            hostCivAddr: 0xe0,
-                            rxRate: 8000, rxChannels: 1, rxSize: 1, rxULaw: true, rxEnable: true,
-                            txRate: 8000, txSize: 1, txULaw: false, txEnable: false,
-                            civDecode: civDecode.decode)
+        let icomVM = IcomVM(mConnectionInfo: ConnectionInfo(),
+                            mRxAudio: RxAudio(),
+                            mTxAudio: TxAudio(),
+                            mCivDecode: civDecode.decode)
         
         self.civDecode = civDecode
         self.icomVM = icomVM

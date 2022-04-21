@@ -7,6 +7,7 @@
 
 import AVFoundation
 
+
 class TxAudio {
     static let txULaw_8bit_1ch  = UInt8(0x01)
     static let txLpcm_8bit_1ch  = UInt8(0x02)
@@ -25,7 +26,10 @@ class TxAudio {
     ///   - size: 1, 2
     ///   - uLaw: 8-bit encoding - true: uLaw, false: lpcm  (always lpcm for 16-bit)
     ///   - enable: Bool
-    init(rate: UInt16, size: UInt8, uLaw: Bool, enable: Bool) {
+    init(rate: UInt16 = Defaults.txRate,
+         size: UInt8 = Defaults.txSize,
+         uLaw: Bool = Defaults.txULaw,
+         enable: Bool = Defaults.txEnable) {
         self.rate = rate
         self.size = size
         self.uLaw = uLaw

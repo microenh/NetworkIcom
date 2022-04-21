@@ -34,13 +34,10 @@ class UDPAudio: UDPBase {
     
     private var ringBuffer = FIFORingBuffer()
     
-    override init(host: String,
-                  port: UInt16,
-                  user: String,
-                  password: String,
-                  computer: String,
-                  rxAudio: RxAudio,
-                  txAudio: TxAudio) {
+    init(mConnectionInfo: ConnectionInfo,
+         mPort: UInt16,
+         rxAudio: RxAudio,
+         txAudio: TxAudio) {
                         
         ringBuffer.bytesPerFrame = rxAudio.bytesPerFrame
         engine = AVAudioEngine()
@@ -81,9 +78,8 @@ class UDPAudio: UDPBase {
 //        saveFile = try? AVAudioFile(forWriting: fileUrl,
 //                                   settings: settings)
 
-        super.init(host: host, port: port,
-                   user: user, password: password, computer: computer,
-                   rxAudio: rxAudio, txAudio: txAudio)
+        super.init(mConnectionInfo: mConnectionInfo, mPort: mPort,
+                   mRxAudio: rxAudio, mTxAudio: txAudio)
          
         // print ("radioFormat: \(radioFormat)")
         let srcNode = AVAudioSourceNode(format: radioFormat) { [weak self] _, timeStamp, frameCount, audioBufferList -> OSStatus in

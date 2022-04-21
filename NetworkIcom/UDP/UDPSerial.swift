@@ -21,17 +21,14 @@ class UDPSerial: UDPBase {
     
     var published = PassthroughSubject<Published, Never>()
 
-    init(host: String, port: UInt16,
-         user: String, password: String, computer: String,
-         radioCivAddr: UInt8, hostCivAddr: UInt8,
-         rxAudio: RxAudio, txAudio: TxAudio,
+    init(mConnectionInfo: ConnectionInfo,
+         mRxAudio: RxAudio, mTxAudio: TxAudio,
          civDecode: @escaping (Data) -> ()) {
         
-        civ = CIV(radioCivAddr: radioCivAddr, hostCivAddr: hostCivAddr)
+        civ = CIV(radioCivAddr: mConnectionInfo.radioCIV, hostCivAddr: mConnectionInfo.hostCIV)
         self.civDecode = civDecode
-        super.init(host: host, port: port,
-                   user: user, password: password, computer: computer,
-                   rxAudio: rxAudio, txAudio: txAudio)
+        super.init(mConnectionInfo: mConnectionInfo, mPort: mConnectionInfo.serialPort,
+                   mRxAudio: mRxAudio, mTxAudio: mTxAudio)
     }
     
     func disconnect() {

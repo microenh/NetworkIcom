@@ -23,78 +23,33 @@ class IcomVM: ObservableObject {
     @Published var underrunCount = 0
     @Published var overrunCount = 0
 
-    private let host: String
-    private let controlPort: UInt16
-    private let serialPort: UInt16
-    private let audioPort: UInt16
-    private let user: String
-    private let password: String
-    private let computer: String
-    private let hostCivAddr: UInt8
-
     var control: UDPControl?
     var serial: UDPSerial?
     var audio: UDPAudio?
     
+    var connectionInfo: ConnectionInfo
     var rxAudio: RxAudio
     var txAudio: TxAudio
     
     var civDecode: (Data) -> ()
     
-    init(host: String,
-         controlPort: UInt16,
-         serialPort: UInt16,
-         audioPort: UInt16,
-         user: String,
-         password: String,
-         computer: String,
-         hostCivAddr: UInt8,
-         rxRate: UInt16,
-         rxChannels: UInt8,
-         rxSize: UInt8,
-         rxULaw: Bool,
-         rxEnable: Bool,
-         txRate: UInt16,
-         txSize: UInt8,
-         txULaw: Bool,
-         txEnable: Bool,
-         civDecode: @escaping (Data) -> ()) {
+    init(mConnectionInfo: ConnectionInfo,
+         mRxAudio: RxAudio,
+         mTxAudio: TxAudio,
+         mCivDecode: @escaping (Data) -> ()) {
         
-        self.host = host
-        self.controlPort = controlPort
-        self.serialPort = serialPort
-        self.audioPort = audioPort
-        self.user = user
-        self.password = password
-        self.computer = computer
-        self.hostCivAddr = hostCivAddr
-        
-        rxAudio = RxAudio(rate: rxRate,
-                          channels: rxChannels,
-                          size: rxSize,
-                          uLaw: rxULaw,
-                          enable: rxEnable)
-        
-        txAudio = TxAudio(rate: txRate,
-                          size: txSize,
-                          uLaw: txULaw,
-                          enable: txEnable)
-        
-        self.civDecode = civDecode
+        connectionInfo = mConnectionInfo
+        rxAudio = mRxAudio
+        txAudio = mTxAudio
+        civDecode = mCivDecode
     }
     
     private var controlCancellables: Set<AnyCancellable> = []
     func connectControl() {
         controlCancellables = []
-        control = UDPControl(host: host,
-                             port: controlPort,
-                             user: user,
-                             password: password,
-                             computer: computer,
-                             serialPort: serialPort,
-                             audioPort: audioPort,
-                             rxAudio: rxAudio,
-                             txAudio: txAudio)
+        control = UDPControl(mConnectionInfo: connectionInfo,
+                             mRxAudio: rxAudio,
+                             mTxAudio: txAudio)
         control?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateControlBaseData(data)
         }.store(in: &controlCancellables)
@@ -149,10 +104,8 @@ class IcomVM: ObservableObject {
     private var serialCancellables: Set<AnyCancellable> = []
     private func connectSerial() {
         serialCancellables = []
-        serial = UDPSerial(host: host, port: serialPort,
-                           user: user, password: password, computer: computer,
-                           radioCivAddr: radioCivAddr,  hostCivAddr: hostCivAddr,
-                           rxAudio: rxAudio, txAudio: txAudio,
+        serial = UDPSerial(mConnectionInfo: connectionInfo,
+                           mRxAudio: rxAudio, mTxAudio: txAudio,
                            civDecode: civDecode)
         serial?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateSerialBaseData(data)
@@ -197,8 +150,7 @@ class IcomVM: ObservableObject {
     private var audioCancellables: Set<AnyCancellable> = []
     private func connectAudio() {
         audioCancellables = []
-        audio = UDPAudio(host: host, port: audioPort,
-                         user: user, password: password, computer: computer,
+        audio = UDPAudio(mConnectionInfo: connectionInfo, mPort: connectionInfo.audioPort,
                          rxAudio: rxAudio, txAudio: txAudio)
         audio?.basePublished.receive(on: DispatchQueue.main).sink { [weak self] data in
             self?.updateAudioBaseData(data)

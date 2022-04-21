@@ -26,21 +26,21 @@ class UDPControl: UDPBase {
     
     private var radioName = ""
     
+    private let connectionInfo: ConnectionInfo
     private var civPort: UInt16
     private var audioPort: UInt16
     private var user: String
     
-    init(host: String, port: UInt16,
-         user: String, password: String, computer: String,
-         serialPort: UInt16, audioPort: UInt16,
-         rxAudio: RxAudio, txAudio: TxAudio) {
-        self.civPort = serialPort
-        self.audioPort = audioPort
-        self.user = user
+    init(mConnectionInfo: ConnectionInfo,
+         mRxAudio: RxAudio, mTxAudio: TxAudio) {
+        connectionInfo = mConnectionInfo
+        civPort = connectionInfo.serialPort
+        audioPort = connectionInfo.audioPort
+        self.user = connectionInfo.user
         
-        super.init(host: host, port: port,
-                   user: user, password: password, computer: computer,
-                   rxAudio: rxAudio, txAudio: txAudio)
+        super.init(mConnectionInfo: connectionInfo,
+                   mPort: mConnectionInfo.controlPort,
+                   mRxAudio: mRxAudio, mTxAudio: mTxAudio)
     }
     
     override func invalidateTimers() {

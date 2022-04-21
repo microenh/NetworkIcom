@@ -36,25 +36,23 @@ class UDPBase {
     
     var disconnecting = false
     
-    init(host: String, port: UInt16,
-         user: String, password: String, computer: String,
-         rxAudio: RxAudio,
-         txAudio: TxAudio) {
-        let portObject = NWEndpoint.Port(integerLiteral: port)
-        let hostObject = NWEndpoint.Host(host)
+    init(mConnectionInfo: ConnectionInfo,
+         mPort: UInt16,
+         mRxAudio: RxAudio,
+         mTxAudio: TxAudio) {
+        let portObject = NWEndpoint.Port(integerLiteral: mPort)
+        let radioObject = NWEndpoint.Host(mConnectionInfo.radioAddr)
 
         let params = NWParameters.udp
         params.allowFastOpen = true
         params.allowLocalEndpointReuse = true
         params.requiredLocalEndpoint = NWEndpoint.hostPort(host: .ipv4(.any), port: portObject)
         
-        packetCreate = PacketCreate(user: user,
-                                    password: password,
-                                    computer: computer,
-                                    rxAudio: rxAudio,
-                                    txAudio: txAudio)
+        packetCreate = PacketCreate(mConnectionInfo: mConnectionInfo,
+                                    mRxAudio: mRxAudio,
+                                    mTxAudio: mTxAudio)
 
-        connection = NWConnection(host: hostObject, port: portObject, using: params)
+        connection = NWConnection(host: radioObject, port: portObject, using: params)
         connection?.stateUpdateHandler = { [weak self] newState in self?.stateUpdateHandler(newState: newState) }
         
         basePublished.send(.state("Connecting"))

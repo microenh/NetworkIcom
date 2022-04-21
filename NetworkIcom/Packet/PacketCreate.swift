@@ -35,13 +35,13 @@ class PacketCreate {
     
     private var _innerSequence = UInt8(0)
         
-    init(user: String, password: String, computer: String,
-         rxAudio: RxAudio, txAudio: TxAudio) {
-        self.user = user
-        self.password = password
-        self.computer = computer
-        self.rxAudio = rxAudio
-        self.txAudio = txAudio
+    init(mConnectionInfo: ConnectionInfo,
+         mRxAudio: RxAudio, mTxAudio: TxAudio) {
+        user = mConnectionInfo.user
+        password = mConnectionInfo.password
+        computer = mConnectionInfo.computer
+        rxAudio = mRxAudio
+        txAudio = mTxAudio
     }
 
     // ------------------------------------------------------------------
